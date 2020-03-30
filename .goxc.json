@@ -1,0 +1,13 @@
+{
+  "AppName": "terragrunt-atlantis-config",
+  "ConfigVersion": "0.9",
+  "ResourcesExclude": "LICENSE",
+  "BuildSettings": {
+    "LdFlags": "-s",
+    "LdFlagsXVars": {
+      "Version": "main.VERSION"
+    }
+  },
+  "Tasks": ["interpolate-source", "default"],
+  "TasksExclude": ["rmbin", "deb", "deb-dev", "downloads-page", "go-vet", "go-test"]
+}
