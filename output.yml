@@ -1,0 +1,1659 @@
+automerge: false
+projects:
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../secrets
+  dir: infra/admin/github/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/admin/github/secrets/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/admin/organizations/atlantis/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/admin/organizations/commons/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/admin/organizations/identity/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/admin/organizations/openraven/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/admin/organizations/sandbox/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/admin/organizations/staging/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/admin/organizations/testing/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/admin/organizations/transcend/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../organizations/transcend
+    - ../../organizations/identity
+  dir: infra/admin/policies/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../policies
+    - ../../../../organizations/identity
+    - ../../../../organizations/atlantis
+    - ../../../../github
+  dir: infra/admin/roles/atlantis_org/admin/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../policies
+    - ../../../../organizations/atlantis
+  dir: infra/admin/roles/atlantis_org/atlantis/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../policies
+    - ../../../../organizations/atlantis
+    - ../../../../organizations/commons
+  dir: infra/admin/roles/commons_org/atlantis/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../policies
+    - ../../../../organizations/identity
+    - ../../../../organizations/commons
+    - ../../../../github
+    - ../../../../users/identity_org/robots
+  dir: infra/admin/roles/commons_org/ecr_role/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../policies
+    - ../../../../organizations/identity
+    - ../../../../github
+  dir: infra/admin/roles/identity_org/access_admin_role/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../policies
+    - ../../../../organizations/atlantis
+    - ../../../../organizations/identity
+  dir: infra/admin/roles/identity_org/atlantis/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../policies
+    - ../../../../organizations/identity
+    - ../../../../organizations/openraven
+    - ../../../../github
+  dir: infra/admin/roles/openraven_org/admin/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../policies
+    - ../../../../organizations/identity
+    - ../../../../organizations/sandbox
+    - ../../../../github
+  dir: infra/admin/roles/sandbox_org/admin/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../policies
+    - ../../../../organizations/atlantis
+    - ../../../../organizations/sandbox
+  dir: infra/admin/roles/sandbox_org/atlantis/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../policies
+    - ../../../../organizations/identity
+    - ../../../../organizations/sandbox
+  dir: infra/admin/roles/sandbox_org/ci/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../policies
+    - ../../../../organizations/identity
+    - ../../../../organizations/staging
+    - ../../../../github
+  dir: infra/admin/roles/staging_org/admin/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../policies
+    - ../../../../organizations/atlantis
+    - ../../../../organizations/staging
+  dir: infra/admin/roles/staging_org/atlantis/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../policies
+    - ../../../../organizations/identity
+    - ../../../../organizations/staging
+    - ../../../../users/identity_org/robots
+  dir: infra/admin/roles/staging_org/ci/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../policies
+    - ../../../../organizations/identity
+    - ../../../../organizations/testing
+    - ../../../../github
+  dir: infra/admin/roles/testing_org/admin/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../policies
+    - ../../../../organizations/atlantis
+    - ../../../../organizations/testing
+    - ../../../../users/identity_org/robots
+  dir: infra/admin/roles/testing_org/atlantis/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../policies
+    - ../../../../organizations/transcend
+    - ../../../../organizations/identity
+    - ../../../../github
+  dir: infra/admin/roles/transcend_org/admin/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../policies
+    - ../../../../organizations/transcend
+    - ../../../../organizations/identity
+    - ../../../../github
+  dir: infra/admin/roles/transcend_org/admin_no_iam/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../policies
+    - ../../../../organizations/transcend
+    - ../../../../organizations/atlantis
+  dir: infra/admin/roles/transcend_org/atlantis/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../policies
+    - ../../../../organizations/transcend
+    - ../../../../organizations/identity
+  dir: infra/admin/roles/transcend_org/ci/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../organizations/identity
+  dir: infra/admin/users/identity_org/access_key_management/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../organizations/identity
+    - ../../../../github
+  dir: infra/admin/users/identity_org/not_robots/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../organizations/identity
+  dir: infra/admin/users/identity_org/robots/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../dns/env-dev/dev_trancsend_com
+    - ../../../dns/env-dev/dev_trancsend_com/certs/virginia
+    - ../../../lambda_at_edge/env-dev/404_redirect
+  dir: infra/admin-dashboard/env-dev/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../dns/env-prod/transcend_io
+    - ../../../dns/env-prod/transcend_io/certs/virginia
+    - ../../../lambda_at_edge/env-prod/404_redirect
+  dir: infra/admin-dashboard/env-prod/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../dns/env-staging/staging_transcen_dental
+    - ../../../dns/env-staging/staging_transcen_dental/certs/virginia
+    - ../../../lambda_at_edge/env-staging/404_redirect
+  dir: infra/admin-dashboard/env-staging/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../secrets
+    - ../../../dns/env-atlantis/ci_transcend_io
+    - ../../../dns/env-atlantis/ci_transcend_io/certs/ireland
+    - ../../../admin/roles/sandbox_org/atlantis
+    - ../../../admin/roles/staging_org/atlantis
+    - ../../../admin/roles/commons_org/atlantis
+    - ../../../admin/roles/transcend_org/atlantis
+    - ../../../admin/roles/testing_org/atlantis
+    - ../../../admin/roles/atlantis_org/atlantis
+    - ../../../admin/roles/identity_org/atlantis
+    - ../../../admin/github
+  dir: infra/atlantis/instance/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/atlantis/secrets/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../constants
+  dir: infra/backend/ecr/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../vpc/main
+    - ../../security_groups/alb
+    - ../../../../log_buckets/env-dev/ireland
+    - ../../../../dns/env-dev/dev_trancsend_com/certs/ireland
+  dir: infra/backend/env-dev/alb/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../log_buckets/env-dev/ireland
+  dir: infra/backend/env-dev/buckets/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../vpc/main
+    - ../../../security_groups/rds/primary
+  dir: infra/backend/env-dev/database/primary/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../kms_lookup
+    - ../../../vpc/recovery
+    - ../../../security_groups/rds/recovery
+    - ../../primary
+  dir: infra/backend/env-dev/database/recovery/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/backend/env-dev/database/recovery/kms_lookup/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../vpc/main
+    - ../../alb
+    - ../../database/primary
+    - ../../../../dns/env-dev/dev_trancsend_com
+    - ../../../../dns/env-dev/dev_trancsend_com/certs/ireland
+  dir: infra/backend/env-dev/dns/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/backend/env-dev/ecs/cluster/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../secrets
+    - ../../../dns
+    - ../../../../ecr
+    - ../../../../../admin-dashboard/env-dev
+    - ../../../buckets
+    - ../../../../../misc-assets-transcend
+    - ../../../../../sombra/versions-bucket
+    - ../../../database/primary
+    - ../../../../../sombra/env-dev/sombrettes/transcend
+    - ../../../../../sombra/env-dev/sombrettes/patreon
+    - ../../../../../sombra/env-dev/sombrettes/multi-tenant
+  dir: infra/backend/env-dev/ecs/container/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/backend/env-dev/ecs/container/secrets/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../cluster
+    - ../../container
+    - ../../../vpc/main
+    - ../../../alb
+    - ../../task_permissions
+    - ../../../security_groups/alb
+    - ../../../../../firelens/container_definition
+    - ../../../../../datadog/agent_container/env-dev
+  dir: infra/backend/env-dev/ecs/service/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../buckets
+    - ../../../../../misc-assets-transcend
+    - ../../../../../dns/env-dev/dev_trancsend_com
+  dir: infra/backend/env-dev/ecs/task_permissions/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../vpc/main
+  dir: infra/backend/env-dev/security_groups/alb/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../vpc/main
+  dir: infra/backend/env-dev/security_groups/rds/primary/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../vpc/main
+    - ../../../../vpc/recovery
+  dir: infra/backend/env-dev/security_groups/rds/recovery/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../buckets
+    - ../../../../dns/env-dev/dev_trancsend_com/ses
+  dir: infra/backend/env-dev/ses_forwarding/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../vpc/main
+  dir: infra/backend/env-dev/ssm_bastion/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/backend/env-dev/vpc/main/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/backend/env-dev/vpc/recovery/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../log_buckets/env-dev/ireland
+  dir: infra/backend/env-local/comment_attachments_bucket/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../log_buckets/env-dev/ireland
+  dir: infra/backend/env-local/communication_emails_bucket/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../log_buckets/env-dev/ireland
+  dir: infra/backend/env-local/company_uploads_bucket/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../log_buckets/env-dev/ireland
+  dir: infra/backend/env-local/dsr_assembly_bucket/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../communication_emails_bucket
+    - ../../../../dns/env-dev/local_trancsend_com/ses
+  dir: infra/backend/env-local/ses_forwarding/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../vpc/main
+    - ../../security_groups/alb
+    - ../../../../log_buckets/env-prod/ireland
+    - ../../../../dns/env-prod/transcend_io/certs/ireland
+  dir: infra/backend/env-prod/alb/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../log_buckets/env-prod/ireland
+  dir: infra/backend/env-prod/buckets/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../secrets
+    - ../../../vpc/main
+    - ../../../security_groups/rds/primary
+  dir: infra/backend/env-prod/database/primary/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/backend/env-prod/database/primary/secrets/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../kms_lookup
+    - ../../../vpc/recovery
+    - ../../../security_groups/rds/recovery
+    - ../../primary
+  dir: infra/backend/env-prod/database/recovery/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/backend/env-prod/database/recovery/kms_lookup/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../vpc/main
+    - ../../alb
+    - ../../database/primary
+    - ../../../../dns/env-prod/transcend_io
+    - ../../../../dns/env-prod/transcend_io/certs/ireland
+  dir: infra/backend/env-prod/dns/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/backend/env-prod/ecs/cluster/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../secrets
+    - ../../../dns
+    - ../../../../ecr
+    - ../../../../../admin-dashboard/env-prod
+    - ../../../buckets
+    - ../../../../../misc-assets-transcend
+    - ../../../../../sombra/versions-bucket
+    - ../../../database/primary
+    - ../../../../../sombra/env-prod/sombrettes/transcend
+    - ../../../../../sombra/env-prod/sombrettes/patreon
+    - ../../../../../sombra/env-prod/sombrettes/multi-tenant
+  dir: infra/backend/env-prod/ecs/container/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/backend/env-prod/ecs/container/secrets/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../cluster
+    - ../../container
+    - ../../../vpc/main
+    - ../../../alb
+    - ../../task_permissions
+    - ../../../security_groups/alb
+    - ../../../../../firelens/container_definition
+    - ../../../../../datadog/agent_container/env-prod
+  dir: infra/backend/env-prod/ecs/service/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../buckets
+    - ../../../../../misc-assets-transcend
+    - ../../../../../dns/env-prod/transcend_io
+  dir: infra/backend/env-prod/ecs/task_permissions/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../vpc/main
+  dir: infra/backend/env-prod/security_groups/alb/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../vpc/main
+  dir: infra/backend/env-prod/security_groups/rds/primary/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../vpc/main
+    - ../../../../vpc/recovery
+  dir: infra/backend/env-prod/security_groups/rds/recovery/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../buckets
+    - ../../../../dns/env-prod/transcend_io/ses
+  dir: infra/backend/env-prod/ses_forwarding/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../vpc/main
+  dir: infra/backend/env-prod/ssm_bastion/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/backend/env-prod/vpc/main/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/backend/env-prod/vpc/recovery/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../vpc/main
+    - ../../security_groups/alb
+    - ../../../../log_buckets/env-staging/ireland
+    - ../../../../dns/env-staging/staging_transcen_dental/certs/ireland
+  dir: infra/backend/env-staging/alb/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../log_buckets/env-staging/ireland
+  dir: infra/backend/env-staging/buckets/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../vpc/main
+    - ../../../security_groups/rds/primary
+  dir: infra/backend/env-staging/database/primary/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../kms_lookup
+    - ../../../vpc/recovery
+    - ../../../security_groups/rds/recovery
+    - ../../primary
+  dir: infra/backend/env-staging/database/recovery/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/backend/env-staging/database/recovery/kms_lookup/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../vpc/main
+    - ../../alb
+    - ../../database/primary
+    - ../../../../dns/env-staging/staging_transcen_dental
+    - ../../../../dns/env-staging/staging_transcen_dental/certs/ireland
+  dir: infra/backend/env-staging/dns/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/backend/env-staging/ecs/cluster/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../secrets
+    - ../../../dns
+    - ../../../../ecr
+    - ../../../../../admin-dashboard/env-staging
+    - ../../../buckets
+    - ../../../../../misc-assets-transcend
+    - ../../../../../sombra/versions-bucket
+    - ../../../database/primary
+    - ../../../../../sombra/env-staging/sombrettes/transcend
+    - ../../../../../sombra/env-staging/sombrettes/patreon
+    - ../../../../../sombra/env-staging/sombrettes/multi-tenant
+  dir: infra/backend/env-staging/ecs/container/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/backend/env-staging/ecs/container/secrets/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../cluster
+    - ../../container
+    - ../../../vpc/main
+    - ../../../alb
+    - ../../task_permissions
+    - ../../../security_groups/alb
+    - ../../../../../firelens/container_definition
+    - ../../../../../datadog/agent_container/env-staging
+  dir: infra/backend/env-staging/ecs/service/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../buckets
+    - ../../../../../misc-assets-transcend
+    - ../../../../../dns/env-staging/staging_transcen_dental
+  dir: infra/backend/env-staging/ecs/task_permissions/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../vpc/main
+  dir: infra/backend/env-staging/security_groups/alb/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../vpc/main
+  dir: infra/backend/env-staging/security_groups/rds/primary/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../vpc/main
+    - ../../../../vpc/recovery
+  dir: infra/backend/env-staging/security_groups/rds/recovery/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../buckets
+    - ../../../../dns/env-staging/staging_transcen_dental/ses
+  dir: infra/backend/env-staging/ses_forwarding/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../vpc/main
+  dir: infra/backend/env-staging/ssm_bastion/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/backend/env-staging/vpc/main/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/backend/env-staging/vpc/recovery/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../log_buckets/env-dev/ireland
+  dir: infra/backend/env-test/comment_attachments_bucket/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../log_buckets/env-dev/ireland
+  dir: infra/backend/env-test/communication_emails_bucket/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../log_buckets/env-dev/ireland
+  dir: infra/backend/env-test/company_uploads_bucket/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../log_buckets/env-dev/ireland
+  dir: infra/backend/env-test/dsr_assembly_bucket/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../dns/env-dev/dev_trancsend_com
+    - ../../../dns/env-dev/dev_trancsend_com/certs/virginia
+    - ../../../lambda_at_edge/env-dev/404_redirect
+  dir: infra/cdn_transcend_io/env-dev/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../dns/env-prod/transcend_io
+    - ../../../dns/env-prod/transcend_io/certs/virginia
+    - ../../../lambda_at_edge/env-prod/404_redirect
+  dir: infra/cdn_transcend_io/env-prod/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../dns/env-staging/staging_transcen_dental
+    - ../../../dns/env-staging/staging_transcen_dental/certs/virginia
+    - ../../../lambda_at_edge/env-staging/404_redirect
+  dir: infra/cdn_transcend_io/env-staging/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../log_buckets/commons/ireland
+  dir: infra/codelabs/bower_deps_bucket/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../dns/env-dev/codelabs_dev_trancsend_com
+    - ../../../dns/env-dev/codelabs_dev_trancsend_com/certs/virginia
+  dir: infra/codelabs/env-dev/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../dns/env-prod/codelabs_transcend_io
+    - ../../../dns/env-prod/codelabs_transcend_io/certs/virginia
+  dir: infra/codelabs/env-prod/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../log_buckets/commons/ireland
+  dir: infra/codelabs/homepage_images/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../constants
+  dir: infra/commons/s3_state/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../admin/organizations/atlantis
+    - ../../admin/organizations/transcend
+    - ../../admin/organizations/testing
+    - ../../admin/organizations/staging
+    - ../../admin/organizations/sandbox
+    - ../../admin/organizations/commons
+    - ../../admin/organizations/identity
+    - ../../admin/roles/sandbox_org/admin
+    - ../../admin/roles/staging_org/admin
+    - ../../admin/roles/transcend_org/admin
+    - ../../admin/roles/transcend_org/admin_no_iam
+  dir: infra/constants/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../secrets
+  dir: infra/datadog/agent_container/env-dev/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/datadog/agent_container/env-dev/secrets/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../secrets
+  dir: infra/datadog/agent_container/env-prod/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/datadog/agent_container/env-prod/secrets/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../secrets
+  dir: infra/datadog/agent_container/env-staging/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/datadog/agent_container/env-staging/secrets/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/dns/env-atlantis/ci_transcend_io/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../..
+  dir: infra/dns/env-atlantis/ci_transcend_io/certs/ireland/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../../env-prod/trsnd_co
+  dir: infra/dns/env-demo/privacy_ridesharedating_com/certs/virginia/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/dns/env-demo/ridesharedating_com/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../..
+  dir: infra/dns/env-demo/ridesharedating_com/certs/virginia/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../..
+  dir: infra/dns/env-demo/ridesharedating_com/records/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../dev_trancsend_com
+  dir: infra/dns/env-dev/codelabs_dev_trancsend_com/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../..
+  dir: infra/dns/env-dev/codelabs_dev_trancsend_com/certs/virginia/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../trancsend_com
+  dir: infra/dns/env-dev/dev_trancsend_com/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../..
+  dir: infra/dns/env-dev/dev_trancsend_com/certs/ireland/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../..
+  dir: infra/dns/env-dev/dev_trancsend_com/certs/virginia/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../..
+  dir: infra/dns/env-dev/dev_trancsend_com/records/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../..
+  dir: infra/dns/env-dev/dev_trancsend_com/ses/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../trancsend_com
+  dir: infra/dns/env-dev/local_trancsend_com/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../..
+  dir: infra/dns/env-dev/local_trancsend_com/ses/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../dev_trancsend_com
+  dir: infra/dns/env-dev/sombra_dev_trancsend_com/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../..
+  dir: infra/dns/env-dev/sombra_dev_trancsend_com/certs/ireland/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/dns/env-dev/trancsend_com/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../..
+  dir: infra/dns/env-dev/trancsend_com/certs/virginia/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/dns/env-dev/transcendbeta_com/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../..
+  dir: infra/dns/env-dev/transcendbeta_com/certs/virginia/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../transcend_io
+  dir: infra/dns/env-prod/codelabs_transcend_io/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../..
+  dir: infra/dns/env-prod/codelabs_transcend_io/certs/virginia/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../trsnd_co
+  dir: infra/dns/env-prod/privacy_brandless_com/certs/virginia/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../trsnd_co
+  dir: infra/dns/env-prod/privacy_ethoslife_com/certs/virginia/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../trsnd_co
+  dir: infra/dns/env-prod/privacy_insurance_opendoor_com/certs/virginia/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../trsnd_co
+  dir: infra/dns/env-prod/privacy_opendoor_com/certs/virginia/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../trsnd_co
+  dir: infra/dns/env-prod/privacy_opendoorhomeloans_com/certs/virginia/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../trsnd_co
+  dir: infra/dns/env-prod/privacy_opploans_com/certs/virginia/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../trsnd_co
+  dir: infra/dns/env-prod/privacy_osnational_com/certs/virginia/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../trsnd_co
+  dir: infra/dns/env-prod/privacy_patreon_com/certs/virginia/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../trsnd_co
+  dir: infra/dns/env-prod/privacy_transcend_io/certs/virginia/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../transcend_io
+  dir: infra/dns/env-prod/sombra_transcend_io/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../..
+  dir: infra/dns/env-prod/sombra_transcend_io/certs/ireland/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/dns/env-prod/transcend_io/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../..
+  dir: infra/dns/env-prod/transcend_io/certs/ireland/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../..
+  dir: infra/dns/env-prod/transcend_io/certs/virginia/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../..
+    - ../../../../env-atlantis/ci_transcend_io
+  dir: infra/dns/env-prod/transcend_io/records/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../..
+  dir: infra/dns/env-prod/transcend_io/ses/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/dns/env-prod/trsnd_co/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../..
+  dir: infra/dns/env-prod/trsnd_co/certs/virginia/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../staging_transcen_dental
+  dir: infra/dns/env-staging/sombra_staging_transcen_dental/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../..
+  dir: infra/dns/env-staging/sombra_staging_transcen_dental/certs/ireland/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../transcen_dental
+  dir: infra/dns/env-staging/staging_transcen_dental/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../..
+  dir: infra/dns/env-staging/staging_transcen_dental/certs/ireland/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../..
+  dir: infra/dns/env-staging/staging_transcen_dental/certs/virginia/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../..
+  dir: infra/dns/env-staging/staging_transcen_dental/ses/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/dns/env-staging/transcen_dental/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../..
+  dir: infra/dns/env-staging/transcen_dental/certs/ireland/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../..
+  dir: infra/dns/env-staging/transcen_dental/certs/virginia/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/dns/env-staging/transcendquickstarts_com/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../..
+  dir: infra/dns/env-staging/transcendquickstarts_com/certs/virginia/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../admin/users/identity_org/robots
+    - ../../../constants
+  dir: infra/externally_available_ecr/ci-base/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../admin/users/identity_org/robots
+    - ../../../constants
+  dir: infra/externally_available_ecr/ci-base-docker/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../admin/users/identity_org/robots
+    - ../../../constants
+  dir: infra/externally_available_ecr/ci-base-go/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../admin/users/identity_org/robots
+    - ../../../constants
+  dir: infra/externally_available_ecr/ci-base-pre-commit/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../admin/users/identity_org/robots
+    - ../../../constants
+  dir: infra/externally_available_ecr/ci-base-puppeteer/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../constants
+  dir: infra/externally_available_ecr/sombra/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/firelens/container_definition/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/github/repos/SaaSy/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/github/repos/awesome-privacy/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/github/repos/conflux/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/github/repos/development-console/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/github/repos/lazydecipheriv/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/github/repos/main/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/github/repos/migration-history/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/github/repos/penumbra/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/github/repos/rideshare-dating-website/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/github/repos/rpi-wall-stats/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/github/repos/saas-logos/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/github/repos/terraform-codelab/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/github/repos/terraform_aws_admin_codelab/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/github/repos/unstructured-pii/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/github/repos/website/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/github/repos/wildebeest/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/github/teams/engineers/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/guardduty/sandbox_org/california/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/guardduty/sandbox_org/frankfurt/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/guardduty/sandbox_org/ireland/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/guardduty/sandbox_org/ohio/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/guardduty/sandbox_org/virginia/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/guardduty/staging_org/california/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/guardduty/staging_org/frankfurt/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/guardduty/staging_org/ireland/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/guardduty/staging_org/ohio/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/guardduty/staging_org/virginia/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/guardduty/transcend_org/california/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/guardduty/transcend_org/frankfurt/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/guardduty/transcend_org/ireland/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/guardduty/transcend_org/ohio/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/guardduty/transcend_org/virginia/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../dns/env-prod/transcend_io
+    - ../../../dns/env-prod/transcend_io/certs/virginia
+  dir: infra/homepage/www_redirect/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/lambda_at_edge/env-dev/404_redirect/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/lambda_at_edge/env-prod/404_redirect/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/lambda_at_edge/env-staging/404_redirect/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/log_buckets/commons/ireland/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/log_buckets/env-dev/ireland/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/log_buckets/env-dev/virginia/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/log_buckets/env-prod/ireland/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/log_buckets/env-prod/virginia/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/log_buckets/env-staging/ireland/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/log_buckets/env-staging/virginia/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../log_buckets/commons/ireland
+  dir: infra/misc-assets-transcend/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../dns/env-demo/ridesharedating_com
+    - ../../../../dns/env-demo/privacy_ridesharedating_com/certs/virginia
+    - ../../../../lambda_at_edge/env-prod/404_redirect
+    - ../../../env-prod
+  dir: infra/privacy-center/env-demo/ridesharedating_com/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../dns/env-dev/transcendbeta_com
+    - ../../../dns/env-dev/transcendbeta_com/certs/virginia
+    - ../../../lambda_at_edge/env-dev/404_redirect
+  dir: infra/privacy-center/env-dev/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../dns/env-prod/trsnd_co
+    - ../../../dns/env-prod/trsnd_co/certs/virginia
+    - ../../../lambda_at_edge/env-prod/404_redirect
+  dir: infra/privacy-center/env-prod/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../dns/env-prod/privacy_brandless_com/certs/virginia
+    - ../../../../lambda_at_edge/env-prod/404_redirect
+    - ../..
+  dir: infra/privacy-center/env-prod/privacy_brandless_com/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../dns/env-prod/privacy_ethoslife_com/certs/virginia
+    - ../../../../lambda_at_edge/env-prod/404_redirect
+    - ../..
+  dir: infra/privacy-center/env-prod/privacy_ethoslife_com/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../dns/env-prod/privacy_insurance_opendoor_com/certs/virginia
+    - ../../../../lambda_at_edge/env-prod/404_redirect
+    - ../..
+  dir: infra/privacy-center/env-prod/privacy_insurance_opendoor_com/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../dns/env-prod/privacy_opendoor_com/certs/virginia
+    - ../../../../lambda_at_edge/env-prod/404_redirect
+    - ../..
+  dir: infra/privacy-center/env-prod/privacy_opendoor_com/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../dns/env-prod/privacy_opendoorhomeloans_com/certs/virginia
+    - ../../../../lambda_at_edge/env-prod/404_redirect
+    - ../..
+  dir: infra/privacy-center/env-prod/privacy_opendoorhomeloans_com/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../dns/env-prod/privacy_opploans_com/certs/virginia
+    - ../../../../lambda_at_edge/env-prod/404_redirect
+    - ../..
+  dir: infra/privacy-center/env-prod/privacy_opploans_com/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../dns/env-prod/privacy_osnational_com/certs/virginia
+    - ../../../../lambda_at_edge/env-prod/404_redirect
+    - ../..
+  dir: infra/privacy-center/env-prod/privacy_osnational_com/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../dns/env-prod/privacy_patreon_com/certs/virginia
+    - ../../../../lambda_at_edge/env-prod/404_redirect
+    - ../..
+  dir: infra/privacy-center/env-prod/privacy_patreon_com/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../dns/env-prod/transcend_io
+    - ../../../../dns/env-prod/privacy_transcend_io/certs/virginia
+    - ../../../../lambda_at_edge/env-prod/404_redirect
+    - ../..
+  dir: infra/privacy-center/env-prod/privacy_transcend_io/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../dns/env-staging/transcendquickstarts_com
+    - ../../../dns/env-staging/transcendquickstarts_com/certs/virginia
+    - ../../../lambda_at_edge/env-staging/404_redirect
+  dir: infra/privacy-center/env-staging/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../constants
+  dir: infra/sombra/ecr/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/sombra/env-dev/ecs_cluster/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../secrets
+    - ../../secrets
+    - ../../../ecs_cluster
+    - ../../../vpc
+    - ../../../../../log_buckets/env-dev/ireland
+    - ../../../../../dns/env-dev/sombra_dev_trancsend_com/certs/ireland
+    - ../../../../ecr
+    - ../../../../../dns/env-dev/sombra_dev_trancsend_com
+    - ../../../../../firelens/container_definition
+    - ../../../../../datadog/agent_container/env-dev
+  dir: infra/sombra/env-dev/sombrettes/multi-tenant/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/sombra/env-dev/sombrettes/multi-tenant/secrets/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../secrets
+    - ../../secrets
+    - ../../../ecs_cluster
+    - ../../../vpc
+    - ../../../../../log_buckets/env-dev/ireland
+    - ../../../../../dns/env-dev/sombra_dev_trancsend_com/certs/ireland
+    - ../../../../ecr
+    - ../../../../../dns/env-dev/sombra_dev_trancsend_com
+    - ../../../../../firelens/container_definition
+    - ../../../../../datadog/agent_container/env-dev
+  dir: infra/sombra/env-dev/sombrettes/patreon/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/sombra/env-dev/sombrettes/patreon/secrets/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/sombra/env-dev/sombrettes/secrets/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../secrets
+    - ../../secrets
+    - ../../../ecs_cluster
+    - ../../../vpc
+    - ../../../../../log_buckets/env-dev/ireland
+    - ../../../../../dns/env-dev/sombra_dev_trancsend_com/certs/ireland
+    - ../../../../ecr
+    - ../../../../../dns/env-dev/sombra_dev_trancsend_com
+    - ../../../../../firelens/container_definition
+    - ../../../../../datadog/agent_container/env-dev
+  dir: infra/sombra/env-dev/sombrettes/transcend/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/sombra/env-dev/sombrettes/transcend/secrets/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/sombra/env-dev/vpc/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/sombra/env-prod/ecs_cluster/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../secrets
+    - ../../secrets
+    - ../../../ecs_cluster
+    - ../../../vpc
+    - ../../../../../log_buckets/env-prod/ireland
+    - ../../../../../dns/env-prod/sombra_transcend_io/certs/ireland
+    - ../../../../ecr
+    - ../../../../../dns/env-prod/sombra_transcend_io
+    - ../../../../../firelens/container_definition
+    - ../../../../../datadog/agent_container/env-prod
+  dir: infra/sombra/env-prod/sombrettes/brandless/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/sombra/env-prod/sombrettes/brandless/secrets/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../secrets
+    - ../../secrets
+    - ../../../ecs_cluster
+    - ../../../vpc
+    - ../../../../../log_buckets/env-prod/ireland
+    - ../../../../../dns/env-prod/sombra_transcend_io/certs/ireland
+    - ../../../../ecr
+    - ../../../../../dns/env-prod/sombra_transcend_io
+    - ../../../../../firelens/container_definition
+    - ../../../../../datadog/agent_container/env-prod
+  dir: infra/sombra/env-prod/sombrettes/ethos/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/sombra/env-prod/sombrettes/ethos/secrets/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../secrets
+    - ../../secrets
+    - ../../../ecs_cluster
+    - ../../../vpc
+    - ../../../../../log_buckets/env-prod/ireland
+    - ../../../../../dns/env-prod/sombra_transcend_io/certs/ireland
+    - ../../../../ecr
+    - ../../../../../dns/env-prod/sombra_transcend_io
+    - ../../../../../firelens/container_definition
+    - ../../../../../datadog/agent_container/env-prod
+  dir: infra/sombra/env-prod/sombrettes/multi-tenant/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/sombra/env-prod/sombrettes/multi-tenant/secrets/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../secrets
+    - ../../secrets
+    - ../../../ecs_cluster
+    - ../../../vpc
+    - ../../../../../log_buckets/env-prod/ireland
+    - ../../../../../dns/env-prod/sombra_transcend_io/certs/ireland
+    - ../../../../ecr
+    - ../../../../../dns/env-prod/sombra_transcend_io
+    - ../../../../../firelens/container_definition
+    - ../../../../../datadog/agent_container/env-prod
+  dir: infra/sombra/env-prod/sombrettes/opploans/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/sombra/env-prod/sombrettes/opploans/secrets/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../secrets
+    - ../../secrets
+    - ../../../ecs_cluster
+    - ../../../vpc
+    - ../../../../../log_buckets/env-prod/ireland
+    - ../../../../../dns/env-prod/sombra_transcend_io/certs/ireland
+    - ../../../../ecr
+    - ../../../../../dns/env-prod/sombra_transcend_io
+    - ../../../../../firelens/container_definition
+    - ../../../../../datadog/agent_container/env-prod
+  dir: infra/sombra/env-prod/sombrettes/patreon/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/sombra/env-prod/sombrettes/patreon/secrets/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/sombra/env-prod/sombrettes/secrets/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../secrets
+    - ../../secrets
+    - ../../../ecs_cluster
+    - ../../../vpc
+    - ../../../../../log_buckets/env-prod/ireland
+    - ../../../../../dns/env-prod/sombra_transcend_io/certs/ireland
+    - ../../../../ecr
+    - ../../../../../dns/env-prod/sombra_transcend_io
+    - ../../../../../firelens/container_definition
+    - ../../../../../datadog/agent_container/env-prod
+  dir: infra/sombra/env-prod/sombrettes/transcend/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/sombra/env-prod/sombrettes/transcend/secrets/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/sombra/env-prod/vpc/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/sombra/env-staging/ecs_cluster/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../secrets
+    - ../../secrets
+    - ../../../ecs_cluster
+    - ../../../vpc
+    - ../../../../../log_buckets/env-staging/ireland
+    - ../../../../../dns/env-staging/sombra_staging_transcen_dental/certs/ireland
+    - ../../../../ecr
+    - ../../../../../dns/env-staging/sombra_staging_transcen_dental
+    - ../../../../../firelens/container_definition
+    - ../../../../../datadog/agent_container/env-staging
+  dir: infra/sombra/env-staging/sombrettes/multi-tenant/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/sombra/env-staging/sombrettes/multi-tenant/secrets/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../secrets
+    - ../../secrets
+    - ../../../ecs_cluster
+    - ../../../vpc
+    - ../../../../../log_buckets/env-staging/ireland
+    - ../../../../../dns/env-staging/sombra_staging_transcen_dental/certs/ireland
+    - ../../../../ecr
+    - ../../../../../dns/env-staging/sombra_staging_transcen_dental
+    - ../../../../../firelens/container_definition
+    - ../../../../../datadog/agent_container/env-staging
+  dir: infra/sombra/env-staging/sombrettes/patreon/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/sombra/env-staging/sombrettes/patreon/secrets/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/sombra/env-staging/sombrettes/secrets/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../secrets
+    - ../../secrets
+    - ../../../ecs_cluster
+    - ../../../vpc
+    - ../../../../../log_buckets/env-staging/ireland
+    - ../../../../../dns/env-staging/sombra_staging_transcen_dental/certs/ireland
+    - ../../../../ecr
+    - ../../../../../dns/env-staging/sombra_staging_transcen_dental
+    - ../../../../../firelens/container_definition
+    - ../../../../../datadog/agent_container/env-staging
+  dir: infra/sombra/env-staging/sombrettes/transcend/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/sombra/env-staging/sombrettes/transcend/secrets/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/sombra/env-staging/vpc/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/sombra/env-testing/one_lb/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/sombra/env-testing/two_lbs/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../log_buckets/commons/ireland
+    - ../../../constants
+  dir: infra/sombra/versions-bucket/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../log_buckets/env-dev/ireland
+    - ../../../../dns/env-dev/dev_trancsend_com
+  dir: infra/vault/env-dev/cluster/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/vault/env-dev/settings/auth_backends/aws/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/vault/env-dev/settings/mounts/kv/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../auth_backends/aws
+    - ../../../../../../atlantis/instance
+  dir: infra/vault/env-dev/settings/roles/atlantis_role/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../auth_backends/aws
+    - ../../../../../../constants
+  dir: infra/vault/env-dev/settings/roles/developer_role/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../log_buckets/env-prod/ireland
+    - ../../../../dns/env-prod/transcend_io
+  dir: infra/vault/env-prod/cluster/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/vault/env-prod/settings/auth_backends/aws/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/vault/env-prod/settings/mounts/kv/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../auth_backends/aws
+    - ../../../../../../atlantis/instance
+  dir: infra/vault/env-prod/settings/roles/atlantis_role/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../auth_backends/aws
+    - ../../../../../../constants
+  dir: infra/vault/env-prod/settings/roles/developer_role/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../../log_buckets/env-staging/ireland
+    - ../../../../dns/env-staging/staging_transcen_dental
+  dir: infra/vault/env-staging/cluster/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/vault/env-staging/settings/auth_backends/aws/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified: []
+  dir: infra/vault/env-staging/settings/mounts/kv/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../auth_backends/aws
+    - ../../../../../../atlantis/instance
+  dir: infra/vault/env-staging/settings/roles/atlantis_role/terragrunt.hcl
+- autoplan:
+    enabled: true
+    when_modified:
+    - ../../../auth_backends/aws
+    - ../../../../../../constants
+  dir: infra/vault/env-staging/settings/roles/developer_role/terragrunt.hcl
+version: 3
