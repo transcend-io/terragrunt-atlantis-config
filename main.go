@@ -3,16 +3,16 @@ package main
 import (
 	log "github.com/sirupsen/logrus"
 
+	"github.com/gruntwork-io/terragrunt/cli"
 	"github.com/gruntwork-io/terragrunt/config"
 	"github.com/gruntwork-io/terragrunt/options"
 	"github.com/gruntwork-io/terragrunt/util"
-	"github.com/gruntwork-io/terragrunt/cli"
 
 	"github.com/ghodss/yaml"
 
 	"os"
-	"strings"
 	"path/filepath"
+	"strings"
 )
 
 // Parse env vars into a map
@@ -30,7 +30,7 @@ func getEnvs() map[string]string {
 
 // Get the absolute path to the directory to look in
 func getPrefix() string {
-	return os.Getenv("HOME") + "/transcend/main/"	
+	return os.Getenv("HOME") + "/transcend/main/"
 }
 
 // Represents an entire config file
@@ -71,7 +71,7 @@ func makePathAbsolute(path string, parentPath string) string {
 	}
 
 	parentDir := filepath.Dir(parentPath)
-	return filepath.Join(parentDir, path)	
+	return filepath.Join(parentDir, path)
 }
 
 // Parses the terragrunt config at <path> to find all modules it depends on
@@ -79,25 +79,36 @@ func getDependencies(path string) ([]string, error) {
 	decodeTypes := []config.PartialDecodeSectionType{
 		config.DependencyBlock,
 		config.DependenciesBlock,
+		config.TerraformBlock,
 	}
 
 	options, err := options.NewTerragruntOptions(path)
-  if err != nil {
+	if err != nil {
 		return nil, err
-  }
-  options.RunTerragrunt = cli.RunTerragrunt
-  options.Env = getEnvs()
+	}
+	options.RunTerragrunt = cli.RunTerragrunt
+	options.Env = getEnvs()
 
 	parsedConfig, err := config.PartialParseConfigFile(path, options, nil, decodeTypes)
-  if err != nil {
+	if err != nil {
 		return nil, err
 	}
 
+	dependencies := []string{}
+
 	if parsedConfig.Dependencies != nil {
-		return parsedConfig.Dependencies.Paths, nil
+		dependencies = parsedConfig.Dependencies.Paths
 	}
 
-	return []string{}, nil
+	if parsedConfig.Terraform != nil && parsedConfig.Terraform.Source != nil {
+		source := parsedConfig.Terraform.Source
+		// TODO: Make more robust. Check for bitbucket, etc.
+		if !strings.Contains(*source, "git") {
+			dependencies = append(dependencies, *source)
+		}
+	}
+
+	return dependencies, nil
 }
 
 // Creates an AtlantisProject for a directory
@@ -131,7 +142,7 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 		Dir: relativeSourceDir,
 
 		Autoplan: AutoplanConfig{
-			Enabled: false,
+			Enabled:      false,
 			WhenModified: relativeDependencies,
 		},
 	}
@@ -147,7 +158,7 @@ func getAllTerragruntFiles() ([]string, error) {
 	paths, err := config.FindConfigFilesInPath(getPrefix(), &options)
 	if err != nil {
 		return nil, err
-	}	
+	}
 
 	return paths, nil
 }
@@ -156,8 +167,6 @@ func getAllTerragruntFiles() ([]string, error) {
 // Limitations:
 //   - Only goes one level deep
 //   - Does not work with `read_terragrunt_config` dependencies
-//   - Does not look for terraform files yet (or does it?)
-//   - Maybe it should glob files in the dep modules? Or lookup terraform source modules?
 //   - Some atlantis env vars are not respected (would need to use their CLI context)
 func main() {
 	terragruntFiles, err := getAllTerragruntFiles()
@@ -166,7 +175,7 @@ func main() {
 	}
 
 	config := AtlantisConfig{
-		Version: 3,
+		Version:   3,
 		AutoMerge: false,
 	}
 
