@@ -1,4 +1,4 @@
-module github.com/dmattia/terragrunt-atlantis-config
+module github.com/transcend-io/terragrunt-atlantis-config
 
 go 1.14
 
