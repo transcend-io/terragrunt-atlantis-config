@@ -1,5 +1,5 @@
 PROJECT=terragrunt-atlantis-config
-VERSION=0.0.1
+VERSION=0.0.2
 PATH_BUILD=build/
 FILE_COMMAND=terragrunt-atlantis-config
 FILE_ARCH=darwin_amd64
