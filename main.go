@@ -24,7 +24,7 @@ package main
 import "github.com/transcend-io/terragrunt-atlantis-config/cmd"
 
 var (
-	VERSION = "0.0.2"
+	VERSION = "0.0.3"
 )
 
 func main() {

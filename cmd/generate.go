@@ -23,7 +23,6 @@ import (
 	"github.com/gruntwork-io/terragrunt/cli"
 	"github.com/gruntwork-io/terragrunt/config"
 	"github.com/gruntwork-io/terragrunt/options"
-	"github.com/gruntwork-io/terragrunt/util"
 
 	"github.com/ghodss/yaml"
 
@@ -163,11 +162,12 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 
 // Finds the absolute paths of all terragrunt.hcl files
 func getAllTerragruntFiles() ([]string, error) {
-	options := options.TerragruntOptions{
-		Logger: util.CreateLogger(""),
+	options, err := options.NewTerragruntOptions(gitRoot)
+	if err != nil {
+		return nil, err
 	}
 
-	paths, err := config.FindConfigFilesInPath(gitRoot, &options)
+	paths, err := config.FindConfigFilesInPath(gitRoot, options)
 	if err != nil {
 		return nil, err
 	}
@@ -180,11 +180,14 @@ func getAllTerragruntFiles() ([]string, error) {
 //   - Only goes one level deep
 //   - Does not work with `read_terragrunt_config` dependencies
 //   - Some atlantis env vars are not respected (would need to use their CLI context)
+//   - Poorly handles paths
 func main(cmd *cobra.Command, args []string) {
 	terragruntFiles, err := getAllTerragruntFiles()
 	if err != nil {
 		log.Fatal("Could not list all terragrunt files: ", err)
 	}
+	log.Info("AHHHHHHH")
+	log.Info(terragruntFiles)
 
 	config := AtlantisConfig{
 		Version:   3,

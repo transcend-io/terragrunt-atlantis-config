@@ -1,5 +1,4 @@
-PROJECT=terragrunt-atlantis-config
-VERSION=0.0.2
+VERSION=0.0.3
 PATH_BUILD=build/
 FILE_COMMAND=terragrunt-atlantis-config
 FILE_ARCH=darwin_amd64
@@ -7,7 +6,8 @@ S3_BUCKET_NAME=cloudfront-origin-homebrew-tap-transcend-io
 PROFILE=transcend-prod
 
 clean:
-	@rm -rf ./build
+	rm -rf ./build
+	rm -rf '$(HOME)/bin/$(FILE_COMMAND)'
 
 build: clean
 	@$(GOPATH)/bin/goxc \
@@ -24,4 +24,4 @@ install:
 	install $(PATH_BUILD)$(VERSION)/$(FILE_ARCH)/$(FILE_COMMAND) '$(HOME)/bin/$(FILE_COMMAND)'
 
 publish: build
-	AWS_PROFILE=$(PROFILE) aws s3 sync $(PATH_BUILD)/$(VERSION) s3://$(S3_BUCKET_NAME)/$(PROJECT)/$(VERSION)
+	AWS_PROFILE=$(PROFILE) aws s3 sync $(PATH_BUILD)/$(VERSION) s3://$(S3_BUCKET_NAME)/$(FILE_COMMAND)/$(VERSION)
