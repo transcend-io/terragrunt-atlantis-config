@@ -186,8 +186,6 @@ func main(cmd *cobra.Command, args []string) {
 	if err != nil {
 		log.Fatal("Could not list all terragrunt files: ", err)
 	}
-	log.Info("AHHHHHHH")
-	log.Info(terragruntFiles)
 
 	config := AtlantisConfig{
 		Version:   3,
