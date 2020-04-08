@@ -1,8 +1,13 @@
-# Terragrunt Atlantis Config
+<p align="center">
+  <img alt="Terragrunt Atlantis Config by Transcend" src="https://user-images.githubusercontent.com/7354176/78756035-f9863480-792e-11ea-96d3-d4ffe50e0269.png"/>
+</p>
+<h1 align="center">Terragrunt Atlantis Config</h1>
+<p align="center">
+  <strong>Generate Atlantis Config for Terragrunt projects.</strong>
+</p>
+<br />
 
-Generate Atlantis Config for Terragrunt projects.
-
-## What is this
+## What is this?
 
 [Atlantis](runatlantis.io) is an awesome tool for Terraform pull request automation. Each repo can have a YAML config file that defines Terraform module dependendcies, so that PRs that affect dependent modules will automatically generate `terraform plan`s for those modules.
 
