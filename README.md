@@ -7,7 +7,7 @@
 </p>
 <br />
 
-## What is this
+## What is this?
 
 [Atlantis](runatlantis.io) is an awesome tool for Terraform pull request automation. Each repo can have a YAML config file that defines Terraform module dependendcies, so that PRs that affect dependent modules will automatically generate `terraform plan`s for those modules.
 
