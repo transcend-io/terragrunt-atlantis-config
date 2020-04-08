@@ -7,13 +7,13 @@
 </p>
 <br />
 
-## What is this?
+## What is this
 
 [Atlantis](runatlantis.io) is an awesome tool for Terraform pull request automation. Each repo can have a YAML config file that defines Terraform module dependendcies, so that PRs that affect dependent modules will automatically generate `terraform plan`s for those modules.
 
 [Terragrunt](https://terragrunt.gruntwork.io) is a Terraform wrapper, which has the concept of dependencies built in to its configuration.
 
-This tool creates YAML configurations for Terragrunt projects by:
+This tool creates Atlantis YAML configurations for Terragrunt projects by:
 
 - Finding all `terragrunt.hcl` in a repo
 - Evaluating their dependency and Terraform source blocks to find their dependencies
