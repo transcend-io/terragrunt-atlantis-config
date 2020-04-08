@@ -1,4 +1,6 @@
 # Terragrunt Atlantis Config
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Ftranscend-io%2Fterragrunt-atlantis-config.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Ftranscend-io%2Fterragrunt-atlantis-config?ref=badge_shield)
+
 
 Generates Atlantis Config for Terragrunt projects"
 
@@ -36,3 +38,6 @@ terragrunt-atlantis-config generate --root /some/path/to/your/repo/root
 ```
 
 Check the log output for the yaml
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Ftranscend-io%2Fterragrunt-atlantis-config.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Ftranscend-io%2Fterragrunt-atlantis-config?ref=badge_large)
