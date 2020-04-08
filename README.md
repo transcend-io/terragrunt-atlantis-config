@@ -41,3 +41,7 @@ terragrunt-atlantis-config generate --root /some/path/to/your/repo/root
 ```
 
 Finally, check the log output for the YAML.
+
+## License
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Ftranscend-io%2Fterragrunt-atlantis-config.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Ftranscend-io%2Fterragrunt-atlantis-config?ref=badge_large)
