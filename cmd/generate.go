@@ -26,6 +26,7 @@ import (
 
 	"github.com/ghodss/yaml"
 
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -206,9 +207,13 @@ func main(cmd *cobra.Command, args []string) {
 		log.Fatal("Could not serialize Config into yaml")
 	}
 	log.Println(string(yamlString))
+	if len(outputPath) != 0 {
+		ioutil.WriteFile(outputPath, yamlString, 0644)
+	}
 }
 
 var gitRoot string
+var outputPath string
 
 // generateCmd represents the generate command
 var generateCmd = &cobra.Command{
@@ -221,5 +226,6 @@ var generateCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(generateCmd)
 
+	generateCmd.PersistentFlags().StringVar(&outputPath, "output", ".", "Path of the file where configuration will be generated. Default is not to write to file")
 	generateCmd.PersistentFlags().StringVar(&gitRoot, "root", ".", "Path to the root directory of the github repo you want to build config for. Default is current dir")
 }
