@@ -38,6 +38,12 @@ terragrunt-atlantis-config generate
 
 # or from anywhere
 terragrunt-atlantis-config generate --root /some/path/to/your/repo/root
+
+# output to a file
+terragrunt-atlantis-config generate --autoplan --output ./output.tf
+
+# enable auto plan
+terragrunt-atlantis-config generate --autoplan
 ```
 
 Finally, check the log output for the YAML.
