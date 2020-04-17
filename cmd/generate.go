@@ -154,7 +154,7 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 		Dir: relativeSourceDir,
 
 		Autoplan: AutoplanConfig{
-			Enabled:      false,
+			Enabled:      autoPlan,
 			WhenModified: relativeDependencies,
 		},
 	}
@@ -213,6 +213,7 @@ func main(cmd *cobra.Command, args []string) {
 }
 
 var gitRoot string
+var autoPlan bool
 var outputPath string
 
 // generateCmd represents the generate command
@@ -226,6 +227,7 @@ var generateCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(generateCmd)
 
+	generateCmd.PersistentFlags().BoolVar(&autoPlan, "autoplan", false, "Enable auto plan. Default is disabled")
 	generateCmd.PersistentFlags().StringVar(&outputPath, "output", ".", "Path of the file where configuration will be generated. Default is not to write to file")
 	generateCmd.PersistentFlags().StringVar(&gitRoot, "root", ".", "Path to the root directory of the github repo you want to build config for. Default is current dir")
 }
