@@ -44,6 +44,9 @@ terragrunt-atlantis-config generate --autoplan --output ./output.tf
 
 # enable auto plan
 terragrunt-atlantis-config generate --autoplan
+
+# define the workflow
+terragrunt-atlantis-config generate --workflow web --output ./output.tf
 ```
 
 Finally, check the log output for the YAML.

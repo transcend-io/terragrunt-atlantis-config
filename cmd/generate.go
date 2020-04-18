@@ -62,6 +62,9 @@ type AtlantisProject struct {
 	// The directory with the terragrunt.hcl file
 	Dir string `json:"dir"`
 
+	// Define workflow name
+	Workflow string `json:"workflow,omitempty"`
+
 	// Autoplan settings for which plans affect other plans
 	Autoplan AutoplanConfig `json:"autoplan"`
 }
@@ -134,7 +137,7 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 
 	// All dependencies depend on their own .hcl file, and any tf files in their directory
 	relativeDependencies := []string{
-		"terragrunt.hcl",
+		"*.hcl",
 		"*.tf*",
 	}
 
@@ -151,8 +154,8 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 	relativeSourceDir := strings.TrimPrefix(absoluteSourceDir, gitRoot)
 
 	project := &AtlantisProject{
-		Dir: relativeSourceDir,
-
+		Dir:      relativeSourceDir,
+		Workflow: workflow,
 		Autoplan: AutoplanConfig{
 			Enabled:      autoPlan,
 			WhenModified: relativeDependencies,
@@ -214,6 +217,7 @@ func main(cmd *cobra.Command, args []string) {
 
 var gitRoot string
 var autoPlan bool
+var workflow string
 var outputPath string
 
 // generateCmd represents the generate command
@@ -228,6 +232,7 @@ func init() {
 	rootCmd.AddCommand(generateCmd)
 
 	generateCmd.PersistentFlags().BoolVar(&autoPlan, "autoplan", false, "Enable auto plan. Default is disabled")
+	generateCmd.PersistentFlags().StringVar(&workflow, "workflow", ".", "Name of the workflow to be customized in the atlantis server. Default is to not set")
 	generateCmd.PersistentFlags().StringVar(&outputPath, "output", ".", "Path of the file where configuration will be generated. Default is not to write to file")
 	generateCmd.PersistentFlags().StringVar(&gitRoot, "root", ".", "Path to the root directory of the github repo you want to build config for. Default is current dir")
 }
