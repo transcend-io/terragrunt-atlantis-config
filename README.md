@@ -40,13 +40,13 @@ terragrunt-atlantis-config generate
 terragrunt-atlantis-config generate --root /some/path/to/your/repo/root
 
 # output to a file
-terragrunt-atlantis-config generate --autoplan --output ./output.tf
+terragrunt-atlantis-config generate --autoplan --output ./atlantis.yaml
 
 # enable auto plan
 terragrunt-atlantis-config generate --autoplan
 
 # define the workflow
-terragrunt-atlantis-config generate --workflow web --output ./output.tf
+terragrunt-atlantis-config generate --workflow web --output ./atlantis.yaml
 ```
 
 Finally, check the log output for the YAML.
