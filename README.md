@@ -48,8 +48,8 @@ terragrunt-atlantis-config generate --autoplan
 # define the workflow
 terragrunt-atlantis-config generate --workflow web --output ./atlantis.yaml
 
-# ignore terragrunt configs which do not reference a terraform module, thus, can't be planned
-terragrunt-atlantis-config generate --ignore-unplannable
+# ignore parent terragrunt configs (those which don't reference a terraform module)
+terragrunt-atlantis-config generate --ignore-parent-terragrunt
 ```
 
 Finally, check the log output for the YAML.
