@@ -109,6 +109,12 @@ func getDependencies(path string) ([]string, error) {
 		return nil, err
 	}
 
+	// if theres no terraform source and we're ignoring parent terragrunt configs
+	// return nils to indicate we should skip this project
+	if (parsedConfig.Terraform == nil || parsedConfig.Terraform.Source == nil) && ignoreParentTerragrunt == true {
+		return nil, nil
+	}
+
 	dependencies := []string{}
 
 	if parsedConfig.Dependencies != nil {
@@ -131,6 +137,10 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 	dependencies, err := getDependencies(sourcePath)
 	if err != nil {
 		return nil, err
+	}
+	// if dependecies AND err is nil then return nils to indicate we should skip this project
+	if err == nil && dependencies == nil {
+		return nil, nil
 	}
 
 	absoluteSourceDir := filepath.Dir(sourcePath)
@@ -201,6 +211,11 @@ func main(cmd *cobra.Command, args []string) {
 		if err != nil {
 			log.Fatal("Could not create project for ", terragruntPath, " with err: ", err)
 		}
+		// if project and err are nil then skip this project
+		if err == nil && project == nil {
+			continue
+		}
+
 		log.Info("Created project for ", terragruntPath)
 		config.Projects = append(config.Projects, *project)
 	}
@@ -217,6 +232,7 @@ func main(cmd *cobra.Command, args []string) {
 
 var gitRoot string
 var autoPlan bool
+var ignoreParentTerragrunt bool
 var workflow string
 var outputPath string
 
@@ -232,6 +248,7 @@ func init() {
 	rootCmd.AddCommand(generateCmd)
 
 	generateCmd.PersistentFlags().BoolVar(&autoPlan, "autoplan", false, "Enable auto plan. Default is disabled")
+	generateCmd.PersistentFlags().BoolVar(&ignoreParentTerragrunt, "ignore-parent-terragrunt", false, "Ignore parent terragrunt configs (those which don't reference a terraform module). Default is disabled")
 	generateCmd.PersistentFlags().StringVar(&workflow, "workflow", ".", "Name of the workflow to be customized in the atlantis server. Default is to not set")
 	generateCmd.PersistentFlags().StringVar(&outputPath, "output", ".", "Path of the file where configuration will be generated. Default is not to write to file")
 	generateCmd.PersistentFlags().StringVar(&gitRoot, "root", ".", "Path to the root directory of the github repo you want to build config for. Default is current dir")
