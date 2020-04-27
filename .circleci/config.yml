@@ -1,0 +1,44 @@
+version: 2.1
+
+orbs:
+  aws-cli: circleci/aws-cli@1.0.0
+  assume-role: airswap/assume-role@0.2.0
+
+jobs:
+  build:
+    docker:
+      - image: circleci/golang:1.14
+
+    working_directory: /go/src/github.com/transcend-io/terragrunt-atlantis-config
+    steps:
+      - checkout
+      - run: go get github.com/laher/goxc
+      - run: make build
+
+  publish:
+    docker:
+      - image: circleci/golang:1.14
+
+    working_directory: /go/src/github.com/transcend-io/terragrunt-atlantis-config
+    steps:
+      - checkout
+      - aws-cli/install
+      - assume-role/assume-role:
+          account-id: $MAIN_ACCOUNT_ID
+          role-name: $MAIN_ROLE_NAME
+      - run: go get github.com/laher/goxc
+      - run: make ci_publish
+
+workflows:
+  version: 2
+  main_workflow:
+    jobs:
+      - build
+      - publish:
+          context: prod-ctx
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - master
