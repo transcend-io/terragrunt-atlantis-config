@@ -1,0 +1,22 @@
+automerge: false
+projects:
+- autoplan:
+    enabled: true
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+  dir: example-setup
+- autoplan:
+    enabled: true
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+  dir: example-setup/dependency
+- autoplan:
+    enabled: true
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+    - ../dependency
+  dir: example-setup/depender
+version: 3

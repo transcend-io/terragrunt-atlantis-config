@@ -16,6 +16,9 @@ build: clean
     -d=$(PATH_BUILD) \
     -build-ldflags "-X main.VERSION=$(VERSION)"
 
+test:
+	go test -v ./...
+
 version:
 	@echo $(VERSION)
 
