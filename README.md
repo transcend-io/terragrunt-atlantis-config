@@ -52,7 +52,7 @@ terragrunt-atlantis-config generate --workflow web --output ./atlantis.yaml
 terragrunt-atlantis-config generate --ignore-parent-terragrunt
 ```
 
-Finally, check the log output for the YAML.
+Finally, check the log output (or your output file) for the YAML.
 
 ## License
 

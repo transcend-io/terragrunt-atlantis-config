@@ -39,7 +39,7 @@ type AtlantisConfig struct {
 	AutoMerge bool `json:"automerge"`
 
 	// The project settings
-	Projects []AtlantisProject `json:"projects"`
+	Projects []AtlantisProject `json:"projects,omitempty"`
 }
 
 // Represents an Atlantis Project directory
@@ -174,16 +174,17 @@ func getAllTerragruntFiles() ([]string, error) {
 	return paths, nil
 }
 
-// Logs out an Atlantis repo yaml config file contents.
-// Limitations:
-//   - Only goes one level deep
-//   - Does not work with `read_terragrunt_config` dependencies
-//   - Some atlantis env vars are not respected (would need to use their CLI context)
-//   - Poorly handles paths
-func main(cmd *cobra.Command, args []string) {
+func main(cmd *cobra.Command, args []string) error {
+	// Ensure the gitRoot has a trailing slash and is an absolute path
+	absoluteGitRoot, err := filepath.Abs(gitRoot)
+	if err != nil {
+		return err
+	}
+	gitRoot = absoluteGitRoot + "/"
+
 	terragruntFiles, err := getAllTerragruntFiles()
 	if err != nil {
-		log.Fatal("Could not list all terragrunt files: ", err)
+		return err
 	}
 
 	config := AtlantisConfig{
@@ -205,14 +206,20 @@ func main(cmd *cobra.Command, args []string) {
 		config.Projects = append(config.Projects, *project)
 	}
 
+	// Convert config to YAML string
 	yamlString, err := yaml.Marshal(&config)
 	if err != nil {
-		log.Fatal("Could not serialize Config into yaml")
+		return err
 	}
-	log.Println(string(yamlString))
+
+	// Write output
 	if len(outputPath) != 0 {
 		ioutil.WriteFile(outputPath, yamlString, 0644)
+	} else {
+		log.Println(string(yamlString))
 	}
+
+	return nil
 }
 
 var gitRoot string
@@ -226,15 +233,20 @@ var generateCmd = &cobra.Command{
 	Use:   "generate",
 	Short: "Makes atlantis config",
 	Long:  `Logs Yaml representing Atlantis config to stderr`,
-	Run:   main,
+	RunE:  main,
 }
 
 func init() {
 	rootCmd.AddCommand(generateCmd)
 
+	pwd, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	generateCmd.PersistentFlags().BoolVar(&autoPlan, "autoplan", false, "Enable auto plan. Default is disabled")
 	generateCmd.PersistentFlags().BoolVar(&ignoreParentTerragrunt, "ignore-parent-terragrunt", false, "Ignore parent terragrunt configs (those which don't reference a terraform module). Default is disabled")
-	generateCmd.PersistentFlags().StringVar(&workflow, "workflow", ".", "Name of the workflow to be customized in the atlantis server. Default is to not set")
-	generateCmd.PersistentFlags().StringVar(&outputPath, "output", ".", "Path of the file where configuration will be generated. Default is not to write to file")
-	generateCmd.PersistentFlags().StringVar(&gitRoot, "root", ".", "Path to the root directory of the github repo you want to build config for. Default is current dir")
+	generateCmd.PersistentFlags().StringVar(&workflow, "workflow", "", "Name of the workflow to be customized in the atlantis server. Default is to not set")
+	generateCmd.PersistentFlags().StringVar(&outputPath, "output", "", "Path of the file where configuration will be generated. Default is not to write to file")
+	generateCmd.PersistentFlags().StringVar(&gitRoot, "root", pwd, "Path to the root directory of the github repo you want to build config for. Default is current dir")
 }

@@ -10,4 +10,5 @@ require (
 	github.com/laher/goxc v0.18.1 // indirect
 	github.com/sirupsen/logrus v1.5.0
 	github.com/spf13/cobra v0.0.5
+	gotest.tools/gotestsum v0.4.2 // indirect
 )

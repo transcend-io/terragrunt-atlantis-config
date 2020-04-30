@@ -1,0 +1,25 @@
+automerge: false
+projects:
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+  dir: example-setup
+  workflow: someWorkflow
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+  dir: example-setup/dependency
+  workflow: someWorkflow
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+    - ../dependency
+  dir: example-setup/depender
+  workflow: someWorkflow
+version: 3

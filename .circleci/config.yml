@@ -5,15 +5,46 @@ orbs:
   assume-role: airswap/assume-role@0.2.0
 
 jobs:
-  build:
+  build_and_test:
     docker:
       - image: circleci/golang:1.14
+
+    environment:
+      # path to where test results will be saved
+      TEST_RESULTS: /tmp/test-results
 
     working_directory: /go/src/github.com/transcend-io/terragrunt-atlantis-config
     steps:
       - checkout
+
+      - restore_cache: # restores saved cache if no changes are detected since last run
+          keys:
+            - go-mod-v4-{{ checksum "go.sum" }}
+
       - run: go get github.com/laher/goxc
       - run: make build
+      - run: mkdir cmd/test_artifacts
+
+      - run: mkdir -p $TEST_RESULTS # create the test results directory
+      - run:
+          name: Run unit tests
+          # store the results of our tests in the $TEST_RESULTS directory
+          command: |
+            PACKAGE_NAMES=$(go list ./... | circleci tests split --split-by=timings --timings-type=classname)
+            gotestsum --junitfile ${TEST_RESULTS}/gotestsum-report.xml -- $PACKAGE_NAMES
+
+      - save_cache:
+          key: go-mod-v4-{{ checksum "go.sum" }}
+          paths:
+            - "/go/pkg/mod"
+
+      - store_artifacts: # upload test summary for display in Artifacts
+          path: /tmp/test-results
+          destination: raw-test-output
+
+      - store_test_results: # upload test results for display in Test Summary
+          path: /tmp/test-results
+
 
   publish:
     docker:
@@ -22,6 +53,11 @@ jobs:
     working_directory: /go/src/github.com/transcend-io/terragrunt-atlantis-config
     steps:
       - checkout
+
+      - restore_cache: # restores saved cache if no changes are detected since last run
+          keys:
+            - go-mod-v4-{{ checksum "go.sum" }}
+
       - aws-cli/install
       - assume-role/assume-role:
           account-id: $MAIN_ACCOUNT_ID
@@ -33,11 +69,11 @@ workflows:
   version: 2
   main_workflow:
     jobs:
-      - build
+      - build_and_test
       - publish:
           context: prod-ctx
           requires:
-            - build
+            - build_and_test
           filters:
             branches:
               only:
