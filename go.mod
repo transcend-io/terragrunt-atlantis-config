@@ -10,5 +10,6 @@ require (
 	github.com/laher/goxc v0.18.1 // indirect
 	github.com/sirupsen/logrus v1.5.0
 	github.com/spf13/cobra v0.0.5
+	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
 	gotest.tools/gotestsum v0.4.2 // indirect
 )
