@@ -3,18 +3,20 @@ package cmd
 import (
 	log "github.com/sirupsen/logrus"
 
-	"github.com/spf13/cobra"
-
+	"github.com/ghodss/yaml"
 	"github.com/gruntwork-io/terragrunt/cli"
 	"github.com/gruntwork-io/terragrunt/config"
 	"github.com/gruntwork-io/terragrunt/options"
+	"github.com/spf13/cobra"
 
-	"github.com/ghodss/yaml"
+	"golang.org/x/sync/errgroup"
 
+	"context"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 )
 
 // Parse env vars into a map
@@ -192,18 +194,36 @@ func main(cmd *cobra.Command, args []string) error {
 		AutoMerge: false,
 	}
 
-	for _, terragruntPath := range terragruntFiles {
-		project, err := createProject(terragruntPath)
-		if err != nil {
-			log.Fatal("Could not create project for ", terragruntPath, " with err: ", err)
-		}
-		// if project and err are nil then skip this project
-		if err == nil && project == nil {
-			continue
-		}
+	lock := sync.Mutex{}
+	errGroup, _ := errgroup.WithContext(context.Background())
 
-		log.Info("Created project for ", terragruntPath)
-		config.Projects = append(config.Projects, *project)
+	// Concurrently looking all dependencies
+	for _, terragruntPath := range terragruntFiles {
+		terragruntPath := terragruntPath // https://golang.org/doc/faq#closures_and_goroutines
+
+		errGroup.Go(func() error {
+			project, err := createProject(terragruntPath)
+			if err != nil {
+				return err
+			}
+			// if project and err are nil then skip this project
+			if err == nil && project == nil {
+				return nil
+			}
+
+			// Lock the list as only one goroutine should be writing to config.Projects at a time
+			lock.Lock()
+			defer lock.Unlock()
+
+			log.Info("Created project for ", terragruntPath)
+			config.Projects = append(config.Projects, *project)
+
+			return nil
+		})
+
+		if err := errGroup.Wait(); err != nil {
+			return err
+		}
 	}
 
 	// Convert config to YAML string
