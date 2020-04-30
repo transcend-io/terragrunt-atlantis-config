@@ -54,6 +54,14 @@ terragrunt-atlantis-config generate --ignore-parent-terragrunt
 
 Finally, check the log output (or your output file) for the YAML.
 
+## Contributing
+
+To test any changes you've made, run `make test`.
+
+Once all your changes are passing and your PR is reviewed, a merge into `master` will trigger a CircleCI job to build the new binary, test it, and deploy it's artifacts to an S3 bucket.
+
+You can then open a PR on our homebrew tap similar to https://github.com/transcend-io/homebrew-tap/pull/4, and as soon as that merges your code will be released.
+
 ## License
 
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Ftranscend-io%2Fterragrunt-atlantis-config.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Ftranscend-io%2Fterragrunt-atlantis-config?ref=badge_large)
