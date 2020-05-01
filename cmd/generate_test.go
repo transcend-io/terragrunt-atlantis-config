@@ -1,30 +1,10 @@
 package cmd
 
 import (
-	"fmt"
 	"io/ioutil"
-	"math/rand"
 	"os"
 	"testing"
 )
-
-// Runs a set of arguments, returning the output
-func RunWithFlags(args []string) ([]byte, error) {
-	randomInt := rand.Int()
-	filename := fmt.Sprintf("test_artifacts/%d.yaml", randomInt)
-
-	defer os.Remove(filename)
-
-	allArgs := append([]string{
-		"generate",
-		"--output",
-		filename,
-	}, args...)
-	rootCmd.SetArgs(allArgs)
-	rootCmd.Execute()
-
-	return ioutil.ReadFile(filename)
-}
 
 // Resets all flag values to their defaults
 func resetDefaultFlags() error {
