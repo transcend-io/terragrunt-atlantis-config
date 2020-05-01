@@ -9,7 +9,7 @@ import (
 )
 
 // Runs a set of arguments, returning the output
-func runWithFlags(args []string) ([]byte, error) {
+func RunWithFlags(args []string) ([]byte, error) {
 	randomInt := rand.Int()
 	filename := fmt.Sprintf("test_artifacts/%d.yaml", randomInt)
 
@@ -26,6 +26,7 @@ func runWithFlags(args []string) ([]byte, error) {
 	return ioutil.ReadFile(filename)
 }
 
+// Resets all flag values to their defaults
 func resetDefaultFlags() error {
 	pwd, err := os.Getwd()
 	if err != nil {
@@ -49,7 +50,7 @@ func runTest(t *testing.T, goldenFile string, args []string) {
 		return
 	}
 
-	content, err := runWithFlags(args)
+	content, err := RunWithFlags(args)
 	if err != nil {
 		t.Error("Failed to read file")
 		return
