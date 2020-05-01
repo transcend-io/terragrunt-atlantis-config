@@ -1,6 +1,6 @@
 -   id: terragrunt-atlantis-config
     name: terragrunt-atlantis-config
-    entry: pre-commit/main.go
+    entry: main.go
     files: '\.hcl$'
     language: golang
     description: "Runs `terragrunt-atlantis-config`, ensuring the repo is up to date"
