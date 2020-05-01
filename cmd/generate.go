@@ -12,7 +12,9 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"context"
+	"fmt"
 	"io/ioutil"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"strings"
@@ -269,4 +271,22 @@ func init() {
 	generateCmd.PersistentFlags().StringVar(&workflow, "workflow", "", "Name of the workflow to be customized in the atlantis server. Default is to not set")
 	generateCmd.PersistentFlags().StringVar(&outputPath, "output", "", "Path of the file where configuration will be generated. Default is not to write to file")
 	generateCmd.PersistentFlags().StringVar(&gitRoot, "root", pwd, "Path to the root directory of the github repo you want to build config for. Default is current dir")
+}
+
+// Runs a set of arguments, returning the output
+func RunWithFlags(args []string) ([]byte, error) {
+	randomInt := rand.Int()
+	filename := fmt.Sprintf("test_artifacts/%d.yaml", randomInt)
+
+	defer os.Remove(filename)
+
+	allArgs := append([]string{
+		"generate",
+		"--output",
+		filename,
+	}, args...)
+	rootCmd.SetArgs(allArgs)
+	rootCmd.Execute()
+
+	return ioutil.ReadFile(filename)
 }
