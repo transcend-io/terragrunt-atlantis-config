@@ -24,7 +24,13 @@ This is especially useful for organizations that use monorepos for their Terragr
 
 ## Installation and Usage
 
-Install via Homebrew:
+Recommended: Install any version via go get:
+
+```bash
+cd && GO111MODULE=on go get github.com/transcend-io/terragrunt-atlantis-config@master && cd -
+```
+
+Alternative: Install a stable versions via Homebrew:
 
 ```bash
 brew install transcend-io/tap/terragrunt-atlantis-config
