@@ -3,24 +3,53 @@ version: 2.1
 orbs:
   aws-cli: circleci/aws-cli@1.0.0
   assume-role: airswap/assume-role@0.2.0
+  go: circleci/go@1.1.2
+  windows: circleci/windows@2.4.0
 
 jobs:
+  test_on_windows:
+    parameters:
+      golang-version:
+        type: string
+
+    executor:
+      name: windows/default
+      shell: bash.exe
+
+    steps:
+      - checkout
+      - run: choco upgrade golang --version << parameters.golang-version >> -y
+      - run: mkdir cmd/test_artifacts
+      - run: go test -v ./...
+
   build_and_test:
+    parameters:
+      golang-version:
+        type: string
+
     docker:
-      - image: circleci/golang:1.14
+      - image: cimg/base:2020.01
 
     environment:
       # path to where test results will be saved
       TEST_RESULTS: /tmp/test-results
+      GOPATH: /home/circleci/go
 
-    working_directory: /go/src/github.com/transcend-io/terragrunt-atlantis-config
+    working_directory: ~/go/src/github.com/transcend-io/terragrunt-atlantis-config
     steps:
       - checkout
+      - go/install:
+          version: << parameters.golang-version >>
 
       - restore_cache: # restores saved cache if no changes are detected since last run
           keys:
-            - go-mod-v4-{{ checksum "go.sum" }}
+            - go-mod-v6-{{ checksum "go.sum" }}-<< parameters.golang-version >>
 
+      - run:
+          name: Install gotestsum
+          command: |
+            curl -sSL "https://github.com/gotestyourself/gotestsum/releases/download/v0.4.1/gotestsum_0.4.1_linux_amd64.tar.gz" | \
+            sudo tar -xz -C /usr/local/bin gotestsum
       - run: go get github.com/laher/goxc
       - run: make build
       - run: mkdir cmd/test_artifacts
@@ -34,7 +63,7 @@ jobs:
             gotestsum --junitfile ${TEST_RESULTS}/gotestsum-report.xml -- $PACKAGE_NAMES
 
       - save_cache:
-          key: go-mod-v4-{{ checksum "go.sum" }}
+          key: go-mod-v6-{{ checksum "go.sum" }}-<< parameters.golang-version >>
           paths:
             - "/go/pkg/mod"
 
@@ -56,7 +85,7 @@ jobs:
 
       - restore_cache: # restores saved cache if no changes are detected since last run
           keys:
-            - go-mod-v4-{{ checksum "go.sum" }}
+            - go-mod-v6-{{ checksum "go.sum" }}-1.14
 
       - aws-cli/install
       - assume-role/assume-role:
@@ -69,11 +98,21 @@ workflows:
   version: 2
   main_workflow:
     jobs:
-      - build_and_test
+      - test_on_windows:
+          matrix:
+            parameters:
+              golang-version: ["1.14", "1.13"]
+
+      - build_and_test:
+          matrix:
+            parameters:
+              golang-version: ["1.14", "1.13"]
+
       - publish:
           context: prod-ctx
           requires:
             - build_and_test
+            - test_on_windows
           filters:
             branches:
               only:

@@ -3,6 +3,7 @@ package cmd
 import (
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -48,35 +49,45 @@ func runTest(t *testing.T, goldenFile string, args []string) {
 }
 
 func TestSettingRoot(t *testing.T) {
-	runTest(t, "golden/settingRoot.yaml", []string{
+	runTest(t, filepath.Join("golden", "settingRoot.yaml"), []string{
 		"--root",
 		"..",
 	})
 }
 
 func TestWithoutTrailingSlash(t *testing.T) {
-	runTest(t, "golden/settingRoot.yaml", []string{
+	parent, err := filepath.Abs("..")
+	if err != nil {
+		t.Error("Failed to find parent directory")
+	}
+
+	runTest(t, filepath.Join("golden", "settingRoot.yaml"), []string{
 		"--root",
-		"../../terragrunt-atlantis-config",
+		parent,
 	})
 }
 
 func TestWithTrailingSlash(t *testing.T) {
-	runTest(t, "golden/settingRoot.yaml", []string{
+	parent, err := filepath.Abs("..")
+	if err != nil {
+		t.Error("Failed to find parent directory")
+	}
+
+	runTest(t, filepath.Join("golden", "settingRoot.yaml"), []string{
 		"--root",
-		"../../terragrunt-atlantis-config/",
+		parent + string(filepath.Separator),
 	})
 }
 
 func TestWithNoTerragruntFiles(t *testing.T) {
-	runTest(t, "golden/empty.yaml", []string{
+	runTest(t, filepath.Join("golden", "empty.yaml"), []string{
 		"--root",
 		".", // There are no terragrunt files in this directory
 	})
 }
 
 func TestIgnoringParentTerragrunt(t *testing.T) {
-	runTest(t, "golden/withoutParent.yaml", []string{
+	runTest(t, filepath.Join("golden", "withoutParent.yaml"), []string{
 		"--root",
 		"..",
 		"--ignore-parent-terragrunt",
@@ -84,7 +95,7 @@ func TestIgnoringParentTerragrunt(t *testing.T) {
 }
 
 func TestEnablingAutoplan(t *testing.T) {
-	runTest(t, "golden/withAutoplan.yaml", []string{
+	runTest(t, filepath.Join("golden", "withAutoplan.yaml"), []string{
 		"--root",
 		"..",
 		"--autoplan",
@@ -92,7 +103,7 @@ func TestEnablingAutoplan(t *testing.T) {
 }
 
 func TestSettingWorkflowName(t *testing.T) {
-	runTest(t, "golden/namedWorkflow.yaml", []string{
+	runTest(t, filepath.Join("golden", "namedWorkflow.yaml"), []string{
 		"--root",
 		"..",
 		"--workflow",

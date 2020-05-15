@@ -17,6 +17,7 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 )
@@ -140,20 +141,20 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 		"*.tf*",
 	}
 
-	// Add other dependencies based on their relative paths
+	// Add other dependencies based on their relative paths. We always want to output with Unix path separators
 	for _, dependencyPath := range dependencies {
 		absolutePath := makePathAbsolute(dependencyPath, sourcePath)
 		relativePath, err := filepath.Rel(absoluteSourceDir, absolutePath)
 		if err != nil {
 			return nil, err
 		}
-		relativeDependencies = append(relativeDependencies, relativePath)
+		relativeDependencies = append(relativeDependencies, filepath.ToSlash(relativePath))
 	}
 
 	relativeSourceDir := strings.TrimPrefix(absoluteSourceDir, gitRoot)
 
 	project := &AtlantisProject{
-		Dir:      relativeSourceDir,
+		Dir:      filepath.ToSlash(relativeSourceDir),
 		Workflow: workflow,
 		Autoplan: AutoplanConfig{
 			Enabled:      autoPlan,
@@ -184,7 +185,7 @@ func main(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	gitRoot = absoluteGitRoot + "/"
+	gitRoot = absoluteGitRoot + string(filepath.Separator)
 
 	terragruntFiles, err := getAllTerragruntFiles()
 	if err != nil {
@@ -229,16 +230,23 @@ func main(cmd *cobra.Command, args []string) error {
 	}
 
 	// Convert config to YAML string
-	yamlString, err := yaml.Marshal(&config)
+	yamlBytes, err := yaml.Marshal(&config)
 	if err != nil {
 		return err
 	}
 
+	// Ensure newline characters are correct on windows machines, as the json encoding function in the stdlib
+	// uses "\n" for all newlines regardless of OS: https://github.com/golang/go/blob/master/src/encoding/json/stream.go#L211-L217
+	yamlString := string(yamlBytes)
+	if strings.Contains(runtime.GOOS, "windows") {
+		yamlString = strings.ReplaceAll(yamlString, "\n", "\r\n")
+	}
+
 	// Write output
 	if len(outputPath) != 0 {
-		ioutil.WriteFile(outputPath, yamlString, 0644)
+		ioutil.WriteFile(outputPath, []byte(yamlString), 0644)
 	} else {
-		log.Println(string(yamlString))
+		log.Println(yamlString)
 	}
 
 	return nil
@@ -276,7 +284,7 @@ func init() {
 // Runs a set of arguments, returning the output
 func RunWithFlags(args []string) ([]byte, error) {
 	randomInt := rand.Int()
-	filename := fmt.Sprintf("test_artifacts/%d.yaml", randomInt)
+	filename := filepath.Join("test_artifacts", fmt.Sprintf("%d.yaml", randomInt))
 
 	defer os.Remove(filename)
 
@@ -285,6 +293,7 @@ func RunWithFlags(args []string) ([]byte, error) {
 		"--output",
 		filename,
 	}, args...)
+
 	rootCmd.SetArgs(allArgs)
 	rootCmd.Execute()
 
