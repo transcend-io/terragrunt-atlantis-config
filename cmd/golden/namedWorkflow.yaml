@@ -19,7 +19,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
-    - ../dependency
+    - ../dependency/terragrunt.hcl
   dir: example-setup/depender
   workflow: someWorkflow
 version: 3

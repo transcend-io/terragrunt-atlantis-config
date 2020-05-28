@@ -44,7 +44,7 @@ func runTest(t *testing.T, goldenFile string, args []string) {
 	}
 
 	if string(content) != string(goldenContents) {
-		t.Errorf("Expected content did not match golden file. Expected content: %s", string(content))
+		t.Errorf("Content did not match golden file. Content: %s", string(content))
 	}
 }
 
