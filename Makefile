@@ -1,4 +1,4 @@
-VERSION=0.1.2
+VERSION=0.2.0
 PATH_BUILD=build/
 FILE_COMMAND=terragrunt-atlantis-config
 FILE_ARCH=darwin_amd64
