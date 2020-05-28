@@ -148,7 +148,8 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 		if err != nil {
 			return nil, err
 		}
-		relativeDependencies = append(relativeDependencies, filepath.ToSlash(relativePath))
+		dependency := filepath.ToSlash(filepath.Join(relativePath, "terragrunt.hcl"))
+		relativeDependencies = append(relativeDependencies, dependency)
 	}
 
 	relativeSourceDir := strings.TrimPrefix(absoluteSourceDir, gitRoot)

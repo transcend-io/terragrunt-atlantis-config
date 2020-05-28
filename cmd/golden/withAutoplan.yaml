@@ -17,6 +17,6 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
-    - ../dependency
+    - ../dependency/terragrunt.hcl
   dir: example-setup/depender
 version: 3
