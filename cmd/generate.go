@@ -43,6 +43,12 @@ type AtlantisConfig struct {
 	// If Atlantis should merge after finishing `atlantis apply`
 	AutoMerge bool `json:"automerge"`
 
+	// If Atlantis should allow plans to occur in parallel
+	ParallelPlan bool `json:"parallel_plan"`
+
+	// If Atlantis should allow applys to occur in parallel
+	ParallelApply bool `json:"parallel_apply"`
+
 	// The project settings
 	Projects []AtlantisProject `json:"projects,omitempty"`
 }
@@ -194,8 +200,10 @@ func main(cmd *cobra.Command, args []string) error {
 	}
 
 	config := AtlantisConfig{
-		Version:   3,
-		AutoMerge: false,
+		Version:       3,
+		AutoMerge:     false,
+		ParallelPlan:  parallel,
+		ParallelApply: parallel,
 	}
 
 	lock := sync.Mutex{}
@@ -256,6 +264,7 @@ func main(cmd *cobra.Command, args []string) error {
 var gitRoot string
 var autoPlan bool
 var ignoreParentTerragrunt bool
+var parallel bool
 var workflow string
 var outputPath string
 
@@ -277,6 +286,7 @@ func init() {
 
 	generateCmd.PersistentFlags().BoolVar(&autoPlan, "autoplan", false, "Enable auto plan. Default is disabled")
 	generateCmd.PersistentFlags().BoolVar(&ignoreParentTerragrunt, "ignore-parent-terragrunt", false, "Ignore parent terragrunt configs (those which don't reference a terraform module). Default is disabled")
+	generateCmd.PersistentFlags().BoolVar(&parallel, "parallel", true, "Enables plans and applys to happen in parallel. Default is enabled")
 	generateCmd.PersistentFlags().StringVar(&workflow, "workflow", "", "Name of the workflow to be customized in the atlantis server. Default is to not set")
 	generateCmd.PersistentFlags().StringVar(&outputPath, "output", "", "Path of the file where configuration will be generated. Default is not to write to file")
 	generateCmd.PersistentFlags().StringVar(&gitRoot, "root", pwd, "Path to the root directory of the github repo you want to build config for. Default is current dir")

@@ -16,6 +16,7 @@ func resetDefaultFlags() error {
 
 	gitRoot = pwd
 	autoPlan = false
+	parallel = true
 	ignoreParentTerragrunt = false
 	workflow = ""
 	outputPath = ""
@@ -83,6 +84,14 @@ func TestWithNoTerragruntFiles(t *testing.T) {
 	runTest(t, filepath.Join("golden", "empty.yaml"), []string{
 		"--root",
 		".", // There are no terragrunt files in this directory
+	})
+}
+
+func TestWithParallelizationDisabled(t *testing.T) {
+	runTest(t, filepath.Join("golden", "noParallel.yaml"), []string{
+		"--root",
+		".", // There are no terragrunt files in this directory
+		"--parallel=false",
 	})
 }
 
