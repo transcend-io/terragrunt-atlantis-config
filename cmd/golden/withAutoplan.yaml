@@ -21,4 +21,11 @@ projects:
     - '*.tf*'
     - ../dependency/terragrunt.hcl
   dir: example-setup/depender
+- autoplan:
+    enabled: true
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+    - ../terraform-module/*.tf*
+  dir: example-setup/local_module
 version: 3

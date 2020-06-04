@@ -114,14 +114,16 @@ func getDependencies(path string) ([]string, error) {
 	dependencies := []string{}
 
 	if parsedConfig.Dependencies != nil {
-		dependencies = parsedConfig.Dependencies.Paths
+		for _, path := range parsedConfig.Dependencies.Paths {
+			dependencies = append(dependencies, filepath.Join(path, "terragrunt.hcl"))
+		}
 	}
 
 	if parsedConfig.Terraform != nil && parsedConfig.Terraform.Source != nil {
 		source := parsedConfig.Terraform.Source
 		// TODO: Make more robust. Check for bitbucket, etc.
 		if !strings.Contains(*source, "git") {
-			dependencies = append(dependencies, *source)
+			dependencies = append(dependencies, filepath.Join(*source, "*.tf*"))
 		}
 	}
 
@@ -154,8 +156,7 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 		if err != nil {
 			return nil, err
 		}
-		dependency := filepath.ToSlash(filepath.Join(relativePath, "terragrunt.hcl"))
-		relativeDependencies = append(relativeDependencies, dependency)
+		relativeDependencies = append(relativeDependencies, filepath.ToSlash(relativePath))
 	}
 
 	relativeSourceDir := strings.TrimPrefix(absoluteSourceDir, gitRoot)

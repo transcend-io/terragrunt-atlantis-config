@@ -24,4 +24,12 @@ projects:
     - ../dependency/terragrunt.hcl
   dir: example-setup/depender
   workflow: someWorkflow
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+    - ../terraform-module/*.tf*
+  dir: example-setup/local_module
+  workflow: someWorkflow
 version: 3
