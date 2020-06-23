@@ -22,6 +22,39 @@ This tool creates Atlantis YAML configurations for Terragrunt projects by:
 
 This is especially useful for organizations that use monorepos for their Terragrunt config (as we do at Transcend), and have thousands of lines of config.
 
+## Extra dependencies
+
+For 99% of cases, this tool can sniff out all dependencies in a module. However, you may have times when you want to add in additional dependencies such as:
+
+- You want to run _all_ modules any time your product has a major version bump
+- You use Terragrunt's `read_terragrunt_config` function in your locals, and want to depend on the read file
+- You believe a module should be reapplied any time some other file or directory is updated
+
+In these cases, you can customize the `locals` block in that Terragrunt module to have a field named `extra_atlantis_dependencies` with a list
+of values you want included in the config, such as:
+
+```hcl
+locals {
+  extra_atlantis_dependencies = [
+    "some_extra_dep",
+    find_in_parent_folders(".gitignore")
+  ]
+}
+```
+
+In your `atlantis.yaml` file, you will end up seeing output like:
+
+```yaml
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+    - some_extra_dep
+    - ../../.gitignore
+  dir: example-setup/extra_dependency
+```
+
 ## Installation and Usage
 
 Recommended: Install any version via go get:

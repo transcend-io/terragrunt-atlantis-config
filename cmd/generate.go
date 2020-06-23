@@ -77,7 +77,7 @@ type AutoplanConfig struct {
 // Terragrunt imports can be relative or absolute
 // This makes relative paths absolute
 func makePathAbsolute(path string, parentPath string) string {
-	if strings.HasPrefix(path, gitRoot) {
+	if strings.HasPrefix(path, filepath.ToSlash(gitRoot)) {
 		return path
 	}
 
@@ -111,7 +111,10 @@ func getDependencies(path string) ([]string, error) {
 		return nil, nil
 	}
 
-	dependencies := []string{}
+	dependencies, err := parseLocalDependencies(path)
+	if err != nil {
+		return nil, err
+	}
 
 	if parsedConfig.Dependencies != nil {
 		for _, path := range parsedConfig.Dependencies.Paths {
@@ -136,7 +139,7 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 	if err != nil {
 		return nil, err
 	}
-	// if dependecies AND err is nil then return nils to indicate we should skip this project
+	// if dependencies AND err is nil then return nils to indicate we should skip this project
 	if err == nil && dependencies == nil {
 		return nil, nil
 	}
