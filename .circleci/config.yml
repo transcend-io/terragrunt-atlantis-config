@@ -82,15 +82,13 @@ jobs:
     working_directory: /go/src/github.com/transcend-io/terragrunt-atlantis-config
     steps:
       - checkout
-
       - restore_cache: # restores saved cache if no changes are detected since last run
           keys:
             - go-mod-v6-{{ checksum "go.sum" }}-1.14
-
       - aws-cli/install
       - assume-role/assume-role:
-          account-id: $MAIN_ACCOUNT_ID
-          role-name: $MAIN_ROLE_NAME
+          account-id: $PROD_ACCOUNT_ID
+          role-name: CI-Robots-Role-Prod
       - run: go get github.com/laher/goxc
       - run: make ci_publish
 
@@ -109,7 +107,7 @@ workflows:
               golang-version: ["1.14", "1.13"]
 
       - publish:
-          context: prod-ctx
+          context: release-ctx
           requires:
             - build_and_test
             - test_on_windows
