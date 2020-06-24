@@ -26,8 +26,9 @@ This is especially useful for organizations that use monorepos for their Terragr
 
 For 99% of cases, this tool can sniff out all dependencies in a module. However, you may have times when you want to add in additional dependencies such as:
 
-- You want to run _all_ modules any time your product has a major version bump
 - You use Terragrunt's `read_terragrunt_config` function in your locals, and want to depend on the read file
+- Your Terragrunt module should be run anytime some non-terragrunt file is updated, such as a Dockerfile or Packer template
+- You want to run _all_ modules any time your product has a major version bump
 - You believe a module should be reapplied any time some other file or directory is updated
 
 In these cases, you can customize the `locals` block in that Terragrunt module to have a field named `extra_atlantis_dependencies` with a list
