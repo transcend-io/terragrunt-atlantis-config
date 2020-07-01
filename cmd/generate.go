@@ -125,7 +125,7 @@ func getDependencies(path string) ([]string, error) {
 	if parsedConfig.Terraform != nil && parsedConfig.Terraform.Source != nil {
 		source := parsedConfig.Terraform.Source
 		// TODO: Make more robust. Check for bitbucket, etc.
-		if !strings.Contains(*source, "git::") {
+		if !strings.Contains(*source, "git::") && !strings.Contains(*source, "github") {
 			dependencies = append(dependencies, filepath.Join(*source, "*.tf*"))
 		}
 	}
