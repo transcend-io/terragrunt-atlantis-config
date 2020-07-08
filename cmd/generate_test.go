@@ -143,3 +143,14 @@ func TestTerragruntDependencies(t *testing.T) {
 		filepath.Join("..", "test_examples", "terragrunt_dependency"),
 	})
 }
+
+// This test covers parent Terragrunt files that are not runnable as modules themselves.
+// Sometimes it is possible to have parent files that only are runnable when included
+// into child modules.
+func TestUnparseableParent(t *testing.T) {
+	runTest(t, filepath.Join("golden", "invalid_parent_module.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "invalid_parent_module"),
+		"--ignore-parent-terragrunt",
+	})
+}
