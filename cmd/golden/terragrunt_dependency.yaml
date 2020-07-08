@@ -7,6 +7,12 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
-  dir: .
-  workflow: someWorkflow
+  dir: dependency
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+    - ../dependency/terragrunt.hcl
+  dir: depender
 version: 3

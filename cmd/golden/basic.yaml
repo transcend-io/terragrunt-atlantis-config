@@ -1,6 +1,6 @@
 automerge: false
-parallel_apply: false
-parallel_plan: false
+parallel_apply: true
+parallel_plan: true
 projects:
 - autoplan:
     enabled: false

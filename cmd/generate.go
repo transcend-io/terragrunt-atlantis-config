@@ -144,7 +144,7 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 		return nil, nil
 	}
 
-	absoluteSourceDir := filepath.Dir(sourcePath)
+	absoluteSourceDir := filepath.Dir(sourcePath) + string(filepath.Separator)
 
 	// All dependencies depend on their own .hcl file, and any tf files in their directory
 	relativeDependencies := []string{
@@ -162,7 +162,12 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 		relativeDependencies = append(relativeDependencies, filepath.ToSlash(relativePath))
 	}
 
+	// Clean up the relative path to the format Atlantis expects
 	relativeSourceDir := strings.TrimPrefix(absoluteSourceDir, gitRoot)
+	relativeSourceDir = strings.TrimSuffix(relativeSourceDir, string(filepath.Separator))
+	if relativeSourceDir == "" {
+		relativeSourceDir = "."
+	}
 
 	project := &AtlantisProject{
 		Dir:      filepath.ToSlash(relativeSourceDir),
