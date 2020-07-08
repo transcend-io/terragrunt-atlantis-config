@@ -8,5 +8,10 @@ projects:
     - '*.hcl'
     - '*.tf*'
   dir: .
-  workflow: someWorkflow
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+  dir: child
 version: 3

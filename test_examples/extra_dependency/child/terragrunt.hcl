@@ -1,7 +1,3 @@
-include {
-  path = find_in_parent_folders("terragrunt.hcl")
-}
-
 terraform {
   source = "git::git@github.com:transcend-io/terraform-aws-fargate-container?ref=v0.0.4"
 }

@@ -1,11 +1,12 @@
 automerge: false
-parallel_apply: false
-parallel_plan: false
+parallel_apply: true
+parallel_plan: true
 projects:
 - autoplan:
     enabled: false
     when_modified:
     - '*.hcl'
     - '*.tf*'
-  dir: .
+    - ../terraform-module/*.tf*
+  dir: terragrunt-module
 version: 3

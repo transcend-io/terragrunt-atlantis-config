@@ -7,27 +7,5 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
-  dir: example-setup/dependency
-- autoplan:
-    enabled: false
-    when_modified:
-    - '*.hcl'
-    - '*.tf*'
-    - ../dependency/terragrunt.hcl
-  dir: example-setup/depender
-- autoplan:
-    enabled: false
-    when_modified:
-    - '*.hcl'
-    - '*.tf*'
-    - some_extra_dep
-    - ../test_file.json
-  dir: example-setup/extra_dependency
-- autoplan:
-    enabled: false
-    when_modified:
-    - '*.hcl'
-    - '*.tf*'
-    - ../terraform-module/*.tf*
-  dir: example-setup/local_module
+  dir: child
 version: 3

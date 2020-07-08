@@ -50,33 +50,28 @@ func runTest(t *testing.T, goldenFile string, args []string) {
 }
 
 func TestSettingRoot(t *testing.T) {
-	runTest(t, filepath.Join("golden", "settingRoot.yaml"), []string{
+	runTest(t, filepath.Join("golden", "basic.yaml"), []string{
 		"--root",
-		"..",
+		filepath.Join("..", "test_examples", "basic_module"),
 	})
 }
 
-func TestWithoutTrailingSlash(t *testing.T) {
-	parent, err := filepath.Abs("..")
+func TestRootPathBeingAbsolute(t *testing.T) {
+	parent, err := filepath.Abs(filepath.Join("..", "test_examples", "basic_module"))
 	if err != nil {
 		t.Error("Failed to find parent directory")
 	}
 
-	runTest(t, filepath.Join("golden", "settingRoot.yaml"), []string{
+	runTest(t, filepath.Join("golden", "basic.yaml"), []string{
 		"--root",
 		parent,
 	})
 }
 
-func TestWithTrailingSlash(t *testing.T) {
-	parent, err := filepath.Abs("..")
-	if err != nil {
-		t.Error("Failed to find parent directory")
-	}
-
-	runTest(t, filepath.Join("golden", "settingRoot.yaml"), []string{
+func TestRootPathHavingTrailingSlash(t *testing.T) {
+	runTest(t, filepath.Join("golden", "basic.yaml"), []string{
 		"--root",
-		parent + string(filepath.Separator),
+		filepath.Join("..", "test_examples", "basic_module") + string(filepath.Separator),
 	})
 }
 
@@ -84,13 +79,14 @@ func TestWithNoTerragruntFiles(t *testing.T) {
 	runTest(t, filepath.Join("golden", "empty.yaml"), []string{
 		"--root",
 		".", // There are no terragrunt files in this directory
+		filepath.Join("..", "test_examples", "no_modules"),
 	})
 }
 
 func TestWithParallelizationDisabled(t *testing.T) {
 	runTest(t, filepath.Join("golden", "noParallel.yaml"), []string{
 		"--root",
-		".", // There are no terragrunt files in this directory
+		filepath.Join("..", "test_examples", "basic_module"),
 		"--parallel=false",
 	})
 }
@@ -98,15 +94,22 @@ func TestWithParallelizationDisabled(t *testing.T) {
 func TestIgnoringParentTerragrunt(t *testing.T) {
 	runTest(t, filepath.Join("golden", "withoutParent.yaml"), []string{
 		"--root",
-		"..",
+		filepath.Join("..", "test_examples", "with_parent"),
 		"--ignore-parent-terragrunt",
+	})
+}
+
+func TestNotIgnoringParentTerragrunt(t *testing.T) {
+	runTest(t, filepath.Join("golden", "withParent.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "with_parent"),
 	})
 }
 
 func TestEnablingAutoplan(t *testing.T) {
 	runTest(t, filepath.Join("golden", "withAutoplan.yaml"), []string{
 		"--root",
-		"..",
+		filepath.Join("..", "test_examples", "basic_module"),
 		"--autoplan",
 	})
 }
@@ -114,8 +117,29 @@ func TestEnablingAutoplan(t *testing.T) {
 func TestSettingWorkflowName(t *testing.T) {
 	runTest(t, filepath.Join("golden", "namedWorkflow.yaml"), []string{
 		"--root",
-		"..",
+		filepath.Join("..", "test_examples", "basic_module"),
 		"--workflow",
 		"someWorkflow",
+	})
+}
+
+func TestExtraDeclaredDependencies(t *testing.T) {
+	runTest(t, filepath.Join("golden", "extra_dependencies.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "extra_dependency"),
+	})
+}
+
+func TestLocalTerraformModuleSource(t *testing.T) {
+	runTest(t, filepath.Join("golden", "local_terraform_module.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "local_terraform_module_source"),
+	})
+}
+
+func TestTerragruntDependencies(t *testing.T) {
+	runTest(t, filepath.Join("golden", "terragrunt_dependency.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "terragrunt_dependency"),
 	})
 }
