@@ -87,12 +87,6 @@ func makePathAbsolute(path string, parentPath string) string {
 
 // Parses the terragrunt config at <path> to find all modules it depends on
 func getDependencies(path string) ([]string, error) {
-	decodeTypes := []config.PartialDecodeSectionType{
-		config.DependencyBlock,
-		config.DependenciesBlock,
-		config.TerraformBlock,
-	}
-
 	options, err := options.NewTerragruntOptions(path)
 	if err != nil {
 		return nil, err
@@ -100,15 +94,25 @@ func getDependencies(path string) ([]string, error) {
 	options.RunTerragrunt = cli.RunTerragrunt
 	options.Env = getEnvs()
 
-	parsedConfig, err := config.PartialParseConfigFile(path, options, nil, decodeTypes)
+	// if theres no terraform source and we're ignoring parent terragrunt configs
+	// return nils to indicate we should skip this project
+	isParent, err := isParentModule(path, options)
 	if err != nil {
 		return nil, err
 	}
-
-	// if theres no terraform source and we're ignoring parent terragrunt configs
-	// return nils to indicate we should skip this project
-	if (parsedConfig.Terraform == nil || parsedConfig.Terraform.Source == nil) && ignoreParentTerragrunt == true {
+	if ignoreParentTerragrunt && isParent {
 		return nil, nil
+	}
+
+	decodeTypes := []config.PartialDecodeSectionType{
+		config.DependencyBlock,
+		config.DependenciesBlock,
+		config.TerraformBlock,
+	}
+
+	parsedConfig, err := config.PartialParseConfigFile(path, options, nil, decodeTypes)
+	if err != nil {
+		return nil, err
 	}
 
 	dependencies, err := parseLocalDependencies(path)
