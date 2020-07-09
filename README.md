@@ -22,40 +22,6 @@ This tool creates Atlantis YAML configurations for Terragrunt projects by:
 
 This is especially useful for organizations that use monorepos for their Terragrunt config (as we do at Transcend), and have thousands of lines of config.
 
-## Extra dependencies
-
-For 99% of cases, this tool can sniff out all dependencies in a module. However, you may have times when you want to add in additional dependencies such as:
-
-- You use Terragrunt's `read_terragrunt_config` function in your locals, and want to depend on the read file
-- Your Terragrunt module should be run anytime some non-terragrunt file is updated, such as a Dockerfile or Packer template
-- You want to run _all_ modules any time your product has a major version bump
-- You believe a module should be reapplied any time some other file or directory is updated
-
-In these cases, you can customize the `locals` block in that Terragrunt module to have a field named `extra_atlantis_dependencies` with a list
-of values you want included in the config, such as:
-
-```hcl
-locals {
-  extra_atlantis_dependencies = [
-    "some_extra_dep",
-    find_in_parent_folders(".gitignore")
-  ]
-}
-```
-
-In your `atlantis.yaml` file, you will end up seeing output like:
-
-```yaml
-- autoplan:
-    enabled: false
-    when_modified:
-    - '*.hcl'
-    - '*.tf*'
-    - some_extra_dep
-    - ../../.gitignore
-  dir: example-setup/extra_dependency
-```
-
 ## Installation and Usage
 
 Recommended: Install any version via go get:
@@ -93,6 +59,73 @@ terragrunt-atlantis-config generate --ignore-parent-terragrunt
 ```
 
 Finally, check the log output (or your output file) for the YAML.
+
+## Extra dependencies
+
+For 99% of cases, this tool can sniff out all dependencies in a module. However, you may have times when you want to add in additional dependencies such as:
+
+- You use Terragrunt's `read_terragrunt_config` function in your locals, and want to depend on the read file
+- Your Terragrunt module should be run anytime some non-terragrunt file is updated, such as a Dockerfile or Packer template
+- You want to run _all_ modules any time your product has a major version bump
+- You believe a module should be reapplied any time some other file or directory is updated
+
+In these cases, you can customize the `locals` block in that Terragrunt module to have a field named `extra_atlantis_dependencies` with a list
+of values you want included in the config, such as:
+
+```hcl
+locals {
+  extra_atlantis_dependencies = [
+    "some_extra_dep",
+    find_in_parent_folders(".gitignore")
+  ]
+}
+```
+
+In your `atlantis.yaml` file, you will end up seeing output like:
+
+```yaml
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+    - some_extra_dep
+    - ../../.gitignore
+  dir: example-setup/extra_dependency
+```
+
+## Auto Enforcement with Github Actions
+
+It's a best practice to require that `atlantis.yaml` stays up to date on each Pull Request.
+
+To make this easy, there is an open-source Github Action that will fail a status check on your PR if the `atlantis.yaml` file is out of date.
+
+To use it, add this yaml to a new github action file in your repo:
+
+```yaml
+name: terragrunt-atlantis-config
+on:
+  push:
+    paths:
+    - '**.hcl'
+    - '**.tf'
+    - '**.hcl.json'
+
+jobs:
+  terragrunt_atlantis_config:
+    runs-on: ubuntu-latest
+    name: Validate atlantis.yaml
+    steps:
+      - uses: actions/checkout@v2
+      - name: Ensure atlantis.yaml is up to date using terragrunt-atlantis-config
+        id: atlantis_validator
+        uses: transcend-io/terragrunt-atlantis-config-github-action@v0.0.3
+        with:
+          version: v0.5.0
+          extra_args: '--autoplan --parallel=false
+```
+
+You can customize the version and flags you typically pass to the `generate` command in those final two lines.
 
 ## Contributing
 
