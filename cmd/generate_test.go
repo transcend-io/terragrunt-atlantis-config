@@ -18,7 +18,7 @@ func resetDefaultFlags() error {
 	autoPlan = false
 	parallel = true
 	ignoreParentTerragrunt = false
-	workflow = ""
+	defaultWorkflow = ""
 	outputPath = ""
 
 	return nil
@@ -45,7 +45,7 @@ func runTest(t *testing.T, goldenFile string, args []string) {
 	}
 
 	if string(content) != string(goldenContents) {
-		t.Errorf("Content did not match golden file. Content: %s", string(content))
+		t.Errorf("Content did not match golden file.\n\nExpected Content: %s\n\nContent: %s", string(goldenContents), string(content))
 	}
 }
 
@@ -141,6 +141,13 @@ func TestTerragruntDependencies(t *testing.T) {
 	runTest(t, filepath.Join("golden", "terragrunt_dependency.yaml"), []string{
 		"--root",
 		filepath.Join("..", "test_examples", "terragrunt_dependency"),
+	})
+}
+
+func TestCustomWorkflowName(t *testing.T) {
+	runTest(t, filepath.Join("golden", "different_workflow_names.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "different_workflow_names"),
 	})
 }
 

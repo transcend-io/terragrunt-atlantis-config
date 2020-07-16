@@ -173,6 +173,17 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 		relativeSourceDir = "."
 	}
 
+	locals, err := parseLocals(sourcePath)
+	if err != nil {
+		return nil, err
+	}
+
+	workflow := defaultWorkflow
+	workflowValue, ok := locals["atlantis_workflow"]
+	if ok {
+		workflow = workflowValue.AsString()
+	}
+
 	project := &AtlantisProject{
 		Dir:      filepath.ToSlash(relativeSourceDir),
 		Workflow: workflow,
@@ -278,7 +289,7 @@ var gitRoot string
 var autoPlan bool
 var ignoreParentTerragrunt bool
 var parallel bool
-var workflow string
+var defaultWorkflow string
 var outputPath string
 
 // generateCmd represents the generate command
@@ -300,7 +311,7 @@ func init() {
 	generateCmd.PersistentFlags().BoolVar(&autoPlan, "autoplan", false, "Enable auto plan. Default is disabled")
 	generateCmd.PersistentFlags().BoolVar(&ignoreParentTerragrunt, "ignore-parent-terragrunt", false, "Ignore parent terragrunt configs (those which don't reference a terraform module). Default is disabled")
 	generateCmd.PersistentFlags().BoolVar(&parallel, "parallel", true, "Enables plans and applys to happen in parallel. Default is enabled")
-	generateCmd.PersistentFlags().StringVar(&workflow, "workflow", "", "Name of the workflow to be customized in the atlantis server. Default is to not set")
+	generateCmd.PersistentFlags().StringVar(&defaultWorkflow, "workflow", "", "Name of the workflow to be customized in the atlantis server. Default is to not set")
 	generateCmd.PersistentFlags().StringVar(&outputPath, "output", "", "Path of the file where configuration will be generated. Default is not to write to file")
 	generateCmd.PersistentFlags().StringVar(&gitRoot, "root", pwd, "Path to the root directory of the github repo you want to build config for. Default is current dir")
 }
