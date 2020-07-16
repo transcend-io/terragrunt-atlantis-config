@@ -5,38 +5,15 @@ package cmd
 // parses the `locals` blocks and evaluates their contents.
 
 import (
-	"encoding/json"
-
 	"github.com/gruntwork-io/terragrunt/config"
-	terragruntErrors "github.com/gruntwork-io/terragrunt/errors"
 	"github.com/gruntwork-io/terragrunt/options"
 	"github.com/gruntwork-io/terragrunt/util"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/zclconf/go-cty/cty"
-	ctyjson "github.com/zclconf/go-cty/cty/json"
 
 	"path/filepath"
 )
-
-// This is a hacky workaround to convert a cty Value to a Go map[string]interface{}. cty does not support this directly
-// (https://github.com/hashicorp/hcl2/issues/108) and doing it with gocty.FromCtyValue is nearly impossible, as cty
-// requires you to specify all the output types and will error out when it hits interface{}. So, as an ugly workaround,
-// we convert the given value to JSON using cty's JSON library and then convert the JSON back to a
-// map[string]interface{} using the Go json library.
-func parseCtyValueToMap(value cty.Value) (map[string]interface{}, error) {
-	jsonBytes, err := ctyjson.Marshal(value, cty.DynamicPseudoType)
-	if err != nil {
-		return nil, terragruntErrors.WithStackTrace(err)
-	}
-
-	var ctyJsonOutput config.CtyJsonOutput
-	if err := json.Unmarshal(jsonBytes, &ctyJsonOutput); err != nil {
-		return nil, terragruntErrors.WithStackTrace(err)
-	}
-
-	return ctyJsonOutput.Value, nil
-}
 
 // parseHcl uses the HCL2 parser to parse the given string into an HCL file body.
 func parseHcl(parser *hclparse.Parser, hcl string, filename string) (file *hcl.File, err error) {
@@ -57,9 +34,8 @@ func parseHcl(parser *hclparse.Parser, hcl string, filename string) (file *hcl.F
 	return file, nil
 }
 
-// Parses the terragrunt config at <path> to find any `locals` values with
-// the name `extra_atlantis_dependencies`
-func parseLocalDependencies(path string) ([]string, error) {
+// Parses a given file, returning a map of all it's `local` values
+func parseLocals(path string) (map[string]cty.Value, error) {
 	configString, err := util.ReadFileAsString(path)
 	if err != nil {
 		return nil, err
@@ -85,10 +61,21 @@ func parseLocalDependencies(path string) ([]string, error) {
 
 	// If there are no locals, return early
 	if *localsAsCty == cty.NilVal {
-		return []string{}, nil
+		return map[string]cty.Value{}, nil
 	}
 
-	extraDependenciesAsCty, ok := localsAsCty.AsValueMap()["extra_atlantis_dependencies"]
+	return localsAsCty.AsValueMap(), nil
+}
+
+// Parses the terragrunt config at <path> to find any `locals` values with
+// the name `extra_atlantis_dependencies`
+func parseLocalDependencies(path string) ([]string, error) {
+	locals, err := parseLocals(path)
+	if err != nil {
+		return nil, err
+	}
+
+	extraDependenciesAsCty, ok := locals["extra_atlantis_dependencies"]
 	if !ok {
 		return []string{}, nil
 	}

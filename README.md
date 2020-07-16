@@ -94,6 +94,31 @@ In your `atlantis.yaml` file, you will end up seeing output like:
   dir: example-setup/extra_dependency
 ```
 
+## Custom workflows
+
+By default, the `workflow` field of each project will be empty. But you can set a global default workflow name, and can also customize the workflow name for individual projects if you'd like.
+
+To set a global workflow name that all projects will use, use the `--workflow` flag:
+
+```bash
+terragrunt-atlantis-config generate --workflow dev --output ./atlantis.yaml
+```
+
+In this example, all projects will have `workflow: dev` set. 
+
+If you have multiple different workflows you want to use, you can set a `local` value in your terragrunt module with name `atlantis_workflow`, and a value of the workspace name you want to use.
+
+So if a terragrunt file contains:
+
+```hcl
+locals {
+  atlantis_workflow = "workflowA"
+}
+```
+
+it will have `workflow: workflowA` set in the atlantis.yaml settings.
+
+
 ## Auto Enforcement with Github Actions
 
 It's a best practice to require that `atlantis.yaml` stays up to date on each Pull Request.
@@ -121,7 +146,7 @@ jobs:
         id: atlantis_validator
         uses: transcend-io/terragrunt-atlantis-config-github-action@v0.0.3
         with:
-          version: v0.5.0
+          version: v0.6.0
           extra_args: '--autoplan --parallel=false
 ```
 
