@@ -6,6 +6,12 @@ on:
     branches: [master]
 
 jobs:
+  run_straight_from_gpr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: just some random command
+        uses: docker://docker.pkg.github.com/sujaypillai/buildxdemo/buildxdemo:githubactions
   build_with_gpr:
     runs-on: ubuntu-latest
     steps:
