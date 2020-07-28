@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - run: echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u $GITHUB_ACTOR --password-stdin
       - name: just some random command
         uses: docker://docker.pkg.github.com/sujaypillai/buildxdemo/buildxdemo:githubactions
   build_with_gpr:
