@@ -19,9 +19,12 @@ jobs:
 
       - name: Craft a valid tag for this build
         id: craft_tag
-        run: |
-          echo -n "::set-output name=image_tag::"
-          echo ${{ github.ref }} | sed -Ee 's/refs\/(heads|tags)\///' | sed -Ee 's/\//-/g' | sed -Ee 's/master/latest/'
+        run: >
+          echo -n "::set-output name=image_tag::";
+          echo ${{ github.ref }}
+          | sed -E -e 's/refs\/(heads|tags)?\/?//'
+          -e 's/\//-/g'
+          -e 's/master/latest/'
 
       - name: Check for an existing build for this ref
         id: image_check
@@ -30,7 +33,7 @@ jobs:
 
           curl -o /dev/null -s -w '%{http_code}\n' -X GET
           https://${{ env.GPR_HOSTNAME }}/v2/${{ github.repository }}/slim/manifests/${{ steps.craft_tag.outputs.image_tag }}
-          -u $GITHUB_ACTOR:$GITHUB_TOKEN
+          -u ${{ github.actor }}:${{ github.token }}
 
       # this step compensates for a limitation of BuildKit + GPR
       # https://github.com/containerd/containerd/issues/3291
@@ -45,14 +48,14 @@ jobs:
             pull_tag=latest
           fi
 
-          echo ${{ env.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u $GITHUB_ACTOR --password-stdin
+          echo ${{ github.token }} | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
           docker pull ${{env.GPR_HOSTNAME}}/${{ github.repository }}/slim:$pull_tag
 
       - name: Build with cache
         uses: docker/build-push-action@v1
         with:
-          username: ${{ env.GITHUB_ACTOR }}
-          password: ${{ env.GITHUB_TOKEN }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
           registry: ${{ env.GPR_HOSTNAME }}
           repository: ${{ github.repository }}/slim
           tags: ${{ steps.craft_tag.outputs.image_tag }}
