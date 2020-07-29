@@ -6,33 +6,13 @@ on:
     branches: [master]
 
 env:
+  # use BuildKit to speed up builds and improve caching
+  DOCKER_BUILDKIT: 1
   # GitHub Packages docker registry hostname
   GPR_HOSTNAME: docker.pkg.github.com
 
 jobs:
-  # build_with_action:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v2
-
-  #     - name: Craft a valid tag for this build
-  #       id: craft_tag
-  #       run: |
-  #         echo -n "::set-output name=image_tag::"
-  #         echo ${{ github.ref }} | sed -er 's/[a-z]+/'| sed -e 's/\//-/g'
-
-  #     - name: Build with cache
-  #       uses: docker/build-push-action@v1
-  #       with:
-  #         username: ${{ github.actor }}
-  #         password: ${{ secrets.GITHUB_TOKEN }}
-  #         registry: ${{ env.GPR_HOSTNAME }}
-  #         repository: ${{ github.repository }}/slim
-  #         tags: ${{ steps.craft_tag.outputs.image_tag }}
-  #         tag_with_sha: true
-  #         cache_froms: ${{env.GPR_HOSTNAME}}/${{ github.repository }}/slim
-
-  build_roll_your_own:
+  build_with_action:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -43,9 +23,41 @@ jobs:
           echo -n "::set-output name=image_tag::"
           echo ${{ github.ref }} | sed -Ee 's/refs\/(heads|tags)\///' | sed -Ee 's/\//-/g' | sed -Ee 's/master/latest/'
 
-      - run: echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u $GITHUB_ACTOR --password-stdin
-      - run: docker pull docker.pkg.github.com/${{ github.repository }}/slim:${{ steps.craft_tag.outputs.image_tag }} || true
-      - run: docker build . -t ${{ steps.craft_tag.outputs.image_tag }} --cache-from=docker.pkg.github.com/${{ github.repository }}/slim:${{ steps.craft_tag.outputs.image_tag }}
-      - run: >
-          docker tag ${{ steps.craft_tag.outputs.image_tag }} docker.pkg.github.com/${{ github.repository }}/slim
-          && docker push docker.pkg.github.com/${{ github.repository }}/slim:${{ steps.craft_tag.outputs.image_tag }}
+      - name: Check for an existing build for this ref
+        id: image_check
+        run: >
+          echo -n "::set-output name=status_code::";
+
+          curl -o /dev/null -s -w '%{http_code}\n' -X GET
+          https://${{ env.GPR_HOSTNAME }}/v2/${{ github.repository }}/slim/manifests/${{ steps.craft_tag.outputs.image_tag }}
+          -u $GITHUB_ACTOR:$GITHUB_TOKEN
+
+      # this step compensates for a limitation of BuildKit + GPR
+      # https://github.com/containerd/containerd/issues/3291
+      - name: Pull an image to use for cache
+        run: |
+          # do we already have this tag in the repo? then pull it
+          if [[ "${{ steps.image_check.outputs.status_code }}" == "200" ]]; then
+            pull_tag=${{ steps.craft_tag.outputs.image_tag }}
+
+          # otherwise pull latest
+          else
+            pull_tag=latest
+          fi
+
+          echo ${{ env.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u $GITHUB_ACTOR --password-stdin
+          docker pull ${{env.GPR_HOSTNAME}}/${{ github.repository }}/slim:$pull_tag
+
+      - name: Build with cache
+        uses: docker/build-push-action@v1
+        with:
+          username: ${{ env.GITHUB_ACTOR }}
+          password: ${{ env.GITHUB_TOKEN }}
+          registry: ${{ env.GPR_HOSTNAME }}
+          repository: ${{ github.repository }}/slim
+          tags: ${{ steps.craft_tag.outputs.image_tag }}
+          build_args: BUILDKIT_INLINE_CACHE=1
+          tag_with_sha: true
+          cache_froms: >
+            ${{env.GPR_HOSTNAME}}/${{ github.repository }}/slim:latest,
+            ${{env.GPR_HOSTNAME}}/${{ github.repository }}/slim:${{ steps.craft_tag.outputs.image_tag }}
