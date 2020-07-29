@@ -10,27 +10,27 @@ env:
   GPR_HOSTNAME: docker.pkg.github.com
 
 jobs:
-  build_with_action:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
+  # build_with_action:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
 
-      - name: Craft a valid tag for this build
-        id: craft_tag
-        run: |
-          echo -n "::set-output name=image_tag::"
-          echo ${{ github.ref }} | sed -er 's/[a-z]+/'| sed -e 's/\//-/g'
+  #     - name: Craft a valid tag for this build
+  #       id: craft_tag
+  #       run: |
+  #         echo -n "::set-output name=image_tag::"
+  #         echo ${{ github.ref }} | sed -er 's/[a-z]+/'| sed -e 's/\//-/g'
 
-      - name: Build with cache
-        uses: docker/build-push-action@v1
-        with:
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-          registry: ${{ env.GPR_HOSTNAME }}
-          repository: ${{ github.repository }}/slim
-          tags: ${{ steps.craft_tag.outputs.image_tag }}
-          tag_with_sha: true
-          cache_froms: ${{env.GPR_HOSTNAME}}/${{ github.repository }}/slim
+  #     - name: Build with cache
+  #       uses: docker/build-push-action@v1
+  #       with:
+  #         username: ${{ github.actor }}
+  #         password: ${{ secrets.GITHUB_TOKEN }}
+  #         registry: ${{ env.GPR_HOSTNAME }}
+  #         repository: ${{ github.repository }}/slim
+  #         tags: ${{ steps.craft_tag.outputs.image_tag }}
+  #         tag_with_sha: true
+  #         cache_froms: ${{env.GPR_HOSTNAME}}/${{ github.repository }}/slim
 
   build_roll_your_own:
     runs-on: ubuntu-latest
@@ -46,6 +46,6 @@ jobs:
       - run: echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u $GITHUB_ACTOR --password-stdin
       - run: docker pull docker.pkg.github.com/${{ github.repository }}/slim:${{ steps.craft_tag.outputs.image_tag }} || true
       - run: docker build . -t ${{ steps.craft_tag.outputs.image_tag }} --cache-from=docker.pkg.github.com/${{ github.repository }}/slim:${{ steps.craft_tag.outputs.image_tag }}
-      - run: |
+      - run: >
           docker tag ${{ steps.craft_tag.outputs.image_tag }} docker.pkg.github.com/${{ github.repository }}/slim
           && docker push docker.pkg.github.com/${{ github.repository }}/slim:${{ steps.craft_tag.outputs.image_tag }}
