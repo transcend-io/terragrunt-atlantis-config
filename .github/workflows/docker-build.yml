@@ -1,0 +1,67 @@
+# only run when we push changes to master or PRs
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+env:
+  # GitHub Packages docker registry hostname
+  GPR_HOSTNAME: docker.pkg.github.com
+
+jobs:
+  build_with_action:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Craft a valid tag for this build
+        id: craft_tag
+        run: >
+          echo -n "::set-output name=image_tag::";
+          echo ${{ github.ref }}
+          | sed -E -e 's/refs\/(heads|tags)?\/?//'
+          -e 's/\//-/g'
+          -e 's/master/latest/'
+
+      - name: Check for an existing build for this ref
+        id: image_check
+        env:
+          URL: https://${{ env.GPR_HOSTNAME }}/v2/${{ github.repository }}/slim/manifests/${{ steps.craft_tag.outputs.image_tag }}
+          CREDS: ${{ github.actor }}:${{ github.token }}
+        run: |
+          echo -n "::set-output name=status_code::"
+          curl -o /dev/null -s -w '%{http_code}\n' -X GET $URL -u $CREDS
+
+      # this step compensates for a limitation of BuildKit + GPR
+      # https://github.com/containerd/containerd/issues/3291
+      - name: Pull an image to use for cache
+        run: |
+          # do we already have this tag in the repo? then pull it
+          if [[ "${{ steps.image_check.outputs.status_code }}" == "200" ]]; then
+            pull_tag=${{ steps.craft_tag.outputs.image_tag }}
+
+          # otherwise pull latest
+          else
+            pull_tag=latest
+          fi
+
+          echo ${{ github.token }} | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+          docker pull ${{ env.GPR_HOSTNAME }}/${{ github.repository }}/slim:$pull_tag
+
+      - name: Build with cache
+        uses: docker/build-push-action@v1
+        env:
+          # use BuildKit to speed up builds and improve caching
+          DOCKER_BUILDKIT: 1
+        with:
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+          registry: ${{ env.GPR_HOSTNAME }}
+          repository: ${{ github.repository }}/slim
+          tags: ${{ steps.craft_tag.outputs.image_tag }}
+          build_args: BUILDKIT_INLINE_CACHE=1
+          tag_with_sha: true
+          cache_froms: >
+            ${{ env.GPR_HOSTNAME }}/${{ github.repository }}/slim:latest,
+            ${{ env.GPR_HOSTNAME }}/${{ github.repository }}/slim:${{ steps.craft_tag.outputs.image_tag }}
