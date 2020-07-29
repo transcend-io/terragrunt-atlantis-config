@@ -20,8 +20,8 @@ jobs:
       - name: Craft a valid tag for this build
         id: craft_tag
         run: |
-          image_tag=$(echo ${{ github.ref }} | sed -e 's/\//-/g' )
-          echo "::set-output name=image_tag::$image_tag"
+          echo -n "::set-output name=image_tag::"
+          echo ${{ github.ref }} | sed -e 's/\//-/g'
 
       - name: Build with cache
         uses: docker/build-push-action@v1
