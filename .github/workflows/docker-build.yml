@@ -6,8 +6,6 @@ on:
     branches: [master]
 
 env:
-  # use BuildKit to speed up builds and improve caching
-  DOCKER_BUILDKIT: 1
   # GitHub Packages docker registry hostname
   GPR_HOSTNAME: docker.pkg.github.com
 
@@ -28,12 +26,12 @@ jobs:
 
       - name: Check for an existing build for this ref
         id: image_check
-        run: >
-          echo -n "::set-output name=status_code::";
-
-          curl -o /dev/null -s -w '%{http_code}\n' -X GET
-          https://${{ env.GPR_HOSTNAME }}/v2/${{ github.repository }}/slim/manifests/${{ steps.craft_tag.outputs.image_tag }}
-          -u ${{ github.actor }}:${{ github.token }}
+        env:
+          URL: https://${{ env.GPR_HOSTNAME }}/v2/${{ github.repository }}/slim/manifests/${{ steps.craft_tag.outputs.image_tag }}
+          CREDS: ${{ github.actor }}:${{ github.token }}
+        run: |
+          echo -n "::set-output name=status_code::"
+          curl -o /dev/null -s -w '%{http_code}\n' -X GET $URL -u $CREDS
 
       # this step compensates for a limitation of BuildKit + GPR
       # https://github.com/containerd/containerd/issues/3291
@@ -49,10 +47,13 @@ jobs:
           fi
 
           echo ${{ github.token }} | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
-          docker pull ${{env.GPR_HOSTNAME}}/${{ github.repository }}/slim:$pull_tag
+          docker pull ${{ env.GPR_HOSTNAME }}/${{ github.repository }}/slim:$pull_tag
 
       - name: Build with cache
         uses: docker/build-push-action@v1
+        env:
+          # use BuildKit to speed up builds and improve caching
+          DOCKER_BUILDKIT: 1
         with:
           username: ${{ github.actor }}
           password: ${{ github.token }}
@@ -62,5 +63,5 @@ jobs:
           build_args: BUILDKIT_INLINE_CACHE=1
           tag_with_sha: true
           cache_froms: >
-            ${{env.GPR_HOSTNAME}}/${{ github.repository }}/slim:latest,
-            ${{env.GPR_HOSTNAME}}/${{ github.repository }}/slim:${{ steps.craft_tag.outputs.image_tag }}
+            ${{ env.GPR_HOSTNAME }}/${{ github.repository }}/slim:latest,
+            ${{ env.GPR_HOSTNAME }}/${{ github.repository }}/slim:${{ steps.craft_tag.outputs.image_tag }}
