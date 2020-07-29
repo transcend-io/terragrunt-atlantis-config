@@ -14,9 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Create image tag from branch name
-        run: |
-          echo '${{ github.head_ref }}' | sed -e 's/\//-'
+
       - name: Build with cache
         uses: docker/build-push-action@v1
         with:
