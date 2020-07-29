@@ -5,7 +5,29 @@ on:
   pull_request:
     branches: [master]
 
+env:
+  # GitHub Packages docker registry hostname
+  GPR_HOSTNAME: docker.pkg.github.com
+
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Create image tag from branch name
+        run: |
+          echo '${{ github.head_ref }}' | sed -e 's/\//-'
+      - name: Build with cache
+        uses: docker/build-push-action@v1
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secretes.GITHUB_TOKEN }}
+          registry: ${{ env.GPR_HOSTNAME }}
+          repository: kubernetes/rx-web
+          tag_with_ref: true
+          tag_with_sha: true
+          cache_froms: ${{env.GPR_HOSTNAME}}/${{ github.repository }}
+
   run_straight_from_gpr:
     runs-on: ubuntu-latest
     steps:

@@ -1,0 +1,21 @@
+FROM golang AS build
+
+ENV GO111MODULE=on
+WORKDIR /app
+
+# copy source
+COPY go.mod go.sum main.go ./
+COPY cmd ./cmd
+
+# fetch deps separately (for layer caching)
+RUN go mod download
+
+
+# build the executable
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build
+
+
+# create super thin container with the binary only
+FROM scratch
+COPY --from=build /app/terragrunt-atlantis-config /terragrunt-atlantis-config
+ENTRYPOINT [ "terragrunt-atlantis-config" ]
