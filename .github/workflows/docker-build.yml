@@ -41,7 +41,7 @@ jobs:
         id: craft_tag
         run: |
           echo -n "::set-output name=image_tag::"
-          echo ${{ github.ref }} | gsed -Ee 's/refs\/(heads|tags)\///' | gsed -Ee 's/\//-/g' | gsed -Ee 's/master/latest/'
+          echo ${{ github.ref }} | sed -Ee 's/refs\/(heads|tags)\///' | sed -Ee 's/\//-/g' | sed -Ee 's/master/latest/'
 
       - run: echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u $GITHUB_ACTOR --password-stdin
       - run: docker pull docker.pkg.github.com/${{ github.repository }}/slim:${{ steps.craft_tag.outputs.image_tag }} || true
