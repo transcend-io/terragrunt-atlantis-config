@@ -6,8 +6,6 @@ on:
     branches: [master]
 
 env:
-  # use BuildKit to reduce durations and improve caching
-  DOCKER_BUILDKIT: 1
   # GitHub Packages docker registry hostname
   GPR_HOSTNAME: docker.pkg.github.com
 
