@@ -45,7 +45,7 @@ jobs:
 
       - run: echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u $GITHUB_ACTOR --password-stdin
       - run: docker pull docker.pkg.github.com/${{ github.repository }}/slim:${{ steps.craft_tag.outputs.image_tag }} || true
-      - run: docker build . -t thing --cache-from=docker.pkg.github.com/${{ github.repository }}/slim:${{ steps.craft_tag.outputs.image_tag }}
+      - run: docker build . -t ${{ steps.craft_tag.outputs.image_tag }} --cache-from=docker.pkg.github.com/${{ github.repository }}/slim:${{ steps.craft_tag.outputs.image_tag }}
       - run: |
           docker tag ${{ steps.craft_tag.outputs.image_tag }} docker.pkg.github.com/${{ github.repository }}/slim
           && docker push docker.pkg.github.com/${{ github.repository }}/slim:${{ steps.craft_tag.outputs.image_tag }}
