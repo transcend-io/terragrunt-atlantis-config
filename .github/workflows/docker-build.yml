@@ -17,6 +17,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Craft a valid tag for this build
+        id: craft_tag
+        run: |
+          image_tag=$(echo ${{ github.ref }} | sed -e 's/\//-/g' )
+          echo "::set-output name=image_tag::$image_tag"
+
       - name: Build with cache
         uses: docker/build-push-action@v1
         with:
@@ -24,6 +30,6 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: ${{ env.GPR_HOSTNAME }}
           repository: ${{ github.repository }}/slim
-          tag_with_ref: true
+          tags: ${{ steps.craft_tag.outputs.image_tag }}
           tag_with_sha: true
-          cache_froms: ${{env.GPR_HOSTNAME}}/${{ github.repository }}/slim
+          cache_froms: ${{env.GPR_HOSTNAME}}/${{ github.repository }}/slim:${{ steps.craft_tag.outputs.image_tag }}
