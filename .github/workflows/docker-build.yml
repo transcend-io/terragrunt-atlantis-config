@@ -62,7 +62,6 @@ jobs:
           repository: ${{ github.repository }}/slim
           tags: ${{ steps.craft_tag.outputs.image_tag }}
           build_args: BUILDKIT_INLINE_CACHE=1
-          tag_with_sha: true
           cache_froms: >
             ${{ env.GPR_HOSTNAME }}/${{ github.repository }}/slim:latest,
             ${{ env.GPR_HOSTNAME }}/${{ github.repository }}/slim:${{ steps.craft_tag.outputs.image_tag }}
