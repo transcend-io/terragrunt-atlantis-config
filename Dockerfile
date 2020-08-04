@@ -17,5 +17,5 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build
 
 # create super thin container with the binary only
 FROM scratch
-COPY --from=build /app/terragrunt-atlantis-config /terragrunt-atlantis-config
+COPY --from=build /app/terragrunt-atlantis-config /app/terragrunt-atlantis-config
 ENTRYPOINT [ "/app/terragrunt-atlantis-config" ]
