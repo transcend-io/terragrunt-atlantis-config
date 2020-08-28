@@ -161,3 +161,11 @@ func TestUnparseableParent(t *testing.T) {
 		"--ignore-parent-terragrunt",
 	})
 }
+
+func TestWithWorkspaces(t *testing.T) {
+	runTest(t, filepath.Join("golden", "withWorkspace.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "basic_module"),
+		"--createWorkspace=true",
+	})
+}

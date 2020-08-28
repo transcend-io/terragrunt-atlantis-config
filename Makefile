@@ -17,7 +17,9 @@ build: clean
     -build-ldflags "-X main.VERSION=$(VERSION)"
 
 test:
+	mkdir -p cmd/test_artifacts
 	go test -v ./...
+	rm -rf cmd/test_artifacts
 
 version:
 	@echo $(VERSION)

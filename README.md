@@ -152,6 +152,37 @@ jobs:
 
 You can customize the version and flags you typically pass to the `generate` command in those final two lines.
 
+## Separate workspace for parallel plan and apply
+Atlantis added support for running plan and apply parallel in [v0.13.0](https://github.com/runatlantis/atlantis/releases/tag/v0.13.0).
+To use this feature, projects has to be separated in different workspaces,
+`createWorkspace` flag enables this by concatenating the project path as the
+name of the workspace, eg: project `${git_root}/stage/app/terragrunt.hcl` will
+have the name `stage_app` as workspace name. This flag needs to be used along with
+`parallel` to enable parallel plan and apply:
+
+```
+terragrunt-atlantis-config generate --output atlantis.yaml --ignore-parent-terragrunt --workflow terragrunt --autoplan=false --parallel=true --createWorkspace=true
+automerge: false
+parallel_apply: true
+parallel_plan: true
+projects:
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+  dir: stage/app
+  workflow: terragrunt
+  workspace: stage_app
+```
+
+---
+***NOTE:***
+
+Enable this feature may consume more resources like cpu, memory, network and disk,
+as multiple projects are being processed at the same time.
+
+---
+
 ## Contributing
 
 To test any changes you've made, run `make test`.
