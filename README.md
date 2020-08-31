@@ -36,6 +36,8 @@ Alternative: Install a stable versions via Homebrew:
 brew install transcend-io/tap/terragrunt-atlantis-config
 ```
 
+This module officially supports golang versions v1.13, v1.14, and v1.15
+
 Usage:
 
 ```bash
