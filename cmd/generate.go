@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"regexp"
+
 	log "github.com/sirupsen/logrus"
 
 	"github.com/ghodss/yaml"
@@ -60,6 +62,9 @@ type AtlantisProject struct {
 
 	// Define workflow name
 	Workflow string `json:"workflow,omitempty"`
+
+	// Define workspace name
+	Workspace string `json:"workspace,omitempty"`
 
 	// Autoplan settings for which plans affect other plans
 	Autoplan AutoplanConfig `json:"autoplan"`
@@ -192,6 +197,13 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 			WhenModified: relativeDependencies,
 		},
 	}
+	if createWorkspace {
+		// Terraform limits the workspace names to be less than 90 characters
+		// with letters, numbers, -, and _
+		// https://www.terraform.io/docs/cloud/workspaces/naming.html
+		regex := regexp.MustCompile(`[^a-zA-Z0-9_-]+`)
+		project.Workspace = regex.ReplaceAllString(project.Dir, "_")
+	}
 	return project, nil
 }
 
@@ -289,6 +301,7 @@ var gitRoot string
 var autoPlan bool
 var ignoreParentTerragrunt bool
 var parallel bool
+var createWorkspace bool
 var defaultWorkflow string
 var outputPath string
 
@@ -311,6 +324,7 @@ func init() {
 	generateCmd.PersistentFlags().BoolVar(&autoPlan, "autoplan", false, "Enable auto plan. Default is disabled")
 	generateCmd.PersistentFlags().BoolVar(&ignoreParentTerragrunt, "ignore-parent-terragrunt", false, "Ignore parent terragrunt configs (those which don't reference a terraform module). Default is disabled")
 	generateCmd.PersistentFlags().BoolVar(&parallel, "parallel", true, "Enables plans and applys to happen in parallel. Default is enabled")
+	generateCmd.PersistentFlags().BoolVar(&createWorkspace, "createWorkspace", false, "Use different workspace for each project. Default is use default workspace")
 	generateCmd.PersistentFlags().StringVar(&defaultWorkflow, "workflow", "", "Name of the workflow to be customized in the atlantis server. Default is to not set")
 	generateCmd.PersistentFlags().StringVar(&outputPath, "output", "", "Path of the file where configuration will be generated. Default is not to write to file")
 	generateCmd.PersistentFlags().StringVar(&gitRoot, "root", pwd, "Path to the root directory of the github repo you want to build config for. Default is current dir")
