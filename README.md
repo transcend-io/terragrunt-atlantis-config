@@ -9,7 +9,7 @@
 
 ## What is this?
 
-[Atlantis](runatlantis.io) is an awesome tool for Terraform pull request automation. Each repo can have a YAML config file that defines Terraform module dependendcies, so that PRs that affect dependent modules will automatically generate `terraform plan`s for those modules.
+[Atlantis](runatlantis.io) is an awesome tool for Terraform pull request automation. Each repo can have a YAML config file that defines Terraform module dependencies, so that PRs that affect dependent modules will automatically generate `terraform plan`s for those modules.
 
 [Terragrunt](https://terragrunt.gruntwork.io) is a Terraform wrapper, which has the concept of dependencies built into its configuration.
 
@@ -148,42 +148,26 @@ jobs:
         id: atlantis_validator
         uses: transcend-io/terragrunt-atlantis-config-github-action@v0.0.3
         with:
-          version: v0.6.0
+          version: v0.7.0
           extra_args: '--autoplan --parallel=false
 ```
 
 You can customize the version and flags you typically pass to the `generate` command in those final two lines.
 
 ## Separate workspace for parallel plan and apply
+
 Atlantis added support for running plan and apply parallel in [v0.13.0](https://github.com/runatlantis/atlantis/releases/tag/v0.13.0).
-To use this feature, projects has to be separated in different workspaces,
-`createWorkspace` flag enables this by concatenating the project path as the
-name of the workspace, eg: project `${git_root}/stage/app/terragrunt.hcl` will
-have the name `stage_app` as workspace name. This flag needs to be used along with
-`parallel` to enable parallel plan and apply:
 
-```
-terragrunt-atlantis-config generate --output atlantis.yaml --ignore-parent-terragrunt --workflow terragrunt --autoplan=false --parallel=true --createWorkspace=true
-automerge: false
-parallel_apply: true
-parallel_plan: true
-projects:
-- autoplan:
-    enabled: false
-    when_modified:
-    - '*.hcl'
-  dir: stage/app
-  workflow: terragrunt
-  workspace: stage_app
+To use this feature, projects have to be separated in different workspaces, and the `create-workspace` flag enables this by concatenating the project path as the
+name of the workspace.
+
+As an example, project `${git_root}/stage/app/terragrunt.hcl` will have the name `stage_app` as workspace name. This flag should be used along with `parallel` to enable parallel plan and apply:
+
+```bash
+terragrunt-atlantis-config generate --output atlantis.yaml --parallel --create-workspace
 ```
 
----
-***NOTE:***
-
-Enable this feature may consume more resources like cpu, memory, network and disk,
-as multiple projects are being processed at the same time.
-
----
+Enabling this feature may consume more resources like cpu, memory, network, and disk, as each workspace will now be cloned separately by atlantis.
 
 ## Contributing
 
