@@ -5,13 +5,16 @@ on:
   push:
     branches: [master]
     tags: ["*"]
+
   # run on PRs against master
   pull_request:
     branches: [master]
+
+  # manual trigger
   workflow_dispatch:
     inputs:
       tag:
-        description: Build a container image for this GitHub tag
+        description: Build a container image for this git tag
         required: true
 
 env:
