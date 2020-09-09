@@ -1,67 +1,77 @@
-# only run when we push changes to master or PRs
+name: Build and publish container image
+
 on:
+  # run when tagging or pushing to master
   push:
     branches: [master]
     tags: ["*"]
+  # run on PRs against master
   pull_request:
     branches: [master]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Build a container image for this GitHub tag
+        required: true
 
 env:
-  # GitHub Packages docker registry hostname
-  GPR_HOSTNAME: docker.pkg.github.com
+  # GitHub Container Registry hostname
+  GHCR_HOSTNAME: ghcr.io
 
 jobs:
-  build_with_action:
+  build_and_push:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout the latest SHA for this branch
+        uses: actions/checkout@v2
+        if: github.event_name != 'workflow_dispatch'
 
-      - name: Craft a valid tag for this build
-        id: craft_tag
-        run: >
-          echo -n "::set-output name=image_tag::";
-          echo ${{ github.ref }}
-          | sed -E -e 's/refs\/(heads|tags)?\/?//'
-          -e 's/\//-/g'
-          -e 's/master/latest/'
+      - name: Checkout the specified tag
+        uses: actions/checkout@v2
+        if: github.event_name == 'workflow_dispatch'
+        with:
+          ref: ${{ github.event.inputs.tag }}
 
-      - name: Check for an existing build for this ref
-        id: image_check
-        env:
-          URL: https://${{ env.GPR_HOSTNAME }}/v2/${{ github.repository }}/slim/manifests/${{ steps.craft_tag.outputs.image_tag }}
-          CREDS: ${{ github.actor }}:${{ github.token }}
+      - name: Get the latest Dockerfile if needed
+        if: github.event_name == 'workflow_dispatch'
         run: |
-          echo -n "::set-output name=status_code::"
-          curl -o /dev/null -s -w '%{http_code}\n' -X GET $URL -u $CREDS
-
-      # this step compensates for a limitation of BuildKit + GPR
-      # https://github.com/containerd/containerd/issues/3291
-      - name: Pull an image to use for cache
-        run: |
-          # do we already have this tag in the repo? then pull it
-          if [[ "${{ steps.image_check.outputs.status_code }}" == "200" ]]; then
-            pull_tag=${{ steps.craft_tag.outputs.image_tag }}
-
-          # otherwise pull latest
-          else
-            pull_tag=latest
+          if [[ ! -f Dockerfile ]]; then
+            git fetch --depth=1 origin master
+            git checkout origin/master -- Dockerfile
           fi
 
-          echo ${{ github.token }} | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
-          docker pull ${{ env.GPR_HOSTNAME }}/${{ github.repository }}/slim:$pull_tag
-
-      - name: Build with cache
+      - name: Build and cache first build stage
+        # update the first stage cache only when pushing to or tagging main
+        if: github.event_name == 'push'
         uses: docker/build-push-action@v1
         env:
           # use BuildKit to speed up builds and improve caching
           DOCKER_BUILDKIT: 1
         with:
-          username: ${{ github.actor }}
-          password: ${{ github.token }}
-          registry: ${{ env.GPR_HOSTNAME }}
-          repository: ${{ github.repository }}/slim
-          tags: ${{ steps.craft_tag.outputs.image_tag }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.CR_PAT }}
+          registry: ${{ env.GHCR_HOSTNAME }}
+          repository: ${{ github.repository }}
+          target: build
+          tags: build
+          build_args: BUILDKIT_INLINE_CACHE=1
+          cache_froms: ${{ env.GHCR_HOSTNAME }}/${{ github.repository }}:build
+
+      - name: Build the container image
+        uses: docker/build-push-action@v1
+        env:
+          # use BuildKit to speed up builds and improve caching
+          DOCKER_BUILDKIT: 1
+        with:
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.CR_PAT }}
+          registry: ${{ env.GHCR_HOSTNAME }}
+          repository: ${{ github.repository }}
+          # auto create the tag if we're in a push/pull_request
+          tag_with_ref: ${{ github.event_name != 'workflow_dispatch' }}
+          # this will add the proper tag if we're in workflow_dispatch
+          tags: ${{ github.event.inputs.tag }}
           build_args: BUILDKIT_INLINE_CACHE=1
           cache_froms: >
-            ${{ env.GPR_HOSTNAME }}/${{ github.repository }}/slim:latest,
-            ${{ env.GPR_HOSTNAME }}/${{ github.repository }}/slim:${{ steps.craft_tag.outputs.image_tag }}
+            ${{ env.GHCR_HOSTNAME }}/${{ github.repository }}:build,
+            ${{ env.GHCR_HOSTNAME }}/${{ github.repository }}:latest
