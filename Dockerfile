@@ -5,15 +5,13 @@ WORKDIR /app
 
 # copy source
 COPY go.mod go.sum main.go ./
-COPY cmd ./cmd
 
 # fetch deps separately (for layer caching)
 RUN go mod download
 
-
 # build the executable
+COPY cmd ./cmd
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build
-
 
 # create super thin container with the binary only
 FROM scratch
