@@ -1,17 +1,40 @@
+##############################
+########### Custom ###########
+##############################
+.vscode/
+build
+test_artifacts
+
+# IDEs
+.vscode
+*.sublime-*
+.idea
+.editorconfig
+.swp
+
+# OS files
+*.DS_Store
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+##############################
+# Common gitignore file based on: https://github.com/github/gitignore/blob/master/Go.gitignore
+##############################
 # Binaries for programs and plugins
 *.exe
 *.exe~
 *.dll
 *.so
 *.dylib
-build
 
 # Test binary, built with `go test -c`
 *.test
-test_artifacts
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
-# Dependency directories (remove the comment below to include it)
-# vendor/
+# Dependency directories (add a comment below to exclude it)
+ vendor

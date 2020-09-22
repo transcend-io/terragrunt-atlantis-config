@@ -169,3 +169,11 @@ func TestWithWorkspaces(t *testing.T) {
 		"--create-workspace",
 	})
 }
+
+func TestWithProjectNames(t *testing.T) {
+	runTest(t, filepath.Join("golden", "withProjectName.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "invalid_parent_module"),
+		"--ignore-parent-terragrunt",  "--create-project-name",
+	})
+}

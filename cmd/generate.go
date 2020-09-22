@@ -66,6 +66,9 @@ type AtlantisProject struct {
 	// Define workspace name
 	Workspace string `json:"workspace,omitempty"`
 
+	// Define project name
+	Name string `json:"name,omitempty"`
+
 	// Autoplan settings for which plans affect other plans
 	Autoplan AutoplanConfig `json:"autoplan"`
 }
@@ -197,12 +200,22 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 			WhenModified: relativeDependencies,
 		},
 	}
+
+	// Terraform Cloud limits the workspace names to be less than 90 characters
+	// with letters, numbers, -, and _
+	// https://www.terraform.io/docs/cloud/workspaces/naming.html
+	// It is not clear from documentation whether the normal workspaces have those limitations
+	// However a workspace 97 chars long has been working perfectly.
+	// We are going to use the same name for both workspace & project name as it is unique.
+	regex := regexp.MustCompile(`[^a-zA-Z0-9_-]+`)
+	projectName := regex.ReplaceAllString(project.Dir, "_")
+
+	if createProjectName {
+		project.Name = projectName
+	}
+
 	if createWorkspace {
-		// Terraform limits the workspace names to be less than 90 characters
-		// with letters, numbers, -, and _
-		// https://www.terraform.io/docs/cloud/workspaces/naming.html
-		regex := regexp.MustCompile(`[^a-zA-Z0-9_-]+`)
-		project.Workspace = regex.ReplaceAllString(project.Dir, "_")
+		project.Workspace = projectName
 	}
 	return project, nil
 }
@@ -302,6 +315,7 @@ var autoPlan bool
 var ignoreParentTerragrunt bool
 var parallel bool
 var createWorkspace bool
+var createProjectName bool
 var defaultWorkflow string
 var outputPath string
 
@@ -325,6 +339,7 @@ func init() {
 	generateCmd.PersistentFlags().BoolVar(&ignoreParentTerragrunt, "ignore-parent-terragrunt", false, "Ignore parent terragrunt configs (those which don't reference a terraform module). Default is disabled")
 	generateCmd.PersistentFlags().BoolVar(&parallel, "parallel", true, "Enables plans and applys to happen in parallel. Default is enabled")
 	generateCmd.PersistentFlags().BoolVar(&createWorkspace, "create-workspace", false, "Use different workspace for each project. Default is use default workspace")
+	generateCmd.PersistentFlags().BoolVar(&createProjectName, "create-project-name", false, "Add different name for each project. Default is false")
 	generateCmd.PersistentFlags().StringVar(&defaultWorkflow, "workflow", "", "Name of the workflow to be customized in the atlantis server. Default is to not set")
 	generateCmd.PersistentFlags().StringVar(&outputPath, "output", "", "Path of the file where configuration will be generated. Default is not to write to file")
 	generateCmd.PersistentFlags().StringVar(&gitRoot, "root", pwd, "Path to the root directory of the github repo you want to build config for. Default is current dir")
