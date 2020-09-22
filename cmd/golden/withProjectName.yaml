@@ -7,6 +7,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
-  dir: .
-  workspace: _
+  dir: child/deep
+  name: child_deep
+  workspace: child_deep
 version: 3
