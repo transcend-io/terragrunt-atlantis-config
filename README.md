@@ -58,6 +58,9 @@ terragrunt-atlantis-config generate --workflow web --output ./atlantis.yaml
 
 # ignore parent terragrunt configs (those which don't reference a terraform module)
 terragrunt-atlantis-config generate --ignore-parent-terragrunt
+
+# Enable the project name creation
+terragrunt-atlantis-config generate --create-project-name
 ```
 
 Finally, check the log output (or your output file) for the YAML.
@@ -168,6 +171,9 @@ terragrunt-atlantis-config generate --output atlantis.yaml --parallel --create-w
 ```
 
 Enabling this feature may consume more resources like cpu, memory, network, and disk, as each workspace will now be cloned separately by atlantis.
+
+As when defining the workspace this info is also needed when running `atlantis plan/apply -d ${git_root}/stage/app -w stage_app` to run the command on specific directory,
+you can also use the `atlantis plan/apply -p stage_app` in case you have enabled the `create-project-name` cli argument (it is `false` by default).
 
 ## Contributing
 
