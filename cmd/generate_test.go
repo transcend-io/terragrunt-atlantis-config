@@ -203,3 +203,11 @@ func TestChildWorkflowOverridesParentWorkflow(t *testing.T) {
 		"--ignore-parent-terragrunt",
 	})
 }
+
+func TestExtraArguments(t *testing.T) {
+	runTest(t, filepath.Join("golden", "extraArguments.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "extra_arguments"),
+		"--ignore-parent-terragrunt",
+	})
+}
