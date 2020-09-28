@@ -7,6 +7,6 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
-  dir: child/deep
-  name: child_deep
+  dir: child
+  workflow: workflowSpecifiedInParent
 version: 3
