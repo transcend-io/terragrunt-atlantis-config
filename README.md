@@ -99,6 +99,8 @@ In your `atlantis.yaml` file, you will end up seeing output like:
   dir: example-setup/extra_dependency
 ```
 
+If you specify `extra_atlantis_dependencies` in the parent Terragrunt module, they will be merged with the child dependencies.
+
 ## Custom workflows
 
 By default, the `workflow` field of each project will be empty. But you can set a global default workflow name, and can also customize the workflow name for individual projects if you'd like.
@@ -123,6 +125,7 @@ locals {
 
 it will have `workflow: workflowA` set in the atlantis.yaml settings.
 
+Workflow names can be specified in either parent or child terragrunt modules, but if both are specified then this module will use the workflow name specified from the child.
 
 ## Auto Enforcement with Github Actions
 
@@ -151,7 +154,7 @@ jobs:
         id: atlantis_validator
         uses: transcend-io/terragrunt-atlantis-config-github-action@v0.0.3
         with:
-          version: v0.7.0
+          version: v0.9.0
           extra_args: '--autoplan --parallel=false
 ```
 
