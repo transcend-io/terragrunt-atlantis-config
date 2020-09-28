@@ -156,7 +156,6 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 		return nil, err
 	}
 	// dependencies being nil is a sign from `getDependencies` that this project should be skipped
-	// DO NOT SUBMIT: Make this clearer in code
 	if dependencies == nil {
 		return nil, nil
 	}

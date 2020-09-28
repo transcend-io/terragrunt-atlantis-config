@@ -43,7 +43,7 @@ func parseHcl(parser *hclparse.Parser, hcl string, filename string) (file *hcl.F
 	return file, nil
 }
 
-// DO NOT SUBMIT: memoize so that this is only done once per path per run
+// TODO: memoize so that this is only done once per path per run
 // Parses a given file, returning a map of all it's `local` values
 func parseLocals(path string) (ResolvedLocals, error) {
 	configString, err := util.ReadFileAsString(path)
