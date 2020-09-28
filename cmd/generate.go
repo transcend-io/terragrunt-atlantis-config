@@ -127,22 +127,39 @@ func getDependencies(path string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// Get deps from locals
 	dependencies := []string{}
 	if locals.ExtraAtlantisDependencies != nil {
 		dependencies = locals.ExtraAtlantisDependencies
 	}
 
+	// Get deps from `dependencies` and `dependency` blocks
 	if parsedConfig.Dependencies != nil {
 		for _, path := range parsedConfig.Dependencies.Paths {
 			dependencies = append(dependencies, filepath.Join(path, "terragrunt.hcl"))
 		}
 	}
 
+	// Get deps from the `Source` field of the `Terraform` block
 	if parsedConfig.Terraform != nil && parsedConfig.Terraform.Source != nil {
 		source := parsedConfig.Terraform.Source
 		// TODO: Make more robust. Check for bitbucket, etc.
 		if !strings.Contains(*source, "git::") && !strings.Contains(*source, "github.com") {
 			dependencies = append(dependencies, filepath.Join(*source, "*.tf*"))
+		}
+	}
+
+	// Get deps from `extra_arguments` fields of the `Terraform` block
+	if parsedConfig.Terraform != nil && parsedConfig.Terraform.ExtraArgs != nil {
+		extraArgs := parsedConfig.Terraform.ExtraArgs
+		for _, arg := range extraArgs {
+			for _, file := range *arg.RequiredVarFiles {
+				dependencies = append(dependencies, file)
+			}
+			for _, file := range *arg.OptionalVarFiles {
+				dependencies = append(dependencies, file)
+			}
 		}
 	}
 

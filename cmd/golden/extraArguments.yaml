@@ -1,0 +1,16 @@
+automerge: false
+parallel_apply: true
+parallel_plan: true
+projects:
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+    - ../terraform.tfvars
+    - ../dev.tfvars
+    - ../us-east-1.tfvars
+    - dev.tfvars
+    - us-east-1.tfvars
+  dir: child
+version: 3
