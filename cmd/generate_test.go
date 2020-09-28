@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-// Resets all flag values to their defaults
+// Resets all flag values to their defaults in between tests
 func resetDefaultFlags() error {
 	pwd, err := os.Getwd()
 	if err != nil {
@@ -16,8 +16,10 @@ func resetDefaultFlags() error {
 
 	gitRoot = pwd
 	autoPlan = false
-	parallel = true
 	ignoreParentTerragrunt = false
+	parallel = true
+	createWorkspace = false
+	createProjectName = false
 	defaultWorkflow = ""
 	outputPath = ""
 
@@ -174,6 +176,30 @@ func TestWithProjectNames(t *testing.T) {
 	runTest(t, filepath.Join("golden", "withProjectName.yaml"), []string{
 		"--root",
 		filepath.Join("..", "test_examples", "invalid_parent_module"),
-		"--ignore-parent-terragrunt",  "--create-project-name",
+		"--ignore-parent-terragrunt", "--create-project-name",
+	})
+}
+
+func TestMergingLocalDependenciesFromParent(t *testing.T) {
+	runTest(t, filepath.Join("golden", "mergeParentDependencies.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "parent_with_extra_deps"),
+		"--ignore-parent-terragrunt",
+	})
+}
+
+func TestWorkflowFromParentInLocals(t *testing.T) {
+	runTest(t, filepath.Join("golden", "parentDefinedWorkflow.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "parent_with_workflow_local"),
+		"--ignore-parent-terragrunt",
+	})
+}
+
+func TestChildWorkflowOverridesParentWorkflow(t *testing.T) {
+	runTest(t, filepath.Join("golden", "parentAndChildDefinedWorkflow.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "child_and_parent_specify_workflow"),
+		"--ignore-parent-terragrunt",
 	})
 }

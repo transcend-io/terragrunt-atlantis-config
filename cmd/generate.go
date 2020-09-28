@@ -123,9 +123,13 @@ func getDependencies(path string) ([]string, error) {
 		return nil, err
 	}
 
-	dependencies, err := parseLocalDependencies(path)
+	locals, err := parseLocals(path)
 	if err != nil {
 		return nil, err
+	}
+	dependencies := []string{}
+	if locals.ExtraAtlantisDependencies != nil {
+		dependencies = locals.ExtraAtlantisDependencies
 	}
 
 	if parsedConfig.Dependencies != nil {
@@ -151,8 +155,8 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 	if err != nil {
 		return nil, err
 	}
-	// if dependencies AND err is nil then return nils to indicate we should skip this project
-	if err == nil && dependencies == nil {
+	// dependencies being nil is a sign from `getDependencies` that this project should be skipped
+	if dependencies == nil {
 		return nil, nil
 	}
 
@@ -187,9 +191,8 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 	}
 
 	workflow := defaultWorkflow
-	workflowValue, ok := locals["atlantis_workflow"]
-	if ok {
-		workflow = workflowValue.AsString()
+	if locals.AtlantisWorkflow != "" {
+		workflow = locals.AtlantisWorkflow
 	}
 
 	project := &AtlantisProject{
