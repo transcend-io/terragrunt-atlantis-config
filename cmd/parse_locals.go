@@ -15,6 +15,15 @@ import (
 	"path/filepath"
 )
 
+var (
+	parseLocalsCache map[string]ParseLocalResult = make(map[string]ParseLocalResult)
+)
+
+type ParseLocalResult struct {
+	resolvedLocals ResolvedLocals
+	err            error
+}
+
 // ResolvedLocals are the parsed result of local values this module cares about
 type ResolvedLocals struct {
 	// The Atlantis workflow to use for some project
@@ -46,13 +55,19 @@ func parseHcl(parser *hclparse.Parser, hcl string, filename string) (file *hcl.F
 // TODO: memoize so that this is only done once per path per run
 // Parses a given file, returning a map of all it's `local` values
 func parseLocals(path string) (ResolvedLocals, error) {
+	if cachedResult, ok := parseLocalsCache[path]; ok {
+		return cachedResult.resolvedLocals, cachedResult.err
+	}
+
 	configString, err := util.ReadFileAsString(path)
 	if err != nil {
+		parseLocalsCache[path] = ParseLocalResult{err: err}
 		return ResolvedLocals{}, err
 	}
 
 	options, err := options.NewTerragruntOptions(path)
 	if err != nil {
+		parseLocalsCache[path] = ParseLocalResult{err: err}
 		return ResolvedLocals{}, err
 	}
 
@@ -60,12 +75,14 @@ func parseLocals(path string) (ResolvedLocals, error) {
 	parser := hclparse.NewParser()
 	file, err := parseHcl(parser, configString, path)
 	if err != nil {
+		parseLocalsCache[path] = ParseLocalResult{err: err}
 		return ResolvedLocals{}, err
 	}
 
 	// Decode just the Base blocks. See the function docs for DecodeBaseBlocks for more info on what base blocks are.
 	localsAsCty, _, includeConfig, err := config.DecodeBaseBlocks(options, parser, file, path, nil)
 	if err != nil {
+		parseLocalsCache[path] = ParseLocalResult{err: err}
 		return ResolvedLocals{}, err
 	}
 
@@ -88,6 +105,7 @@ func parseLocals(path string) (ResolvedLocals, error) {
 		)
 	}
 
+	parseLocalsCache[path] = ParseLocalResult{resolvedLocals: parentLocals}
 	return parentLocals, nil
 }
 
