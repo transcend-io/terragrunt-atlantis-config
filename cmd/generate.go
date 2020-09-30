@@ -154,11 +154,15 @@ func getDependencies(path string) ([]string, error) {
 	if parsedConfig.Terraform != nil && parsedConfig.Terraform.ExtraArgs != nil {
 		extraArgs := parsedConfig.Terraform.ExtraArgs
 		for _, arg := range extraArgs {
-			for _, file := range *arg.RequiredVarFiles {
-				dependencies = append(dependencies, file)
+			if arg.RequiredVarFiles != nil {
+				for _, file := range *arg.RequiredVarFiles {
+					dependencies = append(dependencies, file)
+				}
 			}
-			for _, file := range *arg.OptionalVarFiles {
-				dependencies = append(dependencies, file)
+			if arg.OptionalVarFiles != nil {
+				for _, file := range *arg.OptionalVarFiles {
+					dependencies = append(dependencies, file)
+				}
 			}
 		}
 	}

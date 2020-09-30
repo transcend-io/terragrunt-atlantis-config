@@ -13,4 +13,27 @@ projects:
     - dev.tfvars
     - us-east-1.tfvars
   dir: child
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+  dir: no_files_at_all
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+    - ../dev.tfvars
+    - ../us-east-1.tfvars
+    - dev.tfvars
+    - us-east-1.tfvars
+  dir: only_optional_files
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+    - ../terraform.tfvars
+  dir: only_required_files
 version: 3
