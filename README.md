@@ -154,7 +154,7 @@ jobs:
         id: atlantis_validator
         uses: transcend-io/terragrunt-atlantis-config-github-action@v0.0.3
         with:
-          version: v0.9.1
+          version: v0.9.3
           extra_args: '--autoplan --parallel=false
 ```
 
