@@ -167,6 +167,15 @@ func getDependencies(path string) ([]string, error) {
 		}
 	}
 
+	// Extract dependencies from functions like `read_terragrunt_config`
+	functionDeps, err := extractDependencies(path, options)
+	if err != nil {
+		return nil, err
+	}
+	for _, functionDep := range functionDeps {
+		dependencies = append(dependencies, functionDep)
+	}
+
 	return dependencies, nil
 }
 

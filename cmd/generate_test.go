@@ -211,3 +211,11 @@ func TestExtraArguments(t *testing.T) {
 		"--ignore-parent-terragrunt",
 	})
 }
+
+func TestDependencyFromReadTerragruntConfig(t *testing.T) {
+	runTest(t, filepath.Join("golden", "readTerragruntConfig.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "function_calls"),
+		"--ignore-parent-terragrunt",
+	})
+}

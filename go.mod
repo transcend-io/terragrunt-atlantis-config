@@ -19,13 +19,14 @@ require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-errors/errors v1.1.1 // indirect
 	github.com/gruntwork-io/terragrunt v0.23.31
+	github.com/hashicorp/go-getter v1.4.2-0.20200106182914-9813cbd4eb02
 	github.com/hashicorp/go-multierror v1.1.0 // indirect
 	github.com/hashicorp/go-uuid v1.0.2 // indirect
 	github.com/hashicorp/go-version v1.2.1 // indirect
 	github.com/hashicorp/hcl v1.0.0
 	github.com/hashicorp/hcl/v2 v2.6.0
 	github.com/hashicorp/hcl2 v0.0.0-20191002203319-fb75b3253c80
-	github.com/hashicorp/terraform v0.12.28 // indirect
+	github.com/hashicorp/terraform v0.12.28
 	github.com/hashicorp/terraform-svchost v0.0.0-20191119180714-d2e4933b9136 // indirect
 	github.com/howeyc/gopass v0.0.0-20190910152052-7cb4b85ec19c // indirect
 	github.com/laher/argo v0.0.0-20140722103944-11d91c83cc0f // indirect
@@ -42,6 +43,7 @@ require (
 	github.com/urfave/cli v1.22.4 // indirect
 	github.com/zclconf/go-cty v1.5.1
 	github.com/zclconf/go-cty-yaml v1.0.2 // indirect
+	go.mozilla.org/sops/v3 v3.5.0
 	go.opencensus.io v0.22.4 // indirect
 	golang.org/x/exp v0.0.0-20200513190911-00229845015e // indirect
 	golang.org/x/net v0.0.0-20200707034311-ab3426394381 // indirect
