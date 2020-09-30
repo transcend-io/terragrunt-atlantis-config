@@ -164,6 +164,13 @@ func getDependencies(path string) ([]string, error) {
 					dependencies = append(dependencies, file)
 				}
 			}
+			if arg.Arguments != nil {
+				for _, cliFlag := range *arg.Arguments {
+					if strings.HasPrefix(cliFlag, "-var-file=") {
+						dependencies = append(dependencies, strings.TrimPrefix(cliFlag, "-var-file="))
+					}
+				}
+			}
 		}
 	}
 
