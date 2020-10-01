@@ -94,17 +94,10 @@ func makePathAbsolute(path string, parentPath string) string {
 }
 
 // Parses the terragrunt config at <path> to find all modules it depends on
-func getDependencies(path string) ([]string, error) {
-	options, err := options.NewTerragruntOptions(path)
-	if err != nil {
-		return nil, err
-	}
-	options.RunTerragrunt = cli.RunTerragrunt
-	options.Env = getEnvs()
-
+func getDependencies(path string, terragruntOptions *options.TerragruntOptions) ([]string, error) {
 	// if theres no terraform source and we're ignoring parent terragrunt configs
 	// return nils to indicate we should skip this project
-	isParent, err := isParentModule(path, options)
+	isParent, err := isParentModule(path, terragruntOptions)
 	if err != nil {
 		return nil, err
 	}
@@ -118,12 +111,12 @@ func getDependencies(path string) ([]string, error) {
 		config.TerraformBlock,
 	}
 
-	parsedConfig, err := config.PartialParseConfigFile(path, options, nil, decodeTypes)
+	parsedConfig, err := config.PartialParseConfigFile(path, terragruntOptions, nil, decodeTypes)
 	if err != nil {
 		return nil, err
 	}
 
-	locals, err := parseLocals(path)
+	locals, err := parseLocals(path, terragruntOptions, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -179,7 +172,14 @@ func getDependencies(path string) ([]string, error) {
 
 // Creates an AtlantisProject for a directory
 func createProject(sourcePath string) (*AtlantisProject, error) {
-	dependencies, err := getDependencies(sourcePath)
+	options, err := options.NewTerragruntOptions(sourcePath)
+	if err != nil {
+		return nil, err
+	}
+	options.RunTerragrunt = cli.RunTerragrunt
+	options.Env = getEnvs()
+
+	dependencies, err := getDependencies(sourcePath, options)
 	if err != nil {
 		return nil, err
 	}
@@ -213,7 +213,7 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 		relativeSourceDir = "."
 	}
 
-	locals, err := parseLocals(sourcePath)
+	locals, err := parseLocals(sourcePath, options, nil)
 	if err != nil {
 		return nil, err
 	}
