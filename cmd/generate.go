@@ -167,7 +167,15 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 		}
 	}
 
-	return dependencies, nil
+	// Filter out and dependencies that are the empty string
+	nonEmptyDeps := []string{}
+	for _, dep := range dependencies {
+		if dep != "" {
+			nonEmptyDeps = append(nonEmptyDeps, dep)
+		}
+	}
+
+	return nonEmptyDeps, nil
 }
 
 // Creates an AtlantisProject for a directory
@@ -248,6 +256,7 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 	if createWorkspace {
 		project.Workspace = projectName
 	}
+
 	return project, nil
 }
 
