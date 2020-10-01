@@ -52,20 +52,13 @@ func parseHcl(parser *hclparse.Parser, hcl string, filename string) (file *hcl.F
 	return file, nil
 }
 
-// TODO: memoize so that this is only done once per path per run
 // Parses a given file, returning a map of all it's `local` values
-func parseLocals(path string) (ResolvedLocals, error) {
+func parseLocals(path string, terragruntOptions *options.TerragruntOptions, includeFromChild *config.IncludeConfig) (ResolvedLocals, error) {
 	if cachedResult, ok := parseLocalsCache[path]; ok {
 		return cachedResult.resolvedLocals, cachedResult.err
 	}
 
 	configString, err := util.ReadFileAsString(path)
-	if err != nil {
-		parseLocalsCache[path] = ParseLocalResult{err: err}
-		return ResolvedLocals{}, err
-	}
-
-	options, err := options.NewTerragruntOptions(path)
 	if err != nil {
 		parseLocalsCache[path] = ParseLocalResult{err: err}
 		return ResolvedLocals{}, err
@@ -80,7 +73,7 @@ func parseLocals(path string) (ResolvedLocals, error) {
 	}
 
 	// Decode just the Base blocks. See the function docs for DecodeBaseBlocks for more info on what base blocks are.
-	localsAsCty, _, includeConfig, err := config.DecodeBaseBlocks(options, parser, file, path, nil)
+	localsAsCty, _, includeConfig, err := config.DecodeBaseBlocks(terragruntOptions, parser, file, path, includeFromChild)
 	if err != nil {
 		parseLocalsCache[path] = ParseLocalResult{err: err}
 		return ResolvedLocals{}, err
@@ -88,9 +81,9 @@ func parseLocals(path string) (ResolvedLocals, error) {
 
 	// Recurse on the parent to merge in the locals from that file
 	parentLocals := ResolvedLocals{}
-	if includeConfig != nil {
-		// Ignore errors if the parent cannot be parsed
-		parentLocals, _ = parseLocals(includeConfig.Path)
+	if includeConfig != nil && includeFromChild == nil {
+		// Ignore errors if the parent cannot be parsed. Terragrunt Errors still will be logged
+		parentLocals, _ = parseLocals(includeConfig.Path, terragruntOptions, includeConfig)
 	}
 
 	childLocals := resolveLocals(*localsAsCty)

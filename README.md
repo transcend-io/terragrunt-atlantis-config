@@ -99,7 +99,11 @@ In your `atlantis.yaml` file, you will end up seeing output like:
   dir: example-setup/extra_dependency
 ```
 
-If you specify `extra_atlantis_dependencies` in the parent Terragrunt module, they will be merged with the child dependencies.
+If you specify `extra_atlantis_dependencies` in the parent Terragrunt module, they will be merged with the child dependencies using the following rules:
+
+1. Any function in a parent will be evaluated from the child's directory. So you can use `get_parent_terragrunt_dir()` and other functions like you normally would in terragrunt.
+2. Absolute paths will work as they would in a child module, and the path in the output will be relative from the child module to the absolute path
+3. Relative paths, like the string `"foo.json"`, will be evaluated as relative to the Child module. This means that if you need something relative to the parent module, you should use something like `"${get_parent_terragrunt_dir()}/foo.json"`
 
 ## Custom workflows
 
@@ -154,7 +158,7 @@ jobs:
         id: atlantis_validator
         uses: transcend-io/terragrunt-atlantis-config-github-action@v0.0.3
         with:
-          version: v0.9.4
+          version: v0.9.5
           extra_args: '--autoplan --parallel=false
 ```
 

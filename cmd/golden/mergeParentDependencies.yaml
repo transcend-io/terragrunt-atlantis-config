@@ -8,6 +8,8 @@ projects:
     - '*.hcl'
     - '*.tf*'
     - some_parent_dep
+    - ../file_in_parent_of_child.json
+    - ../../parent/folder_under_parent/common_tags.hcl
     - some_child_dep
-  dir: child
+  dir: deep/child
 version: 3
