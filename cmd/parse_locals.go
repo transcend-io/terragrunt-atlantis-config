@@ -15,15 +15,6 @@ import (
 	"path/filepath"
 )
 
-var (
-	parseLocalsCache map[string]ParseLocalResult = make(map[string]ParseLocalResult)
-)
-
-type ParseLocalResult struct {
-	resolvedLocals ResolvedLocals
-	err            error
-}
-
 // ResolvedLocals are the parsed result of local values this module cares about
 type ResolvedLocals struct {
 	// The Atlantis workflow to use for some project
@@ -54,13 +45,8 @@ func parseHcl(parser *hclparse.Parser, hcl string, filename string) (file *hcl.F
 
 // Parses a given file, returning a map of all it's `local` values
 func parseLocals(path string, terragruntOptions *options.TerragruntOptions, includeFromChild *config.IncludeConfig) (ResolvedLocals, error) {
-	if cachedResult, ok := parseLocalsCache[path]; ok {
-		return cachedResult.resolvedLocals, cachedResult.err
-	}
-
 	configString, err := util.ReadFileAsString(path)
 	if err != nil {
-		parseLocalsCache[path] = ParseLocalResult{err: err}
 		return ResolvedLocals{}, err
 	}
 
@@ -68,14 +54,12 @@ func parseLocals(path string, terragruntOptions *options.TerragruntOptions, incl
 	parser := hclparse.NewParser()
 	file, err := parseHcl(parser, configString, path)
 	if err != nil {
-		parseLocalsCache[path] = ParseLocalResult{err: err}
 		return ResolvedLocals{}, err
 	}
 
 	// Decode just the Base blocks. See the function docs for DecodeBaseBlocks for more info on what base blocks are.
 	localsAsCty, _, includeConfig, err := config.DecodeBaseBlocks(terragruntOptions, parser, file, path, includeFromChild)
 	if err != nil {
-		parseLocalsCache[path] = ParseLocalResult{err: err}
 		return ResolvedLocals{}, err
 	}
 
@@ -98,7 +82,6 @@ func parseLocals(path string, terragruntOptions *options.TerragruntOptions, incl
 		)
 	}
 
-	parseLocalsCache[path] = ParseLocalResult{resolvedLocals: parentLocals}
 	return parentLocals, nil
 }
 

@@ -12,4 +12,15 @@ projects:
     - ../../parent/folder_under_parent/common_tags.hcl
     - some_child_dep
   dir: deep/child
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+    - some_parent_dep
+    - local_tags.yaml
+    - ../file_in_parent_of_child.json
+    - ../../parent/folder_under_parent/common_tags.hcl
+    - some_child_dep
+  dir: deep_with_local_tags_file/child
 version: 3
