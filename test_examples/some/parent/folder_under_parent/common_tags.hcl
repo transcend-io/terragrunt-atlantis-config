@@ -1,3 +1,0 @@
-inputs = {
-    nice = "dog"
-}
