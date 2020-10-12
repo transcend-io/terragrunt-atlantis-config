@@ -211,3 +211,11 @@ func TestExtraArguments(t *testing.T) {
 		"--ignore-parent-terragrunt",
 	})
 }
+
+func TestInfrastructureLive(t *testing.T) {
+	runTest(t, filepath.Join("golden", "infrastructureLive.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "terragrunt-infrastructure-live-example"),
+		"--ignore-parent-terragrunt",
+	})
+}
