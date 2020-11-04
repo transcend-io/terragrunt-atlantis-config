@@ -131,6 +131,8 @@ it will have `workflow: workflowA` set in the atlantis.yaml settings.
 
 Workflow names can be specified in either parent or child terragrunt modules, but if both are specified then this module will use the workflow name specified from the child.
 
+If you write your workflows in your `atlantis.yaml` file, this library will leave them functionally as you already have them.
+
 ## Auto Enforcement with Github Actions
 
 It's a best practice to require that `atlantis.yaml` stays up to date on each Pull Request.

@@ -14,9 +14,7 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"context"
-	"fmt"
 	"io/ioutil"
-	"math/rand"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -35,51 +33,6 @@ func getEnvs() map[string]string {
 	}
 
 	return m
-}
-
-// Represents an entire config file
-type AtlantisConfig struct {
-	// Version of the config syntax
-	Version int `json:"version"`
-
-	// If Atlantis should merge after finishing `atlantis apply`
-	AutoMerge bool `json:"automerge"`
-
-	// If Atlantis should allow plans to occur in parallel
-	ParallelPlan bool `json:"parallel_plan"`
-
-	// If Atlantis should allow applys to occur in parallel
-	ParallelApply bool `json:"parallel_apply"`
-
-	// The project settings
-	Projects []AtlantisProject `json:"projects,omitempty"`
-}
-
-// Represents an Atlantis Project directory
-type AtlantisProject struct {
-	// The directory with the terragrunt.hcl file
-	Dir string `json:"dir"`
-
-	// Define workflow name
-	Workflow string `json:"workflow,omitempty"`
-
-	// Define workspace name
-	Workspace string `json:"workspace,omitempty"`
-
-	// Define project name
-	Name string `json:"name,omitempty"`
-
-	// Autoplan settings for which plans affect other plans
-	Autoplan AutoplanConfig `json:"autoplan"`
-}
-
-// Autoplan settings for which plans affect other plans
-type AutoplanConfig struct {
-	// Relative paths from this modules directory to modules it depends on
-	WhenModified []string `json:"when_modified"`
-
-	// If autoplan should be enabled for this dir
-	Enabled bool `json:"enabled"`
 }
 
 // Terragrunt imports can be relative or absolute
@@ -283,6 +236,12 @@ func main(cmd *cobra.Command, args []string) error {
 	}
 	gitRoot = absoluteGitRoot + string(filepath.Separator)
 
+	// Read in the old config, if it already exists
+	oldConfig, err := readOldConfig()
+	if err != nil {
+		return err
+	}
+
 	terragruntFiles, err := getAllTerragruntFiles()
 	if err != nil {
 		return err
@@ -293,6 +252,9 @@ func main(cmd *cobra.Command, args []string) error {
 		AutoMerge:     false,
 		ParallelPlan:  parallel,
 		ParallelApply: parallel,
+	}
+	if oldConfig != nil && preserveWorkflows {
+		config.Workflows = oldConfig.Workflows
 	}
 
 	lock := sync.Mutex{}
@@ -358,6 +320,7 @@ var createWorkspace bool
 var createProjectName bool
 var defaultWorkflow string
 var outputPath string
+var preserveWorkflows bool
 
 // generateCmd represents the generate command
 var generateCmd = &cobra.Command{
@@ -380,25 +343,15 @@ func init() {
 	generateCmd.PersistentFlags().BoolVar(&parallel, "parallel", true, "Enables plans and applys to happen in parallel. Default is enabled")
 	generateCmd.PersistentFlags().BoolVar(&createWorkspace, "create-workspace", false, "Use different workspace for each project. Default is use default workspace")
 	generateCmd.PersistentFlags().BoolVar(&createProjectName, "create-project-name", false, "Add different name for each project. Default is false")
+	generateCmd.PersistentFlags().BoolVar(&preserveWorkflows, "preserve-workflows", true, "Preserves workflows from old output files. Default is true")
 	generateCmd.PersistentFlags().StringVar(&defaultWorkflow, "workflow", "", "Name of the workflow to be customized in the atlantis server. Default is to not set")
 	generateCmd.PersistentFlags().StringVar(&outputPath, "output", "", "Path of the file where configuration will be generated. Default is not to write to file")
 	generateCmd.PersistentFlags().StringVar(&gitRoot, "root", pwd, "Path to the root directory of the github repo you want to build config for. Default is current dir")
 }
 
 // Runs a set of arguments, returning the output
-func RunWithFlags(args []string) ([]byte, error) {
-	randomInt := rand.Int()
-	filename := filepath.Join("test_artifacts", fmt.Sprintf("%d.yaml", randomInt))
-
-	defer os.Remove(filename)
-
-	allArgs := append([]string{
-		"generate",
-		"--output",
-		filename,
-	}, args...)
-
-	rootCmd.SetArgs(allArgs)
+func RunWithFlags(filename string, args []string) ([]byte, error) {
+	rootCmd.SetArgs(args)
 	rootCmd.Execute()
 
 	return ioutil.ReadFile(filename)
