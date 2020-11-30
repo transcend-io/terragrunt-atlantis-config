@@ -25,6 +25,9 @@ type ResolvedLocals struct {
 
 	// If set, a single module will have autoplan turned to this setting
 	AutoPlan *bool
+
+	// If set to true, the module will not be included in the output
+	Skip *bool
 }
 
 // parseHcl uses the HCL2 parser to parse the given string into an HCL file body.
@@ -83,6 +86,10 @@ func parseLocals(path string, terragruntOptions *options.TerragruntOptions, incl
 		parentLocals.AutoPlan = childLocals.AutoPlan
 	}
 
+	if childLocals.Skip != nil {
+		parentLocals.Skip = childLocals.Skip
+	}
+
 	for _, dep := range childLocals.ExtraAtlantisDependencies {
 		parentLocals.ExtraAtlantisDependencies = append(
 			parentLocals.ExtraAtlantisDependencies,
@@ -111,6 +118,12 @@ func resolveLocals(localsAsCty cty.Value) ResolvedLocals {
 	if ok {
 		hasValue := autoPlanValue.True()
 		resolved.AutoPlan = &hasValue
+	}
+
+	skipValue, ok := rawLocals["atlantis_skip"]
+	if ok {
+		hasValue := skipValue.True()
+		resolved.Skip = &hasValue
 	}
 
 	extraDependenciesAsCty, ok := rawLocals["extra_atlantis_dependencies"]

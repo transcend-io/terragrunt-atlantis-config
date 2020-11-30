@@ -151,6 +151,16 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 
 	absoluteSourceDir := filepath.Dir(sourcePath) + string(filepath.Separator)
 
+	locals, err := parseLocals(sourcePath, options, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	// If `atlantis_skip` is true on the module, then do not produce a project for it
+	if locals.Skip != nil && *locals.Skip {
+		return nil, nil
+	}
+
 	// All dependencies depend on their own .hcl file, and any tf files in their directory
 	relativeDependencies := []string{
 		"*.hcl",
@@ -172,11 +182,6 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 	relativeSourceDir = strings.TrimSuffix(relativeSourceDir, string(filepath.Separator))
 	if relativeSourceDir == "" {
 		relativeSourceDir = "."
-	}
-
-	locals, err := parseLocals(sourcePath, options, nil)
-	if err != nil {
-		return nil, err
 	}
 
 	workflow := defaultWorkflow
@@ -351,7 +356,7 @@ func init() {
 	generateCmd.PersistentFlags().BoolVar(&preserveWorkflows, "preserve-workflows", true, "Preserves workflows from old output files. Default is true")
 	generateCmd.PersistentFlags().StringVar(&defaultWorkflow, "workflow", "", "Name of the workflow to be customized in the atlantis server. Default is to not set")
 	generateCmd.PersistentFlags().StringVar(&outputPath, "output", "", "Path of the file where configuration will be generated. Default is not to write to file")
-	generateCmd.PersistentFlags().StringVar(&gitRoot, "root", pwd, "Path to the root directory of the github repo you want to build config for. Default is current dir")
+	generateCmd.PersistentFlags().StringVar(&gitRoot, "root", pwd, "Path to the root directory of the git repo you want to build config for. Default is current dir")
 }
 
 // Runs a set of arguments, returning the output
