@@ -38,7 +38,7 @@ brew install transcend-io/tap/terragrunt-atlantis-config
 
 This module officially supports golang versions v1.13, v1.14, and v1.15
 
-Usage:
+Usage Examples:
 
 ```bash
 # From the root of your repo
@@ -105,33 +105,32 @@ If you specify `extra_atlantis_dependencies` in the parent Terragrunt module, th
 2. Absolute paths will work as they would in a child module, and the path in the output will be relative from the child module to the absolute path
 3. Relative paths, like the string `"foo.json"`, will be evaluated as relative to the Child module. This means that if you need something relative to the parent module, you should use something like `"${get_parent_terragrunt_dir()}/foo.json"`
 
-## Custom workflows
+## All Flags
 
-By default, the `workflow` field of each project will be empty. But you can set a global default workflow name, and can also customize the workflow name for individual projects if you'd like.
+One way to customize the behavior of this module is through CLI flag values passed in at runtime. These settings will apply to all modules.
 
-To set a global workflow name that all projects will use, use the `--workflow` flag:
+| Flag Name                    | Description                                                                                                                                | Default Value     |
+|------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------|-------------------|
+| `--autoplan`                 | The default value for autoplan settings. Can be overriden by locals.                                                                       | false             |
+| `--ignore-parent-terragrunt` | Ignore parent Terragrunt configs (those which don't reference a terraform module).<br>In most cases, this should be set to `true`          | false             |
+| `--parallel`                 | Enables `plan`s and `apply`s to happen in parallel. Will typically be used with `--create-workspace`                                       | true              |
+| `--create-workspace`         | Use different auto-generated workspace for each project. Default is use default workspace for everything                                   | false             |
+| `--create-project-name`      | Add different auto-generated name for each project                                                                                         | false             |
+| `--preserve-workflows`       | Preserves workflows from old output files. Useful if you want to define your workflow definitions on the client side                       | true              |
+| `--workflow`                 | Name of the workflow to be customized in the atlantis server. If empty, will be left out of output                                         | ""                |
+| `--output`                   | Path of the file where configuration will be generated. Typically, you want a file named "atlantis.yaml". Default is to write to `stdout`. | ""                |
+| `--root`                     | Path to the root directory of the git repo you want to build config for.                                                                   | current directory |
 
-```bash
-terragrunt-atlantis-config generate --workflow dev --output ./atlantis.yaml
-```
+## All Locals
 
-In this example, all projects will have `workflow: dev` set. 
+Another way to customize the output is to use `locals` values in your terragrunt modules. These can be set in either the parent or child terragrunt modules, and the settings will only affect the current module (or all child modules for parent locals).
 
-If you have multiple different workflows you want to use, you can set a `local` value in your terragrunt module with name `atlantis_workflow`, and a value of the workspace name you want to use.
-
-So if a terragrunt file contains:
-
-```hcl
-locals {
-  atlantis_workflow = "workflowA"
-}
-```
-
-it will have `workflow: workflowA` set in the atlantis.yaml settings.
-
-Workflow names can be specified in either parent or child terragrunt modules, but if both are specified then this module will use the workflow name specified from the child.
-
-If you write your workflows in your `atlantis.yaml` file, this library will leave them functionally as you already have them.
+| Locals Name                   | Description                                                                                                                                                    | type         |
+|-------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------|
+| `atlantis_workflow`           | The custom atlantis workflow name to use for a module                                                                                                          | string       |
+| `atlantis_autoplan`           | Allows overriding the `--autoplan` flag                                                                                                                        | bool         |
+| `atlantis_skip`               | If true on a child module, that module will not appear in the output.<br>If true on a parent module, none of that parent's children will appear in the output. | bool         |
+| `extra_atlantis_dependencies` | See [Extra dependencies](https://github.com/transcend-io/terragrunt-atlantis-config#extra-dependencies)                                                        | list(string) |
 
 ## Auto Enforcement with Github Actions
 

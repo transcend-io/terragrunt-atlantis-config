@@ -242,6 +242,14 @@ func TestAutoPlan(t *testing.T) {
 	})
 }
 
+func TestSkippingModules(t *testing.T) {
+	runTest(t, filepath.Join("golden", "skip.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "skip"),
+		"--ignore-parent-terragrunt",
+	})
+}
+
 func TestPreservingOldWorkflows(t *testing.T) {
 	err := resetDefaultFlags()
 	if err != nil {
