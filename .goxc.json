@@ -12,6 +12,4 @@
   "TasksExclude": ["rmbin", "deb", "deb-dev", "downloads-page", "go-vet", "go-test"],
   "MainDirsExclude": "./build,./vendor",
   "OutPath": "{{.Dest}}{{.PS}}{{.AppName}}{{.PS}}{{.Version}}{{.PS}}{{.ExeName}}_{{.Version}}_{{.Os}}_{{.Arch}}{{.Ext}}"
-
-
 }
