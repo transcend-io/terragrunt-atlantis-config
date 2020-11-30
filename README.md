@@ -120,6 +120,7 @@ One way to customize the behavior of this module is through CLI flag values pass
 | `--workflow`                 | Name of the workflow to be customized in the atlantis server. If empty, will be left out of output                                         | ""                |
 | `--output`                   | Path of the file where configuration will be generated. Typically, you want a file named "atlantis.yaml". Default is to write to `stdout`. | ""                |
 | `--root`                     | Path to the root directory of the git repo you want to build config for.                                                                   | current directory |
+| `--terraform-version`        | Default terraform version to specify for all modules. Can be overriden by locals                                                           | ""                |
 
 ## All Locals
 

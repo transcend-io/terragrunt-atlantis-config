@@ -194,9 +194,15 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 		resolvedAutoPlan = *locals.AutoPlan
 	}
 
+	terraformVersion := defaultTerraformVersion
+	if locals.TerraformVersion != "" {
+		terraformVersion = locals.TerraformVersion
+	}
+
 	project := &AtlantisProject{
-		Dir:      filepath.ToSlash(relativeSourceDir),
-		Workflow: workflow,
+		Dir:              filepath.ToSlash(relativeSourceDir),
+		Workflow:         workflow,
+		TerraformVersion: terraformVersion,
 		Autoplan: AutoplanConfig{
 			Enabled:      resolvedAutoPlan,
 			WhenModified: relativeDependencies,
@@ -328,6 +334,7 @@ var ignoreParentTerragrunt bool
 var parallel bool
 var createWorkspace bool
 var createProjectName bool
+var defaultTerraformVersion string
 var defaultWorkflow string
 var outputPath string
 var preserveWorkflows bool
@@ -357,6 +364,7 @@ func init() {
 	generateCmd.PersistentFlags().StringVar(&defaultWorkflow, "workflow", "", "Name of the workflow to be customized in the atlantis server. Default is to not set")
 	generateCmd.PersistentFlags().StringVar(&outputPath, "output", "", "Path of the file where configuration will be generated. Default is not to write to file")
 	generateCmd.PersistentFlags().StringVar(&gitRoot, "root", pwd, "Path to the root directory of the git repo you want to build config for. Default is current dir")
+	generateCmd.PersistentFlags().StringVar(&defaultTerraformVersion, "terraform-version", "", "Default terraform version to specify for all modules. Can be overriden by locals")
 }
 
 // Runs a set of arguments, returning the output

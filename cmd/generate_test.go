@@ -25,6 +25,7 @@ func resetDefaultFlags() error {
 	preserveWorkflows = true
 	defaultWorkflow = ""
 	outputPath = ""
+	defaultTerraformVersion = ""
 
 	return nil
 }
@@ -247,6 +248,15 @@ func TestSkippingModules(t *testing.T) {
 		"--root",
 		filepath.Join("..", "test_examples", "skip"),
 		"--ignore-parent-terragrunt",
+	})
+}
+
+func TestTerraformVersionConfig(t *testing.T) {
+	runTest(t, filepath.Join("golden", "terraform_version.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "terraform_version"),
+		"--ignore-parent-terragrunt",
+		"--terraform-version", "0.14.9001",
 	})
 }
 
