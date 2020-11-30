@@ -184,11 +184,16 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 		workflow = locals.AtlantisWorkflow
 	}
 
+	resolvedAutoPlan := autoPlan
+	if locals.AutoPlan != nil {
+		resolvedAutoPlan = *locals.AutoPlan
+	}
+
 	project := &AtlantisProject{
 		Dir:      filepath.ToSlash(relativeSourceDir),
 		Workflow: workflow,
 		Autoplan: AutoplanConfig{
-			Enabled:      autoPlan,
+			Enabled:      resolvedAutoPlan,
 			WhenModified: relativeDependencies,
 		},
 	}

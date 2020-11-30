@@ -22,6 +22,9 @@ type ResolvedLocals struct {
 
 	// Extra dependencies that can be hardcoded in config
 	ExtraAtlantisDependencies []string
+
+	// If set, a single module will have autoplan turned to this setting
+	AutoPlan *bool
 }
 
 // parseHcl uses the HCL2 parser to parse the given string into an HCL file body.
@@ -69,10 +72,15 @@ func parseLocals(path string, terragruntOptions *options.TerragruntOptions, incl
 		// Ignore errors if the parent cannot be parsed. Terragrunt Errors still will be logged
 		parentLocals, _ = parseLocals(includeConfig.Path, terragruntOptions, includeConfig)
 	}
-
 	childLocals := resolveLocals(*localsAsCty)
+
+	// Merge in values from child => parent local values
 	if childLocals.AtlantisWorkflow != "" {
 		parentLocals.AtlantisWorkflow = childLocals.AtlantisWorkflow
+	}
+
+	if childLocals.AutoPlan != nil {
+		parentLocals.AutoPlan = childLocals.AutoPlan
 	}
 
 	for _, dep := range childLocals.ExtraAtlantisDependencies {
@@ -97,6 +105,12 @@ func resolveLocals(localsAsCty cty.Value) ResolvedLocals {
 	workflowValue, ok := rawLocals["atlantis_workflow"]
 	if ok {
 		resolved.AtlantisWorkflow = workflowValue.AsString()
+	}
+
+	autoPlanValue, ok := rawLocals["atlantis_autoplan"]
+	if ok {
+		hasValue := autoPlanValue.True()
+		resolved.AutoPlan = &hasValue
 	}
 
 	extraDependenciesAsCty, ok := rawLocals["extra_atlantis_dependencies"]
