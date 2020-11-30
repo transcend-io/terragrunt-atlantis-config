@@ -233,6 +233,15 @@ func TestInfrastructureLive(t *testing.T) {
 	})
 }
 
+func TestAutoPlan(t *testing.T) {
+	runTest(t, filepath.Join("golden", "autoplan.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "autoplan"),
+		"--ignore-parent-terragrunt",
+		"--autoplan=false",
+	})
+}
+
 func TestPreservingOldWorkflows(t *testing.T) {
 	err := resetDefaultFlags()
 	if err != nil {
