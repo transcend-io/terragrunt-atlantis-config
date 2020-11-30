@@ -69,18 +69,13 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 		return nil, err
 	}
 
-	locals, err := parseLocals(path, terragruntOptions, nil)
+	err = parseLocals(path, terragruntOptions, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	// Get deps from locals
-	dependencies := []string{}
-	if locals.ExtraAtlantisDependencies != nil {
-		dependencies = locals.ExtraAtlantisDependencies
-	}
-
 	// Get deps from `dependencies` and `dependency` blocks
+	dependencies := extraDependenciesParameter.resolve().([]string)
 	if parsedConfig.Dependencies != nil {
 		for _, path := range parsedConfig.Dependencies.Paths {
 			dependencies = append(dependencies, filepath.Join(path, "terragrunt.hcl"))
@@ -174,19 +169,17 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 		relativeSourceDir = "."
 	}
 
-	locals, err := parseLocals(sourcePath, options, nil)
+	err = parseLocals(sourcePath, options, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	workflow := defaultWorkflow
-	if locals.AtlantisWorkflow != "" {
-		workflow = locals.AtlantisWorkflow
-	}
+	// DO NOT SUBMIT
+	log.Info(workflowParameter)
 
 	project := &AtlantisProject{
 		Dir:      filepath.ToSlash(relativeSourceDir),
-		Workflow: workflow,
+		Workflow: workflowParameter.resolve().(string),
 		Autoplan: AutoplanConfig{
 			Enabled:      autoPlan,
 			WhenModified: relativeDependencies,
@@ -318,7 +311,6 @@ var ignoreParentTerragrunt bool
 var parallel bool
 var createWorkspace bool
 var createProjectName bool
-var defaultWorkflow string
 var outputPath string
 var preserveWorkflows bool
 
@@ -338,18 +330,20 @@ func init() {
 		log.Fatal(err)
 	}
 
+	// DO NOT SUBMIT: Move everything to a parameter. Make a list of them all. Loop and call `registerFlag`
 	generateCmd.PersistentFlags().BoolVar(&autoPlan, "autoplan", false, "Enable auto plan. Default is disabled")
 	generateCmd.PersistentFlags().BoolVar(&ignoreParentTerragrunt, "ignore-parent-terragrunt", false, "Ignore parent terragrunt configs (those which don't reference a terraform module). Default is disabled")
 	generateCmd.PersistentFlags().BoolVar(&parallel, "parallel", true, "Enables plans and applys to happen in parallel. Default is enabled")
 	generateCmd.PersistentFlags().BoolVar(&createWorkspace, "create-workspace", false, "Use different workspace for each project. Default is use default workspace")
 	generateCmd.PersistentFlags().BoolVar(&createProjectName, "create-project-name", false, "Add different name for each project. Default is false")
 	generateCmd.PersistentFlags().BoolVar(&preserveWorkflows, "preserve-workflows", true, "Preserves workflows from old output files. Default is true")
-	generateCmd.PersistentFlags().StringVar(&defaultWorkflow, "workflow", "", "Name of the workflow to be customized in the atlantis server. Default is to not set")
+	workflowParameter.registerFlag()
+	extraDependenciesParameter.registerFlag()
 	generateCmd.PersistentFlags().StringVar(&outputPath, "output", "", "Path of the file where configuration will be generated. Default is not to write to file")
 	generateCmd.PersistentFlags().StringVar(&gitRoot, "root", pwd, "Path to the root directory of the github repo you want to build config for. Default is current dir")
 }
 
-// Runs a set of arguments, returning the output
+// RunWithFlags runs a set of arguments, returning the output
 func RunWithFlags(filename string, args []string) ([]byte, error) {
 	rootCmd.SetArgs(args)
 	rootCmd.Execute()

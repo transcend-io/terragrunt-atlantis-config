@@ -15,15 +15,6 @@ import (
 	"path/filepath"
 )
 
-// ResolvedLocals are the parsed result of local values this module cares about
-type ResolvedLocals struct {
-	// The Atlantis workflow to use for some project
-	AtlantisWorkflow string
-
-	// Extra dependencies that can be hardcoded in config
-	ExtraAtlantisDependencies []string
-}
-
 // parseHcl uses the HCL2 parser to parse the given string into an HCL file body.
 func parseHcl(parser *hclparse.Parser, hcl string, filename string) (file *hcl.File, err error) {
 	if filepath.Ext(filename) == ".json" {
@@ -44,72 +35,56 @@ func parseHcl(parser *hclparse.Parser, hcl string, filename string) (file *hcl.F
 }
 
 // Parses a given file, returning a map of all it's `local` values
-func parseLocals(path string, terragruntOptions *options.TerragruntOptions, includeFromChild *config.IncludeConfig) (ResolvedLocals, error) {
+func parseLocals(path string, terragruntOptions *options.TerragruntOptions, includeFromChild *config.IncludeConfig) error {
 	configString, err := util.ReadFileAsString(path)
 	if err != nil {
-		return ResolvedLocals{}, err
+		return err
 	}
 
 	// Parse the HCL string into an AST body
 	parser := hclparse.NewParser()
 	file, err := parseHcl(parser, configString, path)
 	if err != nil {
-		return ResolvedLocals{}, err
+		return err
 	}
 
 	// Decode just the Base blocks. See the function docs for DecodeBaseBlocks for more info on what base blocks are.
 	localsAsCty, _, includeConfig, err := config.DecodeBaseBlocks(terragruntOptions, parser, file, path, includeFromChild)
 	if err != nil {
-		return ResolvedLocals{}, err
+		return err
 	}
 
 	// Recurse on the parent to merge in the locals from that file
-	parentLocals := ResolvedLocals{}
 	if includeConfig != nil && includeFromChild == nil {
 		// Ignore errors if the parent cannot be parsed. Terragrunt Errors still will be logged
-		parentLocals, _ = parseLocals(includeConfig.Path, terragruntOptions, includeConfig)
+		parseLocals(includeConfig.Path, terragruntOptions, includeConfig)
 	}
 
-	childLocals := resolveLocals(*localsAsCty)
-	if childLocals.AtlantisWorkflow != "" {
-		parentLocals.AtlantisWorkflow = childLocals.AtlantisWorkflow
+	// If no `locals` block was found, just exit cleanly
+	if *localsAsCty == cty.NilVal {
+		return nil
 	}
 
-	for _, dep := range childLocals.ExtraAtlantisDependencies {
-		parentLocals.ExtraAtlantisDependencies = append(
-			parentLocals.ExtraAtlantisDependencies,
-			dep,
-		)
-	}
-
-	return parentLocals, nil
-}
-
-func resolveLocals(localsAsCty cty.Value) ResolvedLocals {
-	resolved := ResolvedLocals{}
-
-	// Return an empty set of locals if no `locals` block was present
-	if localsAsCty == cty.NilVal {
-		return resolved
-	}
+	// Store all `locals` values onto the param
 	rawLocals := localsAsCty.AsValueMap()
-
-	workflowValue, ok := rawLocals["atlantis_workflow"]
-	if ok {
-		resolved.AtlantisWorkflow = workflowValue.AsString()
-	}
-
-	extraDependenciesAsCty, ok := rawLocals["extra_atlantis_dependencies"]
-	if ok {
-		it := extraDependenciesAsCty.ElementIterator()
-		for it.Next() {
-			_, val := it.Element()
-			resolved.ExtraAtlantisDependencies = append(
-				resolved.ExtraAtlantisDependencies,
-				filepath.ToSlash(val.AsString()),
-			)
+	for _, param := range []*ParameterValue{&workflowParameter, &extraDependenciesParameter} {
+		if param.LocalsName != "" {
+			val, ok := rawLocals[(*param).LocalsName]
+			if ok {
+				if includeConfig == nil {
+					(*param).LocalValue = &val
+				} else {
+					(*param).ParentLocalValue = &val
+				}
+			} else {
+				if includeConfig == nil {
+					(*param).LocalValue = nil
+				} else {
+					(*param).ParentLocalValue = nil
+				}
+			}
 		}
 	}
 
-	return resolved
+	return nil
 }

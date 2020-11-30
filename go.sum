@@ -763,6 +763,7 @@ github.com/zclconf/go-cty v1.5.0 h1:U0USwJxGTnUd+dT565f92paYOlRtd201pI7+ZGW36XY=
 github.com/zclconf/go-cty v1.5.1 h1:oALUZX+aJeEBUe2a1+uD2+UTaYfEjnKFDEMRydkGvWE=
 github.com/zclconf/go-cty v1.5.1/go.mod h1:nHzOclRkoj++EU9ZjSrZvRG0BXIWt8c7loYc0qXAFGQ=
 github.com/zclconf/go-cty v1.6.1 h1:wHtZ+LSSQVwUSb+XIJ5E9hgAQxyWATZsAWT+ESJ9dQ0=
+github.com/zclconf/go-cty v1.7.0 h1:yMqLinUwNCYkmiHjEH+luio1yGl35cjqVzjvdRg2WlY=
 github.com/zclconf/go-cty-yaml v1.0.1 h1:up11wlgAaDvlAGENcFDnZgkn0qUJurso7k6EpURKNF8=
 github.com/zclconf/go-cty-yaml v1.0.1/go.mod h1:IP3Ylp0wQpYm50IHK8OZWKMu6sPJIUgKa8XhiVHura0=
 github.com/zclconf/go-cty-yaml v1.0.2 h1:dNyg4QLTrv2IfJpm7Wtxi55ed5gLGOlPrZ6kMd51hY0=
