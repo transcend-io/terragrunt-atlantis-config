@@ -46,6 +46,9 @@ type AtlantisProject struct {
 
 	// Autoplan settings for which plans affect other plans
 	Autoplan AutoplanConfig `json:"autoplan"`
+
+	// The terraform version to use for this project
+	TerraformVersion string `json:"terraform_version,omitempty"`
 }
 
 // Autoplan settings for which plans affect other plans

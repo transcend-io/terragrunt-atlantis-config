@@ -28,6 +28,9 @@ type ResolvedLocals struct {
 
 	// If set to true, the module will not be included in the output
 	Skip *bool
+
+	// Terraform version to use just for this project
+	TerraformVersion string
 }
 
 // parseHcl uses the HCL2 parser to parse the given string into an HCL file body.
@@ -82,6 +85,10 @@ func parseLocals(path string, terragruntOptions *options.TerragruntOptions, incl
 		parentLocals.AtlantisWorkflow = childLocals.AtlantisWorkflow
 	}
 
+	if childLocals.TerraformVersion != "" {
+		parentLocals.TerraformVersion = childLocals.TerraformVersion
+	}
+
 	if childLocals.AutoPlan != nil {
 		parentLocals.AutoPlan = childLocals.AutoPlan
 	}
@@ -112,6 +119,11 @@ func resolveLocals(localsAsCty cty.Value) ResolvedLocals {
 	workflowValue, ok := rawLocals["atlantis_workflow"]
 	if ok {
 		resolved.AtlantisWorkflow = workflowValue.AsString()
+	}
+
+	versionValue, ok := rawLocals["atlantis_terraform_version"]
+	if ok {
+		resolved.TerraformVersion = versionValue.AsString()
 	}
 
 	autoPlanValue, ok := rawLocals["atlantis_autoplan"]
