@@ -23,7 +23,7 @@ func resetDefaultFlags() error {
 	createWorkspace = false
 	createProjectName = false
 	preserveWorkflows = true
-	defaultWorkflow = ""
+	workflowParameter.FlagValue = ""
 	outputPath = ""
 
 	return nil
