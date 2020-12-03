@@ -129,7 +129,8 @@ Another way to customize the output is to use `locals` values in your terragrunt
 | Locals Name                   | Description                                                                                                                                                    | type         |
 |-------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------|
 | `atlantis_workflow`           | The custom atlantis workflow name to use for a module                                                                                                          | string       |
-| `atlantis_autoplan`           | Allows overriding the `--autoplan` flag                                                                                                                        | bool         |
+| `atlantis_terraform_version`  | Allows overriding the `--terraform-version` flag for a single module                                                                                           | string       |
+| `atlantis_autoplan`           | Allows overriding the `--autoplan` flag for a single module                                                                                                    | bool         |
 | `atlantis_skip`               | If true on a child module, that module will not appear in the output.<br>If true on a parent module, none of that parent's children will appear in the output. | bool         |
 | `extra_atlantis_dependencies` | See [Extra dependencies](https://github.com/transcend-io/terragrunt-atlantis-config#extra-dependencies)                                                        | list(string) |
 
@@ -160,7 +161,7 @@ jobs:
         id: atlantis_validator
         uses: transcend-io/terragrunt-atlantis-config-github-action@v0.0.3
         with:
-          version: v0.11.0
+          version: v0.11.1
           extra_args: '--autoplan --parallel=false
 ```
 
