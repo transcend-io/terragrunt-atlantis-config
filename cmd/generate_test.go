@@ -306,3 +306,11 @@ func TestPreservingOldWorkflows(t *testing.T) {
 		t.Errorf("Content did not match golden file.\n\nExpected Content: %s\n\nContent: %s", string(goldenContents), string(content))
 	}
 }
+
+func TestEnablingAutomerge(t *testing.T) {
+	runTest(t, filepath.Join("golden", "withAutomerge.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "basic_module"),
+		"--automerge",
+	})
+}
