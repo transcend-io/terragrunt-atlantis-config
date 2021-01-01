@@ -18,6 +18,8 @@ func resetDefaultFlags() error {
 
 	gitRoot = pwd
 	autoPlan = false
+	autoMerge = false
+	cascadeDependencies = true
 	ignoreParentTerragrunt = false
 	parallel = true
 	createWorkspace = false
@@ -50,7 +52,7 @@ func runTest(t *testing.T, goldenFile string, args []string) {
 
 	content, err := RunWithFlags(filename, allArgs)
 	if err != nil {
-		t.Error("Failed to read file")
+		t.Error(err)
 		return
 	}
 
@@ -312,5 +314,21 @@ func TestEnablingAutomerge(t *testing.T) {
 		"--root",
 		filepath.Join("..", "test_examples", "basic_module"),
 		"--automerge",
+	})
+}
+
+func TestChainedDependencies(t *testing.T) {
+	runTest(t, filepath.Join("golden", "chained_dependency.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "chained_dependencies"),
+		"--cascade-dependencies",
+	})
+}
+
+func TestChainedDependenciesHiddenBehindFlag(t *testing.T) {
+	runTest(t, filepath.Join("golden", "chained_dependency_no_flag.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "chained_dependencies"),
+		"--cascade-dependencies=false",
 	})
 }

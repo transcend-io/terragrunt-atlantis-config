@@ -46,6 +46,7 @@ func makePathAbsolute(path string, parentPath string) string {
 	return filepath.Join(parentDir, path)
 }
 
+// DO NOT SUBMIT: Use caching/memoization for this
 // Parses the terragrunt config at <path> to find all modules it depends on
 func getDependencies(path string, terragruntOptions *options.TerragruntOptions) ([]string, error) {
 	// if theres no terraform source and we're ignoring parent terragrunt configs
@@ -128,7 +129,32 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 		}
 	}
 
-	return nonEmptyDeps, nil
+	// Recurse to find dependencies of all dependencies
+	cascadedDeps := []string{}
+	for _, dep := range nonEmptyDeps {
+		cascadedDeps = append(cascadedDeps, dep)
+
+		// The "cascading" feature is protected by a flag
+		if !cascadeDependencies {
+			continue
+		}
+
+		// To find the path to the dependency, we join three things:
+		// 1. The path to the current module, `path`
+		// 2. `..`, because `path` includes the `terragrunt.hcl` file extension, while the `dep` path is relative to the folder that file is in
+		// 3. the relative path from the current module to the dependency, `dep`
+		depPath := filepath.Join(path, "..", dep)
+		childDeps, err := getDependencies(depPath, terragruntOptions)
+		if err != nil {
+			continue
+		}
+
+		for _, childDep := range childDeps {
+			cascadedDeps = append(cascadedDeps, childDep)
+		}
+	}
+
+	return cascadedDeps, nil
 }
 
 // Creates an AtlantisProject for a directory
@@ -339,6 +365,7 @@ var defaultTerraformVersion string
 var defaultWorkflow string
 var outputPath string
 var preserveWorkflows bool
+var cascadeDependencies bool
 
 // generateCmd represents the generate command
 var generateCmd = &cobra.Command{
@@ -363,6 +390,7 @@ func init() {
 	generateCmd.PersistentFlags().BoolVar(&createWorkspace, "create-workspace", false, "Use different workspace for each project. Default is use default workspace")
 	generateCmd.PersistentFlags().BoolVar(&createProjectName, "create-project-name", false, "Add different name for each project. Default is false")
 	generateCmd.PersistentFlags().BoolVar(&preserveWorkflows, "preserve-workflows", true, "Preserves workflows from old output files. Default is true")
+	generateCmd.PersistentFlags().BoolVar(&cascadeDependencies, "cascade-dependencies", true, "When true, dependencies will cascade, meaning that a module will be declared to depend not only on its dependencies, but all dependencies of its dependencies all the way down. Default is true")
 	generateCmd.PersistentFlags().StringVar(&defaultWorkflow, "workflow", "", "Name of the workflow to be customized in the atlantis server. Default is to not set")
 	generateCmd.PersistentFlags().StringVar(&outputPath, "output", "", "Path of the file where configuration will be generated. Default is not to write to file")
 	generateCmd.PersistentFlags().StringVar(&gitRoot, "root", pwd, "Path to the root directory of the git repo you want to build config for. Default is current dir")
