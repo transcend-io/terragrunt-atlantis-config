@@ -179,6 +179,7 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 					return nil, err
 				}
 			}
+			childDepAbsPath = filepath.ToSlash(childDepAbsPath)
 
 			// Ensure we are not adding a duplicate dependency
 			alreadyExists := false
