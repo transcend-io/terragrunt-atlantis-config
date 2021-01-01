@@ -265,7 +265,7 @@ func main(cmd *cobra.Command, args []string) error {
 
 	config := AtlantisConfig{
 		Version:       3,
-		AutoMerge:     false,
+		AutoMerge:     autoMerge,
 		ParallelPlan:  parallel,
 		ParallelApply: parallel,
 	}
@@ -330,6 +330,7 @@ func main(cmd *cobra.Command, args []string) error {
 
 var gitRoot string
 var autoPlan bool
+var autoMerge bool
 var ignoreParentTerragrunt bool
 var parallel bool
 var createWorkspace bool
@@ -356,6 +357,7 @@ func init() {
 	}
 
 	generateCmd.PersistentFlags().BoolVar(&autoPlan, "autoplan", false, "Enable auto plan. Default is disabled")
+	generateCmd.PersistentFlags().BoolVar(&autoMerge, "automerge", false, "Enable auto merge. Default is disabled")
 	generateCmd.PersistentFlags().BoolVar(&ignoreParentTerragrunt, "ignore-parent-terragrunt", false, "Ignore parent terragrunt configs (those which don't reference a terraform module). Default is disabled")
 	generateCmd.PersistentFlags().BoolVar(&parallel, "parallel", true, "Enables plans and applys to happen in parallel. Default is enabled")
 	generateCmd.PersistentFlags().BoolVar(&createWorkspace, "create-workspace", false, "Use different workspace for each project. Default is use default workspace")

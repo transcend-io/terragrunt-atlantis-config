@@ -53,6 +53,9 @@ terragrunt-atlantis-config generate --autoplan --output ./atlantis.yaml
 # enable auto plan
 terragrunt-atlantis-config generate --autoplan
 
+# enable auto merge
+terragrunt-atlantis-config generate --automerge
+
 # define the workflow
 terragrunt-atlantis-config generate --workflow web --output ./atlantis.yaml
 
@@ -112,6 +115,7 @@ One way to customize the behavior of this module is through CLI flag values pass
 | Flag Name                    | Description                                                                                                                                | Default Value     |
 |------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------|-------------------|
 | `--autoplan`                 | The default value for autoplan settings. Can be overriden by locals.                                                                       | false             |
+| `--automerge`                | Enables the automerge setting for a repo.                                                                                                  | false             |
 | `--ignore-parent-terragrunt` | Ignore parent Terragrunt configs (those which don't reference a terraform module).<br>In most cases, this should be set to `true`          | false             |
 | `--parallel`                 | Enables `plan`s and `apply`s to happen in parallel. Will typically be used with `--create-workspace`                                       | true              |
 | `--create-workspace`         | Use different auto-generated workspace for each project. Default is use default workspace for everything                                   | false             |
