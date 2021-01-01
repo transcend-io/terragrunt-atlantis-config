@@ -46,16 +46,31 @@ func makePathAbsolute(path string, parentPath string) string {
 	return filepath.Join(parentDir, path)
 }
 
-// DO NOT SUBMIT: Use caching/memoization for this
+// Set up a cache for the getDependencies function
+type getDependenciesOutput struct {
+	dependencies []string
+	err          error
+}
+
+var getDependenciesCache = make(map[string]getDependenciesOutput)
+
 // Parses the terragrunt config at <path> to find all modules it depends on
 func getDependencies(path string, terragruntOptions *options.TerragruntOptions) ([]string, error) {
+	// Check if this path has already been computed
+	cachedResult, ok := getDependenciesCache[path]
+	if ok {
+		return cachedResult.dependencies, cachedResult.err
+	}
+
 	// if theres no terraform source and we're ignoring parent terragrunt configs
 	// return nils to indicate we should skip this project
 	isParent, err := isParentModule(path, terragruntOptions)
 	if err != nil {
+		getDependenciesCache[path] = getDependenciesOutput{nil, err}
 		return nil, err
 	}
 	if ignoreParentTerragrunt && isParent {
+		getDependenciesCache[path] = getDependenciesOutput{nil, nil}
 		return nil, nil
 	}
 
@@ -67,11 +82,13 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 
 	parsedConfig, err := config.PartialParseConfigFile(path, terragruntOptions, nil, decodeTypes)
 	if err != nil {
+		getDependenciesCache[path] = getDependenciesOutput{nil, err}
 		return nil, err
 	}
 
 	locals, err := parseLocals(path, terragruntOptions, nil)
 	if err != nil {
+		getDependenciesCache[path] = getDependenciesOutput{nil, err}
 		return nil, err
 	}
 
@@ -154,6 +171,7 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 		}
 	}
 
+	getDependenciesCache[path] = getDependenciesOutput{cascadedDeps, nil}
 	return cascadedDeps, nil
 }
 

@@ -10,12 +10,16 @@ import (
 )
 
 // Resets all flag values to their defaults in between tests
-func resetDefaultFlags() error {
+func resetForRun() error {
 	pwd, err := os.Getwd()
 	if err != nil {
 		return err
 	}
 
+	// reset caches
+	getDependenciesCache = make(map[string]getDependenciesOutput)
+
+	// reset flags
 	gitRoot = pwd
 	autoPlan = false
 	autoMerge = false
@@ -34,7 +38,7 @@ func resetDefaultFlags() error {
 
 // Runs a test, asserting the output produced matches a golden file
 func runTest(t *testing.T, goldenFile string, args []string) {
-	err := resetDefaultFlags()
+	err := resetForRun()
 	if err != nil {
 		t.Error("Failed to reset default flags")
 		return
@@ -263,7 +267,7 @@ func TestTerraformVersionConfig(t *testing.T) {
 }
 
 func TestPreservingOldWorkflows(t *testing.T) {
-	err := resetDefaultFlags()
+	err := resetForRun()
 	if err != nil {
 		t.Error("Failed to reset default flags")
 		return
