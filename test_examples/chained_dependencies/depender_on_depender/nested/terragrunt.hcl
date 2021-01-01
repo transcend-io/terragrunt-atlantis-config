@@ -3,11 +3,7 @@ terraform {
 }
 
 dependency "some_dep" {
-  config_path = "../depender"
-}
-
-dependency "nested" {
-  config_path = "./nested"
+  config_path = "../../dependency"
 }
 
 inputs = {

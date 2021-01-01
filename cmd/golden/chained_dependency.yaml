@@ -22,5 +22,13 @@ projects:
     - '*.tf*'
     - ../depender/terragrunt.hcl
     - ../dependency/terragrunt.hcl
+    - nested/terragrunt.hcl
   dir: depender_on_depender
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+    - ../../dependency/terragrunt.hcl
+  dir: depender_on_depender/nested
 version: 3

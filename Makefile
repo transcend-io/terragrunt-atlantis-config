@@ -31,6 +31,12 @@ build-all: clean
     -d=$(PATH_BUILD) \
     -build-ldflags "-X main.VERSION=$(VERSION)"
 
+.PHONY: gotestsum
+gotestsum:
+	mkdir -p cmd/test_artifacts
+	gotestsum
+	rm -rf cmd/test_artifacts
+
 .PHONY: test
 test:
 	mkdir -p cmd/test_artifacts

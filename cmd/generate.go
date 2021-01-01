@@ -54,7 +54,7 @@ type getDependenciesOutput struct {
 
 var getDependenciesCache = make(map[string]getDependenciesOutput)
 
-// Parses the terragrunt config at <path> to find all modules it depends on
+// Parses the terragrunt config at `path` to find all modules it depends on
 func getDependencies(path string, terragruntOptions *options.TerragruntOptions) ([]string, error) {
 	// Check if this path has already been computed
 	cachedResult, ok := getDependenciesCache[path]
@@ -74,18 +74,19 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 		return nil, nil
 	}
 
+	// Parse the HCL file
 	decodeTypes := []config.PartialDecodeSectionType{
 		config.DependencyBlock,
 		config.DependenciesBlock,
 		config.TerraformBlock,
 	}
-
 	parsedConfig, err := config.PartialParseConfigFile(path, terragruntOptions, nil, decodeTypes)
 	if err != nil {
 		getDependenciesCache[path] = getDependenciesOutput{nil, err}
 		return nil, err
 	}
 
+	// Parse out locals
 	locals, err := parseLocals(path, terragruntOptions, nil)
 	if err != nil {
 		getDependenciesCache[path] = getDependenciesOutput{nil, err}
@@ -100,8 +101,8 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 
 	// Get deps from `dependencies` and `dependency` blocks
 	if parsedConfig.Dependencies != nil {
-		for _, path := range parsedConfig.Dependencies.Paths {
-			dependencies = append(dependencies, filepath.Join(path, "terragrunt.hcl"))
+		for _, parsedPaths := range parsedConfig.Dependencies.Paths {
+			dependencies = append(dependencies, filepath.Join(parsedPaths, "terragrunt.hcl"))
 		}
 	}
 
@@ -167,7 +168,29 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 		}
 
 		for _, childDep := range childDeps {
-			cascadedDeps = append(cascadedDeps, childDep)
+			// If `childDep` is a relative path, it will be relative to `childDep`, as it is from the nested
+			// `getDependencies` call on the top level module's dependencies. So here we update any relative
+			// path to be from the top level module instead.
+			childDepAbsPath := childDep
+			if !filepath.IsAbs(childDep) {
+				childDepAbsPath, err = filepath.Abs(filepath.Join(depPath, "..", childDep))
+				if err != nil {
+					getDependenciesCache[path] = getDependenciesOutput{nil, err}
+					return nil, err
+				}
+			}
+
+			// Ensure we are not adding a duplicate dependency
+			alreadyExists := false
+			for _, dep := range cascadedDeps {
+				if dep == childDepAbsPath {
+					alreadyExists = true
+					break
+				}
+			}
+			if !alreadyExists {
+				cascadedDeps = append(cascadedDeps, childDepAbsPath)
+			}
 		}
 	}
 
