@@ -36,9 +36,10 @@ Alternative: Install a stable versions via Homebrew:
 brew install transcend-io/tap/terragrunt-atlantis-config
 ```
 
-This module officially supports golang versions v1.13, v1.14, and v1.15
+This module officially supports golang versions v1.13, v1.14, and v1.15, tested on CircleCI with each build
+This module also officially supports both Windows and Nix-based file formats, tested on CircleCI with each build
 
-Usage Examples:
+Usage Examples (see below sections for all options):
 
 ```bash
 # From the root of your repo
@@ -49,21 +50,6 @@ terragrunt-atlantis-config generate --root /some/path/to/your/repo/root
 
 # output to a file
 terragrunt-atlantis-config generate --autoplan --output ./atlantis.yaml
-
-# enable auto plan
-terragrunt-atlantis-config generate --autoplan
-
-# enable auto merge
-terragrunt-atlantis-config generate --automerge
-
-# define the workflow
-terragrunt-atlantis-config generate --workflow web --output ./atlantis.yaml
-
-# ignore parent terragrunt configs (those which don't reference a terraform module)
-terragrunt-atlantis-config generate --ignore-parent-terragrunt
-
-# Enable the project name creation
-terragrunt-atlantis-config generate --create-project-name
 ```
 
 Finally, check the log output (or your output file) for the YAML.
@@ -95,10 +81,10 @@ In your `atlantis.yaml` file, you will end up seeing output like:
 - autoplan:
     enabled: false
     when_modified:
-    - '*.hcl'
-    - '*.tf*'
-    - some_extra_dep
-    - ../../.gitignore
+      - "*.hcl"
+      - "*.tf*"
+      - some_extra_dep
+      - ../../.gitignore
   dir: example-setup/extra_dependency
 ```
 
@@ -112,26 +98,27 @@ If you specify `extra_atlantis_dependencies` in the parent Terragrunt module, th
 
 One way to customize the behavior of this module is through CLI flag values passed in at runtime. These settings will apply to all modules.
 
-| Flag Name                    | Description                                                                                                                                | Default Value     |
-|------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------|-------------------|
-| `--autoplan`                 | The default value for autoplan settings. Can be overriden by locals.                                                                       | false             |
-| `--automerge`                | Enables the automerge setting for a repo.                                                                                                  | false             |
-| `--ignore-parent-terragrunt` | Ignore parent Terragrunt configs (those which don't reference a terraform module).<br>In most cases, this should be set to `true`          | false             |
-| `--parallel`                 | Enables `plan`s and `apply`s to happen in parallel. Will typically be used with `--create-workspace`                                       | true              |
-| `--create-workspace`         | Use different auto-generated workspace for each project. Default is use default workspace for everything                                   | false             |
-| `--create-project-name`      | Add different auto-generated name for each project                                                                                         | false             |
-| `--preserve-workflows`       | Preserves workflows from old output files. Useful if you want to define your workflow definitions on the client side                       | true              |
-| `--workflow`                 | Name of the workflow to be customized in the atlantis server. If empty, will be left out of output                                         | ""                |
-| `--output`                   | Path of the file where configuration will be generated. Typically, you want a file named "atlantis.yaml". Default is to write to `stdout`. | ""                |
-| `--root`                     | Path to the root directory of the git repo you want to build config for.                                                                   | current directory |
-| `--terraform-version`        | Default terraform version to specify for all modules. Can be overriden by locals                                                           | ""                |
+| Flag Name                    | Description                                                                                                                                                                     | Default Value     |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- |
+| `--autoplan`                 | The default value for autoplan settings. Can be overriden by locals.                                                                                                            | false             |
+| `--automerge`                | Enables the automerge setting for a repo.                                                                                                                                       | false             |
+| `--cascade-dependencies`     | When true, dependencies will cascade, meaning that a module will be declared to depend not only on its dependencies, but all dependencies of its dependencies all the way down. | true              |
+| `--ignore-parent-terragrunt` | Ignore parent Terragrunt configs (those which don't reference a terraform module).<br>In most cases, this should be set to `true`                                               | false             |
+| `--parallel`                 | Enables `plan`s and `apply`s to happen in parallel. Will typically be used with `--create-workspace`                                                                            | true              |
+| `--create-workspace`         | Use different auto-generated workspace for each project. Default is use default workspace for everything                                                                        | false             |
+| `--create-project-name`      | Add different auto-generated name for each project                                                                                                                              | false             |
+| `--preserve-workflows`       | Preserves workflows from old output files. Useful if you want to define your workflow definitions on the client side                                                            | true              |
+| `--workflow`                 | Name of the workflow to be customized in the atlantis server. If empty, will be left out of output                                                                              | ""                |
+| `--output`                   | Path of the file where configuration will be generated. Typically, you want a file named "atlantis.yaml". Default is to write to `stdout`.                                      | ""                |
+| `--root`                     | Path to the root directory of the git repo you want to build config for.                                                                                                        | current directory |
+| `--terraform-version`        | Default terraform version to specify for all modules. Can be overriden by locals                                                                                                | ""                |
 
 ## All Locals
 
 Another way to customize the output is to use `locals` values in your terragrunt modules. These can be set in either the parent or child terragrunt modules, and the settings will only affect the current module (or all child modules for parent locals).
 
 | Locals Name                   | Description                                                                                                                                                    | type         |
-|-------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------|
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
 | `atlantis_workflow`           | The custom atlantis workflow name to use for a module                                                                                                          | string       |
 | `atlantis_terraform_version`  | Allows overriding the `--terraform-version` flag for a single module                                                                                           | string       |
 | `atlantis_autoplan`           | Allows overriding the `--autoplan` flag for a single module                                                                                                    | bool         |
@@ -165,7 +152,7 @@ jobs:
         id: atlantis_validator
         uses: transcend-io/terragrunt-atlantis-config-github-action@v0.0.3
         with:
-          version: v0.12.0
+          version: v0.13.0
           extra_args: '--autoplan --parallel=false
 ```
 

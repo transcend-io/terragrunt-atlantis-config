@@ -10,14 +10,20 @@ import (
 )
 
 // Resets all flag values to their defaults in between tests
-func resetDefaultFlags() error {
+func resetForRun() error {
 	pwd, err := os.Getwd()
 	if err != nil {
 		return err
 	}
 
+	// reset caches
+	getDependenciesCache = make(map[string]getDependenciesOutput)
+
+	// reset flags
 	gitRoot = pwd
 	autoPlan = false
+	autoMerge = false
+	cascadeDependencies = true
 	ignoreParentTerragrunt = false
 	parallel = true
 	createWorkspace = false
@@ -32,7 +38,7 @@ func resetDefaultFlags() error {
 
 // Runs a test, asserting the output produced matches a golden file
 func runTest(t *testing.T, goldenFile string, args []string) {
-	err := resetDefaultFlags()
+	err := resetForRun()
 	if err != nil {
 		t.Error("Failed to reset default flags")
 		return
@@ -50,7 +56,7 @@ func runTest(t *testing.T, goldenFile string, args []string) {
 
 	content, err := RunWithFlags(filename, allArgs)
 	if err != nil {
-		t.Error("Failed to read file")
+		t.Error(err)
 		return
 	}
 
@@ -61,7 +67,7 @@ func runTest(t *testing.T, goldenFile string, args []string) {
 	}
 
 	if string(content) != string(goldenContents) {
-		t.Errorf("Content did not match golden file.\n\nExpected Content: %s\n\nContent: %s", string(goldenContents), string(content))
+		t.Errorf("Content did not match golden file.\n\nExpected (Golden file) Contents: \n%s\n\nGenerated Content: \n%s", string(goldenContents), string(content))
 	}
 }
 
@@ -261,7 +267,7 @@ func TestTerraformVersionConfig(t *testing.T) {
 }
 
 func TestPreservingOldWorkflows(t *testing.T) {
-	err := resetDefaultFlags()
+	err := resetForRun()
 	if err != nil {
 		t.Error("Failed to reset default flags")
 		return
@@ -312,5 +318,21 @@ func TestEnablingAutomerge(t *testing.T) {
 		"--root",
 		filepath.Join("..", "test_examples", "basic_module"),
 		"--automerge",
+	})
+}
+
+func TestChainedDependencies(t *testing.T) {
+	runTest(t, filepath.Join("golden", "chained_dependency.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "chained_dependencies"),
+		"--cascade-dependencies",
+	})
+}
+
+func TestChainedDependenciesHiddenBehindFlag(t *testing.T) {
+	runTest(t, filepath.Join("golden", "chained_dependency_no_flag.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "chained_dependencies"),
+		"--cascade-dependencies=false",
 	})
 }

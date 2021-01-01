@@ -46,31 +46,50 @@ func makePathAbsolute(path string, parentPath string) string {
 	return filepath.Join(parentDir, path)
 }
 
-// Parses the terragrunt config at <path> to find all modules it depends on
+// Set up a cache for the getDependencies function
+type getDependenciesOutput struct {
+	dependencies []string
+	err          error
+}
+
+var getDependenciesCache = make(map[string]getDependenciesOutput)
+
+// Parses the terragrunt config at `path` to find all modules it depends on
 func getDependencies(path string, terragruntOptions *options.TerragruntOptions) ([]string, error) {
+	// Check if this path has already been computed
+	cachedResult, ok := getDependenciesCache[path]
+	if ok {
+		return cachedResult.dependencies, cachedResult.err
+	}
+
 	// if theres no terraform source and we're ignoring parent terragrunt configs
 	// return nils to indicate we should skip this project
 	isParent, err := isParentModule(path, terragruntOptions)
 	if err != nil {
+		getDependenciesCache[path] = getDependenciesOutput{nil, err}
 		return nil, err
 	}
 	if ignoreParentTerragrunt && isParent {
+		getDependenciesCache[path] = getDependenciesOutput{nil, nil}
 		return nil, nil
 	}
 
+	// Parse the HCL file
 	decodeTypes := []config.PartialDecodeSectionType{
 		config.DependencyBlock,
 		config.DependenciesBlock,
 		config.TerraformBlock,
 	}
-
 	parsedConfig, err := config.PartialParseConfigFile(path, terragruntOptions, nil, decodeTypes)
 	if err != nil {
+		getDependenciesCache[path] = getDependenciesOutput{nil, err}
 		return nil, err
 	}
 
+	// Parse out locals
 	locals, err := parseLocals(path, terragruntOptions, nil)
 	if err != nil {
+		getDependenciesCache[path] = getDependenciesOutput{nil, err}
 		return nil, err
 	}
 
@@ -82,8 +101,8 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 
 	// Get deps from `dependencies` and `dependency` blocks
 	if parsedConfig.Dependencies != nil {
-		for _, path := range parsedConfig.Dependencies.Paths {
-			dependencies = append(dependencies, filepath.Join(path, "terragrunt.hcl"))
+		for _, parsedPaths := range parsedConfig.Dependencies.Paths {
+			dependencies = append(dependencies, filepath.Join(parsedPaths, "terragrunt.hcl"))
 		}
 	}
 
@@ -128,7 +147,56 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 		}
 	}
 
-	return nonEmptyDeps, nil
+	// Recurse to find dependencies of all dependencies
+	cascadedDeps := []string{}
+	for _, dep := range nonEmptyDeps {
+		cascadedDeps = append(cascadedDeps, dep)
+
+		// The "cascading" feature is protected by a flag
+		if !cascadeDependencies {
+			continue
+		}
+
+		// To find the path to the dependency, we join three things:
+		// 1. The path to the current module, `path`
+		// 2. `..`, because `path` includes the `terragrunt.hcl` file extension, while the `dep` path is relative to the folder that file is in
+		// 3. the relative path from the current module to the dependency, `dep`
+		depPath := filepath.Join(path, "..", dep)
+		childDeps, err := getDependencies(depPath, terragruntOptions)
+		if err != nil {
+			continue
+		}
+
+		for _, childDep := range childDeps {
+			// If `childDep` is a relative path, it will be relative to `childDep`, as it is from the nested
+			// `getDependencies` call on the top level module's dependencies. So here we update any relative
+			// path to be from the top level module instead.
+			childDepAbsPath := childDep
+			if !filepath.IsAbs(childDep) {
+				childDepAbsPath, err = filepath.Abs(filepath.Join(depPath, "..", childDep))
+				if err != nil {
+					getDependenciesCache[path] = getDependenciesOutput{nil, err}
+					return nil, err
+				}
+			}
+			childDepAbsPath = filepath.ToSlash(childDepAbsPath)
+
+			// Ensure we are not adding a duplicate dependency
+			alreadyExists := false
+			for _, dep := range cascadedDeps {
+				if dep == childDepAbsPath {
+					alreadyExists = true
+					break
+				}
+			}
+			if !alreadyExists {
+				cascadedDeps = append(cascadedDeps, childDepAbsPath)
+			}
+		}
+	}
+
+	getDependenciesCache[path] = getDependenciesOutput{cascadedDeps, nil}
+	return cascadedDeps, nil
 }
 
 // Creates an AtlantisProject for a directory
@@ -339,6 +407,7 @@ var defaultTerraformVersion string
 var defaultWorkflow string
 var outputPath string
 var preserveWorkflows bool
+var cascadeDependencies bool
 
 // generateCmd represents the generate command
 var generateCmd = &cobra.Command{
@@ -363,6 +432,7 @@ func init() {
 	generateCmd.PersistentFlags().BoolVar(&createWorkspace, "create-workspace", false, "Use different workspace for each project. Default is use default workspace")
 	generateCmd.PersistentFlags().BoolVar(&createProjectName, "create-project-name", false, "Add different name for each project. Default is false")
 	generateCmd.PersistentFlags().BoolVar(&preserveWorkflows, "preserve-workflows", true, "Preserves workflows from old output files. Default is true")
+	generateCmd.PersistentFlags().BoolVar(&cascadeDependencies, "cascade-dependencies", true, "When true, dependencies will cascade, meaning that a module will be declared to depend not only on its dependencies, but all dependencies of its dependencies all the way down. Default is true")
 	generateCmd.PersistentFlags().StringVar(&defaultWorkflow, "workflow", "", "Name of the workflow to be customized in the atlantis server. Default is to not set")
 	generateCmd.PersistentFlags().StringVar(&outputPath, "output", "", "Path of the file where configuration will be generated. Default is not to write to file")
 	generateCmd.PersistentFlags().StringVar(&gitRoot, "root", pwd, "Path to the root directory of the git repo you want to build config for. Default is current dir")

@@ -1,4 +1,4 @@
-VERSION=0.12.0
+VERSION=0.13.0
 PATH_BUILD=build/
 FILE_COMMAND=terragrunt-atlantis-config
 FILE_ARCH=darwin_amd64
@@ -30,6 +30,12 @@ build-all: clean
     -pv=$(VERSION) \
     -d=$(PATH_BUILD) \
     -build-ldflags "-X main.VERSION=$(VERSION)"
+
+.PHONY: gotestsum
+gotestsum:
+	mkdir -p cmd/test_artifacts
+	gotestsum
+	rm -rf cmd/test_artifacts
 
 .PHONY: test
 test:
