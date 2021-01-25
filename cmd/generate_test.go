@@ -24,7 +24,7 @@ func resetForRun() error {
 	autoPlan = false
 	autoMerge = false
 	cascadeDependencies = true
-	ignoreParentTerragrunt = false
+	ignoreParentTerragrunt = true
 	parallel = true
 	createWorkspace = false
 	createProjectName = false
@@ -117,7 +117,6 @@ func TestIgnoringParentTerragrunt(t *testing.T) {
 	runTest(t, filepath.Join("golden", "withoutParent.yaml"), []string{
 		"--root",
 		filepath.Join("..", "test_examples", "with_parent"),
-		"--ignore-parent-terragrunt",
 	})
 }
 
@@ -125,6 +124,7 @@ func TestNotIgnoringParentTerragrunt(t *testing.T) {
 	runTest(t, filepath.Join("golden", "withParent.yaml"), []string{
 		"--root",
 		filepath.Join("..", "test_examples", "with_parent"),
+		"--ignore-parent-terragrunt=false",
 	})
 }
 
@@ -180,7 +180,6 @@ func TestUnparseableParent(t *testing.T) {
 	runTest(t, filepath.Join("golden", "invalid_parent_module.yaml"), []string{
 		"--root",
 		filepath.Join("..", "test_examples", "invalid_parent_module"),
-		"--ignore-parent-terragrunt",
 	})
 }
 
@@ -196,7 +195,7 @@ func TestWithProjectNames(t *testing.T) {
 	runTest(t, filepath.Join("golden", "withProjectName.yaml"), []string{
 		"--root",
 		filepath.Join("..", "test_examples", "invalid_parent_module"),
-		"--ignore-parent-terragrunt", "--create-project-name",
+		"--create-project-name",
 	})
 }
 
@@ -204,7 +203,6 @@ func TestMergingLocalDependenciesFromParent(t *testing.T) {
 	runTest(t, filepath.Join("golden", "mergeParentDependencies.yaml"), []string{
 		"--root",
 		filepath.Join("..", "test_examples", "parent_with_extra_deps"),
-		"--ignore-parent-terragrunt",
 	})
 }
 
@@ -212,7 +210,6 @@ func TestWorkflowFromParentInLocals(t *testing.T) {
 	runTest(t, filepath.Join("golden", "parentDefinedWorkflow.yaml"), []string{
 		"--root",
 		filepath.Join("..", "test_examples", "parent_with_workflow_local"),
-		"--ignore-parent-terragrunt",
 	})
 }
 
@@ -220,7 +217,6 @@ func TestChildWorkflowOverridesParentWorkflow(t *testing.T) {
 	runTest(t, filepath.Join("golden", "parentAndChildDefinedWorkflow.yaml"), []string{
 		"--root",
 		filepath.Join("..", "test_examples", "child_and_parent_specify_workflow"),
-		"--ignore-parent-terragrunt",
 	})
 }
 
@@ -228,7 +224,6 @@ func TestExtraArguments(t *testing.T) {
 	runTest(t, filepath.Join("golden", "extraArguments.yaml"), []string{
 		"--root",
 		filepath.Join("..", "test_examples", "extra_arguments"),
-		"--ignore-parent-terragrunt",
 	})
 }
 
@@ -236,7 +231,6 @@ func TestInfrastructureLive(t *testing.T) {
 	runTest(t, filepath.Join("golden", "infrastructureLive.yaml"), []string{
 		"--root",
 		filepath.Join("..", "test_examples", "terragrunt-infrastructure-live-example"),
-		"--ignore-parent-terragrunt",
 	})
 }
 
@@ -244,7 +238,6 @@ func TestAutoPlan(t *testing.T) {
 	runTest(t, filepath.Join("golden", "autoplan.yaml"), []string{
 		"--root",
 		filepath.Join("..", "test_examples", "autoplan"),
-		"--ignore-parent-terragrunt",
 		"--autoplan=false",
 	})
 }
@@ -253,7 +246,6 @@ func TestSkippingModules(t *testing.T) {
 	runTest(t, filepath.Join("golden", "skip.yaml"), []string{
 		"--root",
 		filepath.Join("..", "test_examples", "skip"),
-		"--ignore-parent-terragrunt",
 	})
 }
 
@@ -261,7 +253,6 @@ func TestTerraformVersionConfig(t *testing.T) {
 	runTest(t, filepath.Join("golden", "terraform_version.yaml"), []string{
 		"--root",
 		filepath.Join("..", "test_examples", "terraform_version"),
-		"--ignore-parent-terragrunt",
 		"--terraform-version", "0.14.9001",
 	})
 }
@@ -295,7 +286,6 @@ func TestPreservingOldWorkflows(t *testing.T) {
 		filename,
 		"--root",
 		filepath.Join("..", "test_examples", "basic_module"),
-		"--ignore-parent-terragrunt",
 	})
 	if err != nil {
 		t.Error("Failed to read file")
