@@ -22,37 +22,45 @@ This tool creates Atlantis YAML configurations for Terragrunt projects by:
 
 This is especially useful for organizations that use monorepos for their Terragrunt config (as we do at Transcend), and have thousands of lines of config.
 
-## Installation and Usage
+## Integrate into your Atlantis Server
 
-Recommended: Install any version via go get:
+The recommended way to use this tool is to install it onto your Atlantis server, and then use a [Pre-Workflow hook](https://www.runatlantis.io/docs/pre-workflow-hooks.html#pre-workflow-hooks) to run it after every clone. This way, Atlantis can automatically determine what modules should be planned/applied for any change to your repository.
 
-```bash
-cd && GO111MODULE=on go get github.com/transcend-io/terragrunt-atlantis-config@master && cd -
+To get started, add a `pre_workflow_hooks` field to your `repos` section of your [server-side repo config](https://www.runatlantis.io/docs/server-side-repo-config.html#do-i-need-a-server-side-repo-config-file):
+
+```json
+"repos": {
+  "id": "<your_github_repo>",
+  "workflow": "default",
+  "pre_workflow_hooks": [{
+    "run": "terragrunt-atlantis-config generate --output atlantis.yaml --autoplan --parallel --create-workspace"
+  }]
+}
 ```
 
-Alternative: Install a stable versions via Homebrew:
+Then, make sure `terragrunt-atlantis-config` is present on your Atlantis server. There are many different ways to configure a server, but this example in [Packer](https://www.packer.io/) should show the bash commands you'll need just about anywhere:
 
-```bash
-brew install transcend-io/tap/terragrunt-atlantis-config
+```go
+variable terragrunt_atlantis_config_version {
+  default = "1.0.0"
+}
+
+build {
+  // ...
+  provisioner "shell" {
+    inline = [
+      "wget https://github.com/transcend-io/terragrunt-atlantis-config/releases/download/v${var.terragrunt_atlantis_config_version}/terragrunt-atlantis-config_0.13.0_linux_amd64.tar.gz",
+      "sudo tar xf terragrunt-atlantis-config_${var.terragrunt_atlantis_config_version}_linux_amd64.tar.gz",
+      "sudo mv terragrunt-atlantis-config_${var.terragrunt_atlantis_config_version}_linux_amd64/terragrunt-atlantis-config_${var.terragrunt_atlantis_config_version}_linux_amd64 terragrunt-atlantis-config",
+      "sudo install terragrunt-atlantis-config /usr/local/bin",
+    ]
+    inline_shebang = "/bin/bash -e"
+  }
+  // ...
+}
 ```
 
-This module officially supports golang versions v1.13, v1.14, and v1.15, tested on CircleCI with each build
-This module also officially supports both Windows and Nix-based file formats, tested on CircleCI with each build
-
-Usage Examples (see below sections for all options):
-
-```bash
-# From the root of your repo
-terragrunt-atlantis-config generate
-
-# or from anywhere
-terragrunt-atlantis-config generate --root /some/path/to/your/repo/root
-
-# output to a file
-terragrunt-atlantis-config generate --autoplan --output ./atlantis.yaml
-```
-
-Finally, check the log output (or your output file) for the YAML.
+and just like that, your developers should never have to worry about an `atlantis.yaml` file, or even need to know what it is.
 
 ## Extra dependencies
 
@@ -125,39 +133,6 @@ Another way to customize the output is to use `locals` values in your terragrunt
 | `atlantis_skip`               | If true on a child module, that module will not appear in the output.<br>If true on a parent module, none of that parent's children will appear in the output. | bool         |
 | `extra_atlantis_dependencies` | See [Extra dependencies](https://github.com/transcend-io/terragrunt-atlantis-config#extra-dependencies)                                                        | list(string) |
 
-## Auto Enforcement with Github Actions
-
-It's a best practice to require that `atlantis.yaml` stays up to date on each Pull Request.
-
-To make this easy, there is an open-source Github Action that will fail a status check on your PR if the `atlantis.yaml` file is out of date.
-
-To use it, add this yaml to a new github action file in your repo:
-
-```yaml
-name: terragrunt-atlantis-config
-on:
-  push:
-    paths:
-    - '**.hcl'
-    - '**.tf'
-    - '**.hcl.json'
-
-jobs:
-  terragrunt_atlantis_config:
-    runs-on: ubuntu-latest
-    name: Validate atlantis.yaml
-    steps:
-      - uses: actions/checkout@v2
-      - name: Ensure atlantis.yaml is up to date using terragrunt-atlantis-config
-        id: atlantis_validator
-        uses: transcend-io/terragrunt-atlantis-config-github-action@v0.0.3
-        with:
-          version: v0.13.0
-          extra_args: '--autoplan --parallel=false
-```
-
-You can customize the version and flags you typically pass to the `generate` command in those final two lines.
-
 ## Separate workspace for parallel plan and apply
 
 Atlantis added support for running plan and apply parallel in [v0.13.0](https://github.com/runatlantis/atlantis/releases/tag/v0.13.0).
@@ -175,6 +150,34 @@ Enabling this feature may consume more resources like cpu, memory, network, and 
 
 As when defining the workspace this info is also needed when running `atlantis plan/apply -d ${git_root}/stage/app -w stage_app` to run the command on specific directory,
 you can also use the `atlantis plan/apply -p stage_app` in case you have enabled the `create-project-name` cli argument (it is `false` by default).
+
+## Local Installation and Usage
+
+You can install this tool locally to checkout what kinds of config it will generate for your repo, though in production it is recommended to [install this tool directly onto your Atlantis server](##integrate-into-your-atlantis-server)
+
+Recommended: Install any version via go get:
+
+```bash
+cd && GO111MODULE=on go get github.com/transcend-io/terragrunt-atlantis-config@v1.0.0 && cd -
+```
+
+This module officially supports golang versions v1.13, v1.14, and v1.15, tested on CircleCI with each build
+This module also officially supports both Windows and Nix-based file formats, tested on CircleCI with each build
+
+Usage Examples (see below sections for all options):
+
+```bash
+# From the root of your repo
+terragrunt-atlantis-config generate
+
+# or from anywhere
+terragrunt-atlantis-config generate --root /some/path/to/your/repo/root
+
+# output to a file
+terragrunt-atlantis-config generate --autoplan --output ./atlantis.yaml
+```
+
+Finally, check the log output (or your output file) for the YAML.
 
 ## Contributing
 
