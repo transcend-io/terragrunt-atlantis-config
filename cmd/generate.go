@@ -100,7 +100,7 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 	}
 
 	// Get deps from `dependencies` and `dependency` blocks
-	if parsedConfig.Dependencies != nil {
+	if parsedConfig.Dependencies != nil && !ignoreDependencyBlocks {
 		for _, parsedPaths := range parsedConfig.Dependencies.Paths {
 			dependencies = append(dependencies, filepath.Join(parsedPaths, "terragrunt.hcl"))
 		}
@@ -400,6 +400,7 @@ var gitRoot string
 var autoPlan bool
 var autoMerge bool
 var ignoreParentTerragrunt bool
+var ignoreDependencyBlocks bool
 var parallel bool
 var createWorkspace bool
 var createProjectName bool
@@ -428,6 +429,7 @@ func init() {
 	generateCmd.PersistentFlags().BoolVar(&autoPlan, "autoplan", false, "Enable auto plan. Default is disabled")
 	generateCmd.PersistentFlags().BoolVar(&autoMerge, "automerge", false, "Enable auto merge. Default is disabled")
 	generateCmd.PersistentFlags().BoolVar(&ignoreParentTerragrunt, "ignore-parent-terragrunt", true, "Ignore parent terragrunt configs (those which don't reference a terraform module). Default is enabled")
+	generateCmd.PersistentFlags().BoolVar(&ignoreDependencyBlocks, "ignore-dependency-blocks", false, "When true, dependencies found in `dependency` blocks will be ignored")
 	generateCmd.PersistentFlags().BoolVar(&parallel, "parallel", true, "Enables plans and applys to happen in parallel. Default is enabled")
 	generateCmd.PersistentFlags().BoolVar(&createWorkspace, "create-workspace", false, "Use different workspace for each project. Default is use default workspace")
 	generateCmd.PersistentFlags().BoolVar(&createProjectName, "create-project-name", false, "Add different name for each project. Default is false")

@@ -120,6 +120,7 @@ One way to customize the behavior of this module is through CLI flag values pass
 | `--output`                   | Path of the file where configuration will be generated. Typically, you want a file named "atlantis.yaml". Default is to write to `stdout`.                                      | ""                |
 | `--root`                     | Path to the root directory of the git repo you want to build config for.                                                                                                        | current directory |
 | `--terraform-version`        | Default terraform version to specify for all modules. Can be overriden by locals                                                                                                | ""                |
+| `--ignore-dependency-blocks` | When true, dependencies found in `dependency` and `dependencies` blocks will be ignored                                                                                         | false             |
 
 ## All Locals
 
