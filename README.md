@@ -42,7 +42,7 @@ Then, make sure `terragrunt-atlantis-config` is present on your Atlantis server.
 
 ```go
 variable terragrunt_atlantis_config_version {
-  default = "1.0.1"
+  default = "1.1.0"
 }
 
 build {
@@ -117,6 +117,7 @@ One way to customize the behavior of this module is through CLI flag values pass
 | `--create-project-name`      | Add different auto-generated name for each project                                                                                                                              | false             |
 | `--preserve-workflows`       | Preserves workflows from old output files. Useful if you want to define your workflow definitions on the client side                                                            | true              |
 | `--workflow`                 | Name of the workflow to be customized in the atlantis server. If empty, will be left out of output                                                                              | ""                |
+| `--approval-requirements`    | Requirements that must be satisfied before `atlantis apply` can be run. Currently the only supported requirements are `approved` and `mergeable`. Can be overridden by locals   | []                |
 | `--output`                   | Path of the file where configuration will be generated. Typically, you want a file named "atlantis.yaml". Default is to write to `stdout`.                                      | ""                |
 | `--root`                     | Path to the root directory of the git repo you want to build config for.                                                                                                        | current directory |
 | `--terraform-version`        | Default terraform version to specify for all modules. Can be overriden by locals                                                                                                | ""                |
@@ -129,6 +130,7 @@ Another way to customize the output is to use `locals` values in your terragrunt
 | Locals Name                   | Description                                                                                                                                                    | type         |
 | ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
 | `atlantis_workflow`           | The custom atlantis workflow name to use for a module                                                                                                          | string       |
+| `atlantis_apply_requirements` | The custom `apply_requirements` array to use for a module                                                                                                      | list(string) |
 | `atlantis_terraform_version`  | Allows overriding the `--terraform-version` flag for a single module                                                                                           | string       |
 | `atlantis_autoplan`           | Allows overriding the `--autoplan` flag for a single module                                                                                                    | bool         |
 | `atlantis_skip`               | If true on a child module, that module will not appear in the output.<br>If true on a parent module, none of that parent's children will appear in the output. | bool         |
@@ -159,7 +161,7 @@ You can install this tool locally to checkout what kinds of config it will gener
 Recommended: Install any version via go get:
 
 ```bash
-cd && GO111MODULE=on go get github.com/transcend-io/terragrunt-atlantis-config@v1.0.1 && cd -
+cd && GO111MODULE=on go get github.com/transcend-io/terragrunt-atlantis-config@v1.1.0 && cd -
 ```
 
 This module officially supports golang versions v1.13, v1.14, and v1.15, tested on CircleCI with each build
