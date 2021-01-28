@@ -20,6 +20,9 @@ type ResolvedLocals struct {
 	// The Atlantis workflow to use for some project
 	AtlantisWorkflow string
 
+	// Apply requirements to override the global `--apply-requirements` flag
+	ApplyRequirements []string
+
 	// Extra dependencies that can be hardcoded in config
 	ExtraAtlantisDependencies []string
 
@@ -97,6 +100,10 @@ func parseLocals(path string, terragruntOptions *options.TerragruntOptions, incl
 		parentLocals.Skip = childLocals.Skip
 	}
 
+	if childLocals.ApplyRequirements != nil || len(childLocals.ApplyRequirements) > 0 {
+		parentLocals.ApplyRequirements = childLocals.ApplyRequirements
+	}
+
 	for _, dep := range childLocals.ExtraAtlantisDependencies {
 		parentLocals.ExtraAtlantisDependencies = append(
 			parentLocals.ExtraAtlantisDependencies,
@@ -136,6 +143,15 @@ func resolveLocals(localsAsCty cty.Value) ResolvedLocals {
 	if ok {
 		hasValue := skipValue.True()
 		resolved.Skip = &hasValue
+	}
+
+	applyReqs, ok := rawLocals["atlantis_apply_requirements"]
+	if ok {
+		it := applyReqs.ElementIterator()
+		for it.Next() {
+			_, val := it.Element()
+			resolved.ApplyRequirements = append(resolved.ApplyRequirements, val.AsString())
+		}
 	}
 
 	extraDependenciesAsCty, ok := rawLocals["extra_atlantis_dependencies"]

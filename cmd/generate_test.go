@@ -33,6 +33,7 @@ func resetForRun() error {
 	defaultWorkflow = ""
 	outputPath = ""
 	defaultTerraformVersion = ""
+	defaultApplyRequirements = []string{}
 
 	return nil
 }
@@ -333,5 +334,20 @@ func TestChainedDependenciesHiddenBehindFlag(t *testing.T) {
 		"--root",
 		filepath.Join("..", "test_examples", "chained_dependencies"),
 		"--cascade-dependencies=false",
+	})
+}
+
+func TestApplyRequirementsLocals(t *testing.T) {
+	runTest(t, filepath.Join("golden", "apply_overrides.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "apply_requirements_overrides"),
+	})
+}
+
+func TestApplyRequirementsFlag(t *testing.T) {
+	runTest(t, filepath.Join("golden", "apply_overrides_flag.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "basic_module"),
+		"--apply-requirements=approved,mergeable",
 	})
 }

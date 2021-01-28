@@ -257,6 +257,11 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 		workflow = locals.AtlantisWorkflow
 	}
 
+	applyRequirements := defaultApplyRequirements
+	if locals.ApplyRequirements != nil && len(locals.ApplyRequirements) > 0 {
+		applyRequirements = locals.ApplyRequirements
+	}
+
 	resolvedAutoPlan := autoPlan
 	if locals.AutoPlan != nil {
 		resolvedAutoPlan = *locals.AutoPlan
@@ -268,9 +273,10 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 	}
 
 	project := &AtlantisProject{
-		Dir:              filepath.ToSlash(relativeSourceDir),
-		Workflow:         workflow,
-		TerraformVersion: terraformVersion,
+		Dir:               filepath.ToSlash(relativeSourceDir),
+		Workflow:          workflow,
+		TerraformVersion:  terraformVersion,
+		ApplyRequirements: applyRequirements,
 		Autoplan: AutoplanConfig{
 			Enabled:      resolvedAutoPlan,
 			WhenModified: relativeDependencies,
@@ -409,6 +415,7 @@ var defaultWorkflow string
 var outputPath string
 var preserveWorkflows bool
 var cascadeDependencies bool
+var defaultApplyRequirements []string
 
 // generateCmd represents the generate command
 var generateCmd = &cobra.Command{
@@ -436,6 +443,7 @@ func init() {
 	generateCmd.PersistentFlags().BoolVar(&preserveWorkflows, "preserve-workflows", true, "Preserves workflows from old output files. Default is true")
 	generateCmd.PersistentFlags().BoolVar(&cascadeDependencies, "cascade-dependencies", true, "When true, dependencies will cascade, meaning that a module will be declared to depend not only on its dependencies, but all dependencies of its dependencies all the way down. Default is true")
 	generateCmd.PersistentFlags().StringVar(&defaultWorkflow, "workflow", "", "Name of the workflow to be customized in the atlantis server. Default is to not set")
+	generateCmd.PersistentFlags().StringSliceVar(&defaultApplyRequirements, "apply-requirements", []string{}, "Requirements that must be satisfied before `atlantis apply` can be run. Currently the only supported requirements are `approved` and `mergeable`. Can be overridden by locals")
 	generateCmd.PersistentFlags().StringVar(&outputPath, "output", "", "Path of the file where configuration will be generated. Default is not to write to file")
 	generateCmd.PersistentFlags().StringVar(&gitRoot, "root", pwd, "Path to the root directory of the git repo you want to build config for. Default is current dir")
 	generateCmd.PersistentFlags().StringVar(&defaultTerraformVersion, "terraform-version", "", "Default terraform version to specify for all modules. Can be overriden by locals")
