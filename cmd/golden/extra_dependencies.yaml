@@ -7,7 +7,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
-    - some_extra_dep
     - ../test_file.json
+    - some_extra_dep
   dir: child
 version: 3

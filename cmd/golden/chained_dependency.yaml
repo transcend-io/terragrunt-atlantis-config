@@ -20,8 +20,8 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
-    - ../depender/terragrunt.hcl
     - ../dependency/terragrunt.hcl
+    - ../depender/terragrunt.hcl
     - nested/terragrunt.hcl
   dir: depender_on_depender
 - autoplan:

@@ -321,6 +321,14 @@ func TestEnablingAutomerge(t *testing.T) {
 	})
 }
 
+func TestDuplicateDependency(t *testing.T) {
+	runTest(t, filepath.Join("golden", "duplicate_dependency.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "duplicate_dependency"),
+		"--automerge",
+	})
+}
+
 func TestChainedDependencies(t *testing.T) {
 	runTest(t, filepath.Join("golden", "chained_dependency.yaml"), []string{
 		"--root",

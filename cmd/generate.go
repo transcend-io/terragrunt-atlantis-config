@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"regexp"
+	"sort"
 
 	log "github.com/sirupsen/logrus"
 
@@ -230,10 +231,9 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 	}
 
 	// All dependencies depend on their own .hcl file, and any tf files in their directory
-	relativeDependencies := []string{
-		"*.hcl",
-		"*.tf*",
-	}
+	relativeDependenciesSet := make(map[string]struct{})
+	relativeDependenciesSet["*.hcl"] = struct{}{}
+	relativeDependenciesSet["*.tf*"] = struct{}{}
 
 	// Add other dependencies based on their relative paths. We always want to output with Unix path separators
 	for _, dependencyPath := range dependencies {
@@ -242,8 +242,16 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 		if err != nil {
 			return nil, err
 		}
-		relativeDependencies = append(relativeDependencies, filepath.ToSlash(relativePath))
+		relativeDependenciesSet[filepath.ToSlash(relativePath)] = struct{}{}
 	}
+
+	relativeDependencies := make([]string, len(relativeDependenciesSet))
+	i := 0
+	for k := range relativeDependenciesSet {
+		relativeDependencies[i] = k
+		i++
+	}
+	sort.Strings(relativeDependencies)
 
 	// Clean up the relative path to the format Atlantis expects
 	relativeSourceDir := strings.TrimPrefix(absoluteSourceDir, gitRoot)

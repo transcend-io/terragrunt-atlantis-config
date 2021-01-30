@@ -7,8 +7,8 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
-    - ../terraform.tfvars
     - ../dev.tfvars
+    - ../terraform.tfvars
     - ../us-east-1.tfvars
     - dev.tfvars
     - us-east-1.tfvars
