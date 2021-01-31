@@ -143,7 +143,12 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 	nonEmptyDeps := []string{}
 	for _, dep := range dependencies {
 		if dep != "" {
-			nonEmptyDeps = append(nonEmptyDeps, dep)
+			childDepAbsPath := dep
+			if !filepath.IsAbs(childDepAbsPath) {
+				childDepAbsPath = makePathAbsolute(dep, path)
+			}
+			childDepAbsPath = filepath.ToSlash(childDepAbsPath)
+			nonEmptyDeps = append(nonEmptyDeps, childDepAbsPath)
 		}
 	}
 
@@ -157,12 +162,9 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 			continue
 		}
 
-		// To find the path to the dependency, we join three things:
-		// 1. The path to the current module, `path`
-		// 2. `..`, because `path` includes the `terragrunt.hcl` file extension, while the `dep` path is relative to the folder that file is in
-		// 3. the relative path from the current module to the dependency, `dep`
-		depPath := filepath.Join(path, "..", dep)
-		childDeps, err := getDependencies(depPath, terragruntOptions)
+		depPath := dep
+		terrOpts, err := options.NewTerragruntOptions(depPath)
+		childDeps, err := getDependencies(depPath, terrOpts)
 		if err != nil {
 			continue
 		}
@@ -237,11 +239,15 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 
 	// Add other dependencies based on their relative paths. We always want to output with Unix path separators
 	for _, dependencyPath := range dependencies {
-		absolutePath := makePathAbsolute(dependencyPath, sourcePath)
+		absolutePath := dependencyPath
+		if !filepath.IsAbs(absolutePath) {
+			absolutePath = makePathAbsolute(dependencyPath, sourcePath)
+		}
 		relativePath, err := filepath.Rel(absoluteSourceDir, absolutePath)
 		if err != nil {
 			return nil, err
 		}
+
 		relativeDependencies = append(relativeDependencies, filepath.ToSlash(relativePath))
 	}
 
