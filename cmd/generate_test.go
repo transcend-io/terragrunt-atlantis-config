@@ -244,6 +244,14 @@ func TestInfrastructureLive(t *testing.T) {
 	})
 }
 
+func TestInfrastructureMutliAccountsVPCRoute53TGWCascading(t *testing.T) {
+	runTest(t, filepath.Join("golden", "multi_accounts_vpc_route53_tgw.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "multi_accounts_vpc_route53_tgw"),
+		"--cascade-dependencies",
+	})
+}
+
 func TestAutoPlan(t *testing.T) {
 	runTest(t, filepath.Join("golden", "autoplan.yaml"), []string{
 		"--root",
