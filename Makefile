@@ -1,4 +1,4 @@
-VERSION=1.1.0
+VERSION=1.1.1
 PATH_BUILD=build/
 FILE_COMMAND=terragrunt-atlantis-config
 FILE_ARCH=darwin_amd64
@@ -52,19 +52,7 @@ sign:  build-all
 	rm -f $(PATH_BUILD)${VERSION}/SHA256SUMS
 	shasum -a256 $(PATH_BUILD)${VERSION}/* > $(PATH_BUILD)${VERSION}/SHA256SUMS
 
-.PHONY: shasum
-shasum:  build
-	shasum -a256 $(PATH_BUILD)$(VERSION)/$(FILE_COMMAND)_$(VERSION)_$(FILE_ARCH).zip
-
 .PHONY: install
 install:
 	install -d -m 755 '$(HOME)/bin/'
 	install $(PATH_BUILD)$(FILE_COMMAND)/$(VERSION)/$(FILE_COMMAND)_$(VERSION)_$(FILE_ARCH) '$(HOME)/bin/$(FILE_COMMAND)'
-
-.PHONY: publish
-publish: build
-	AWS_PROFILE=$(PROFILE) aws s3 sync $(PATH_BUILD)/$(VERSION) s3://$(S3_BUCKET_NAME)/$(FILE_COMMAND)/$(VERSION)
-
-.PHONY: ci_publish
-ci_publish: build
-	aws s3 sync $(PATH_BUILD)$(VERSION) s3://$(S3_BUCKET_NAME)/$(FILE_COMMAND)/$(VERSION)
