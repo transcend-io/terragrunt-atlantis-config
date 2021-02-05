@@ -190,6 +190,10 @@ Once all your changes are passing and your PR is reviewed, a merge into `master`
 
 You can then open a PR on our homebrew tap similar to https://github.com/transcend-io/homebrew-tap/pull/4, and as soon as that merges your code will be released.
 
+## Stargazers over time
+
+[![Stargazers over time](https://starchart.cc/transcend-io/terragrunt-atlantis-config.svg)](https://starchart.cc/transcend-io/terragrunt-atlantis-config)
+
 ## License
 
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Ftranscend-io%2Fterragrunt-atlantis-config.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Ftranscend-io%2Fterragrunt-atlantis-config?ref=badge_large)
