@@ -29,12 +29,18 @@ The recommended way to use this tool is to install it onto your Atlantis server,
 To get started, add a `pre_workflow_hooks` field to your `repos` section of your [server-side repo config](https://www.runatlantis.io/docs/server-side-repo-config.html#do-i-need-a-server-side-repo-config-file):
 
 ```json
-"repos": {
-  "id": "<your_github_repo>",
-  "workflow": "default",
-  "pre_workflow_hooks": [{
-    "run": "terragrunt-atlantis-config generate --output atlantis.yaml --autoplan --parallel --create-workspace"
-  }]
+{
+  "repos": [
+    {
+      "id": "<your_github_repo>",
+      "workflow": "default",
+      "pre_workflow_hooks": [
+        {
+          "run": "terragrunt-atlantis-config generate --output atlantis.yaml --autoplan --parallel --create-workspace"
+        }
+      ]
+    }
+  ]
 }
 ```
 
