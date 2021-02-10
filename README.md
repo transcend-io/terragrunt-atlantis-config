@@ -46,8 +46,8 @@ To get started, add a `pre_workflow_hooks` field to your `repos` section of your
 
 Then, make sure `terragrunt-atlantis-config` is present on your Atlantis server. There are many different ways to configure a server, but this example in [Packer](https://www.packer.io/) should show the bash commands you'll need just about anywhere:
 
-```go
-variable terragrunt_atlantis_config_version {
+```hcl
+variable "terragrunt_atlantis_config_version" {
   default = "1.1.1"
 }
 
