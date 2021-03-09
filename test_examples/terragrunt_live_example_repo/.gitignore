@@ -1,0 +1,22 @@
+# Terraform
+.terraform
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+*.tfvars
+
+# Terragrunt
+.terragrunt-cache
+backend.tf
+provider.tf
+versions.tf
+
+# OS X
+.history
+.DS_Store
+
+# VS Code
+.vscode
+
+# Lambda
+builds
