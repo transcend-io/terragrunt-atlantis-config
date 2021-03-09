@@ -244,6 +244,15 @@ func TestInfrastructureLive(t *testing.T) {
 	})
 }
 
+func TestInfrastructureExample(t *testing.T) {
+	runTest(t, filepath.Join("golden", "example.yml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "terragrunt_live_example_repo"),
+		"--parallel",
+		"--autoplan",
+	})
+}
+
 func TestInfrastructureMutliAccountsVPCRoute53TGWCascading(t *testing.T) {
 	runTest(t, filepath.Join("golden", "multi_accounts_vpc_route53_tgw.yaml"), []string{
 		"--root",

@@ -68,7 +68,7 @@ func readOldConfig() (*AtlantisConfig, error) {
 	// The old file not existing is not an error, as it should not exist on the very first run
 	bytes, err := ioutil.ReadFile(outputPath)
 	if err != nil {
-		log.Warn("Could not find an old config file. Starting from scratch")
+		log.Info("Could not find an old config file. Starting from scratch")
 		return nil, nil
 	}
 

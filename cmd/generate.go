@@ -59,6 +59,7 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 	// Check if this path has already been computed
 	cachedResult, ok := getDependenciesCache[path]
 	if ok {
+		log.Info("Found cached deps")
 		return cachedResult.dependencies, cachedResult.err
 	}
 
@@ -71,6 +72,7 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 	}
 	if ignoreParentTerragrunt && isParent {
 		getDependenciesCache[path] = getDependenciesOutput{nil, nil}
+		log.Info("Is a parent module, ignoring")
 		return nil, nil
 	}
 
@@ -203,6 +205,8 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 
 // Creates an AtlantisProject for a directory
 func createProject(sourcePath string) (*AtlantisProject, error) {
+	log.Info("Creating project for " + sourcePath)
+
 	options, err := options.NewTerragruntOptions(sourcePath)
 	if err != nil {
 		return nil, err
@@ -212,12 +216,16 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 
 	dependencies, err := getDependencies(sourcePath, options)
 	if err != nil {
+		log.Info("had error")
 		return nil, err
 	}
 	// dependencies being nil is a sign from `getDependencies` that this project should be skipped
 	if dependencies == nil {
+		log.Info("had no dependencies")
 		return nil, nil
 	}
+
+	log.Info(sourcePath + " has deps " + strings.Join(dependencies, ","))
 
 	absoluteSourceDir := filepath.Dir(sourcePath) + string(filepath.Separator)
 
@@ -332,6 +340,8 @@ func main(cmd *cobra.Command, args []string) error {
 	}
 	gitRoot = absoluteGitRoot + string(filepath.Separator)
 
+	log.Info("gitRoot is " + gitRoot)
+
 	// Read in the old config, if it already exists
 	oldConfig, err := readOldConfig()
 	if err != nil {
@@ -341,6 +351,10 @@ func main(cmd *cobra.Command, args []string) error {
 	terragruntFiles, err := getAllTerragruntFiles()
 	if err != nil {
 		return err
+	}
+
+	for _, x := range terragruntFiles {
+		log.Info("Found terragruntFiles file " + x)
 	}
 
 	config := AtlantisConfig{
