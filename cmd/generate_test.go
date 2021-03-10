@@ -244,10 +244,10 @@ func TestInfrastructureLive(t *testing.T) {
 	})
 }
 
-func TestInfrastructureExample(t *testing.T) {
-	runTest(t, filepath.Join("golden", "example.yml"), []string{
+func TestModulesWithNoTerraformSourceDefinitions(t *testing.T) {
+	runTest(t, filepath.Join("golden", "no_terraform_blocks.yml"), []string{
 		"--root",
-		filepath.Join("..", "test_examples", "terragrunt_live_example_repo"),
+		filepath.Join("..", "test_examples", "no_terraform_blocks"),
 		"--parallel",
 		"--autoplan",
 	})
