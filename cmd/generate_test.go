@@ -244,6 +244,15 @@ func TestInfrastructureLive(t *testing.T) {
 	})
 }
 
+func TestModulesWithNoTerraformSourceDefinitions(t *testing.T) {
+	runTest(t, filepath.Join("golden", "no_terraform_blocks.yml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "no_terraform_blocks"),
+		"--parallel",
+		"--autoplan",
+	})
+}
+
 func TestInfrastructureMutliAccountsVPCRoute53TGWCascading(t *testing.T) {
 	runTest(t, filepath.Join("golden", "multi_accounts_vpc_route53_tgw.yaml"), []string{
 		"--root",
