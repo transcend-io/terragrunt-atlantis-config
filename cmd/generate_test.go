@@ -31,6 +31,7 @@ func resetForRun() error {
 	createProjectName = false
 	preserveWorkflows = true
 	defaultWorkflow = ""
+	filterPath = ""
 	outputPath = ""
 	defaultTerraformVersion = ""
 	defaultApplyRequirements = []string{}
@@ -366,5 +367,23 @@ func TestApplyRequirementsFlag(t *testing.T) {
 		"--root",
 		filepath.Join("..", "test_examples", "basic_module"),
 		"--apply-requirements=approved,mergeable",
+	})
+}
+
+func TestFilterFlagWithInfraLiveProd(t *testing.T) {
+	runTest(t, filepath.Join("golden", "filterInfraLiveProd.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "terragrunt-infrastructure-live-example"),
+		"--filter",
+		filepath.Join("..", "test_examples", "terragrunt-infrastructure-live-example", "prod"),
+	})
+}
+
+func TestFilterFlagWithInfraLiveNonProd(t *testing.T) {
+	runTest(t, filepath.Join("golden", "filterInfraLiveNonProd.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "terragrunt-infrastructure-live-example"),
+		"--filter",
+		filepath.Join("..", "test_examples", "terragrunt-infrastructure-live-example", "non-prod"),
 	})
 }
