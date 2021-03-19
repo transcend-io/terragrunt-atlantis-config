@@ -321,7 +321,10 @@ func getAllTerragruntFiles() ([]string, error) {
 	// to root and just ignore the ConfigFiles
 	workingPath := gitRoot
 	if filterPath != "" {
-		workingPath = filterPath
+		workingPath, err = filepath.Abs(filterPath)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	paths, err := config.FindConfigFilesInPath(workingPath, options)
