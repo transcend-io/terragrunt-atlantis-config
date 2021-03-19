@@ -1,0 +1,41 @@
+automerge: false
+parallel_apply: true
+parallel_plan: true
+projects:
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+    - ../../../account.hcl
+    - ../../region.hcl
+    - ../env.hcl
+  dir: non-prod/us-east-1/qa/mysql
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+    - ../../../account.hcl
+    - ../../region.hcl
+    - ../env.hcl
+  dir: non-prod/us-east-1/qa/webserver-cluster
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+    - ../../../account.hcl
+    - ../../region.hcl
+    - ../env.hcl
+  dir: non-prod/us-east-1/stage/mysql
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+    - ../../../account.hcl
+    - ../../region.hcl
+    - ../env.hcl
+  dir: non-prod/us-east-1/stage/webserver-cluster
+version: 3

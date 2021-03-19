@@ -316,7 +316,18 @@ func getAllTerragruntFiles() ([]string, error) {
 		return nil, err
 	}
 
-	paths, err := config.FindConfigFilesInPath(gitRoot, options)
+	// If filterPath is provided, override workingPath instead of gitRoot
+	// We do this here because we want to keep the relative path structure of Terragrunt files
+	// to root and just ignore the ConfigFiles
+	workingPath := gitRoot
+	if filterPath != "" {
+		workingPath, err = filepath.Abs(filterPath)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	paths, err := config.FindConfigFilesInPath(workingPath, options)
 	if err != nil {
 		return nil, err
 	}
@@ -418,6 +429,7 @@ var createWorkspace bool
 var createProjectName bool
 var defaultTerraformVersion string
 var defaultWorkflow string
+var filterPath string
 var outputPath string
 var preserveWorkflows bool
 var cascadeDependencies bool
@@ -451,6 +463,7 @@ func init() {
 	generateCmd.PersistentFlags().StringVar(&defaultWorkflow, "workflow", "", "Name of the workflow to be customized in the atlantis server. Default is to not set")
 	generateCmd.PersistentFlags().StringSliceVar(&defaultApplyRequirements, "apply-requirements", []string{}, "Requirements that must be satisfied before `atlantis apply` can be run. Currently the only supported requirements are `approved` and `mergeable`. Can be overridden by locals")
 	generateCmd.PersistentFlags().StringVar(&outputPath, "output", "", "Path of the file where configuration will be generated. Default is not to write to file")
+	generateCmd.PersistentFlags().StringVar(&filterPath, "filter", "", "Path to the directory you want scope down the config for. Default is all files in root")
 	generateCmd.PersistentFlags().StringVar(&gitRoot, "root", pwd, "Path to the root directory of the git repo you want to build config for. Default is current dir")
 	generateCmd.PersistentFlags().StringVar(&defaultTerraformVersion, "terraform-version", "", "Default terraform version to specify for all modules. Can be overriden by locals")
 }
