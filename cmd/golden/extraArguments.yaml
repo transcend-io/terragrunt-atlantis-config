@@ -2,7 +2,8 @@ automerge: false
 parallel_apply: true
 parallel_plan: true
 projects:
-- autoplan:
+- apply_requirements: []
+  autoplan:
     enabled: false
     when_modified:
     - '*.hcl'
@@ -13,13 +14,15 @@ projects:
     - dev.tfvars
     - us-east-1.tfvars
   dir: child
-- autoplan:
+- apply_requirements: []
+  autoplan:
     enabled: false
     when_modified:
     - '*.hcl'
     - '*.tf*'
   dir: no_files_at_all
-- autoplan:
+- apply_requirements: []
+  autoplan:
     enabled: false
     when_modified:
     - '*.hcl'
@@ -29,14 +32,16 @@ projects:
     - dev.tfvars
     - us-east-1.tfvars
   dir: only_optional_files
-- autoplan:
+- apply_requirements: []
+  autoplan:
     enabled: false
     when_modified:
     - '*.hcl'
     - '*.tf*'
     - ../terraform.tfvars
   dir: only_required_files
-- autoplan:
+- apply_requirements: []
+  autoplan:
     enabled: false
     when_modified:
     - '*.hcl'

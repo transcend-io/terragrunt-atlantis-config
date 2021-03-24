@@ -2,7 +2,8 @@ automerge: false
 parallel_apply: true
 parallel_plan: true
 projects:
-- autoplan:
+- apply_requirements: []
+  autoplan:
     enabled: false
     when_modified:
     - '*.hcl'
@@ -11,7 +12,8 @@ projects:
     - ../../region.hcl
     - ../env.hcl
   dir: prod/us-east-1/prod/mysql
-- autoplan:
+- apply_requirements: []
+  autoplan:
     enabled: false
     when_modified:
     - '*.hcl'

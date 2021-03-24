@@ -2,20 +2,23 @@ automerge: false
 parallel_apply: true
 parallel_plan: true
 projects:
-- autoplan:
+- apply_requirements: []
+  autoplan:
     enabled: false
     when_modified:
     - '*.hcl'
     - '*.tf*'
   dir: dependency
-- autoplan:
+- apply_requirements: []
+  autoplan:
     enabled: false
     when_modified:
     - '*.hcl'
     - '*.tf*'
     - ../dependency/terragrunt.hcl
   dir: depender
-- autoplan:
+- apply_requirements: []
+  autoplan:
     enabled: false
     when_modified:
     - '*.hcl'
@@ -24,7 +27,8 @@ projects:
     - ../dependency/terragrunt.hcl
     - nested/terragrunt.hcl
   dir: depender_on_depender
-- autoplan:
+- apply_requirements: []
+  autoplan:
     enabled: false
     when_modified:
     - '*.hcl'

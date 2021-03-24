@@ -50,7 +50,7 @@ type AtlantisProject struct {
 	// The terraform version to use for this project
 	TerraformVersion string `json:"terraform_version,omitempty"`
 
-	ApplyRequirements []string `json:"apply_requirements,omitempty"`
+	ApplyRequirements []string `json:"apply_requirements,flow"`
 }
 
 // Autoplan settings for which plans affect other plans

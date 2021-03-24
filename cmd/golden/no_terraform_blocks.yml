@@ -2,7 +2,8 @@ automerge: false
 parallel_apply: true
 parallel_plan: true
 projects:
-- autoplan:
+- apply_requirements: []
+  autoplan:
     enabled: true
     when_modified:
     - '*.hcl'
@@ -10,33 +11,38 @@ projects:
     - ../network/terragrunt.hcl
     - ../../stage/network/terragrunt.hcl
   dir: myproject/eu-south-1/infra/apps
-- autoplan:
+- apply_requirements: []
+  autoplan:
     enabled: true
     when_modified:
     - '*.hcl'
     - '*.tf*'
     - ../../stage/network/terragrunt.hcl
   dir: myproject/eu-south-1/infra/network
-- autoplan:
+- apply_requirements: []
+  autoplan:
     enabled: true
     when_modified:
     - '*.hcl'
     - '*.tf*'
     - ../network/terragrunt.hcl
   dir: myproject/eu-south-1/stage/dbs
-- autoplan:
+- apply_requirements: []
+  autoplan:
     enabled: true
     when_modified:
     - '*.hcl'
     - '*.tf*'
   dir: myproject/eu-south-1/stage/network
-- autoplan:
+- apply_requirements: []
+  autoplan:
     enabled: true
     when_modified:
     - '*.hcl'
     - '*.tf*'
   dir: myproject/global/dns
-- autoplan:
+- apply_requirements: []
+  autoplan:
     enabled: true
     when_modified:
     - '*.hcl'

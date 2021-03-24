@@ -2,7 +2,8 @@ automerge: false
 parallel_apply: true
 parallel_plan: true
 projects:
-- autoplan:
+- apply_requirements: []
+  autoplan:
     enabled: false
     when_modified:
     - '*.hcl'
@@ -12,7 +13,8 @@ projects:
     - ../../parent/folder_under_parent/common_tags.hcl
     - some_child_dep
   dir: deep/child
-- autoplan:
+- apply_requirements: []
+  autoplan:
     enabled: false
     when_modified:
     - '*.hcl'
