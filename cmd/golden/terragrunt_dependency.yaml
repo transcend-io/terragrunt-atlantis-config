@@ -2,13 +2,15 @@ automerge: false
 parallel_apply: true
 parallel_plan: true
 projects:
-- autoplan:
+- apply_requirements: []
+  autoplan:
     enabled: false
     when_modified:
     - '*.hcl'
     - '*.tf*'
   dir: dependency
-- autoplan:
+- apply_requirements: []
+  autoplan:
     enabled: false
     when_modified:
     - '*.hcl'

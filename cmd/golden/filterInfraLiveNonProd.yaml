@@ -2,7 +2,8 @@ automerge: false
 parallel_apply: true
 parallel_plan: true
 projects:
-- autoplan:
+- apply_requirements: []
+  autoplan:
     enabled: false
     when_modified:
     - '*.hcl'
@@ -11,7 +12,8 @@ projects:
     - ../../region.hcl
     - ../env.hcl
   dir: non-prod/us-east-1/qa/mysql
-- autoplan:
+- apply_requirements: []
+  autoplan:
     enabled: false
     when_modified:
     - '*.hcl'
@@ -20,7 +22,8 @@ projects:
     - ../../region.hcl
     - ../env.hcl
   dir: non-prod/us-east-1/qa/webserver-cluster
-- autoplan:
+- apply_requirements: []
+  autoplan:
     enabled: false
     when_modified:
     - '*.hcl'
@@ -29,7 +32,8 @@ projects:
     - ../../region.hcl
     - ../env.hcl
   dir: non-prod/us-east-1/stage/mysql
-- autoplan:
+- apply_requirements: []
+  autoplan:
     enabled: false
     when_modified:
     - '*.hcl'

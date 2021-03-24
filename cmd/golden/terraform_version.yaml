@@ -2,21 +2,24 @@ automerge: false
 parallel_apply: true
 parallel_plan: true
 projects:
-- autoplan:
+- apply_requirements: []
+  autoplan:
     enabled: false
     when_modified:
     - '*.hcl'
     - '*.tf*'
   dir: inherit_from_parent
   terraform_version: 0.12.9001
-- autoplan:
+- apply_requirements: []
+  autoplan:
     enabled: false
     when_modified:
     - '*.hcl'
     - '*.tf*'
   dir: override_parent
   terraform_version: 0.13.9001
-- autoplan:
+- apply_requirements: []
+  autoplan:
     enabled: false
     when_modified:
     - '*.hcl'

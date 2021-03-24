@@ -2,13 +2,15 @@ automerge: false
 parallel_apply: true
 parallel_plan: true
 projects:
-- autoplan:
+- apply_requirements: []
+  autoplan:
     enabled: false
     when_modified:
     - '*.hcl'
     - '*.tf*'
   dir: network-account/eu-west-1/network/transit-gateway
-- autoplan:
+- apply_requirements: []
+  autoplan:
     enabled: false
     when_modified:
     - '*.hcl'
@@ -16,7 +18,8 @@ projects:
     - ../../../env-a/network/vpc/terragrunt.hcl
     - ../../../../../network-account/eu-west-1/network/transit-gateway/terragrunt.hcl
   dir: prod/eu-west-1/_global/route53/test-zone
-- autoplan:
+- apply_requirements: []
+  autoplan:
     enabled: false
     when_modified:
     - '*.hcl'
