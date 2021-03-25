@@ -92,8 +92,7 @@ locals {
 In your `atlantis.yaml` file, you will end up seeing output like:
 
 ```yaml
-- apply_requirements: []
-  autoplan:
+- autoplan:
     enabled: false
     when_modified:
       - "*.hcl"
