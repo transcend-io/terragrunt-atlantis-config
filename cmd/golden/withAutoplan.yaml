@@ -2,8 +2,7 @@ automerge: false
 parallel_apply: true
 parallel_plan: true
 projects:
-- apply_requirements: []
-  autoplan:
+- autoplan:
     enabled: true
     when_modified:
     - '*.hcl'
