@@ -263,9 +263,12 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 		workflow = locals.AtlantisWorkflow
 	}
 
-	applyRequirements := defaultApplyRequirements
-	if locals.ApplyRequirements != nil && len(locals.ApplyRequirements) > 0 {
-		applyRequirements = locals.ApplyRequirements
+	applyRequirements := &defaultApplyRequirements
+	if len(defaultApplyRequirements) == 0 {
+		applyRequirements = nil
+	}
+	if locals.ApplyRequirements != nil {
+		applyRequirements = &locals.ApplyRequirements
 	}
 
 	resolvedAutoPlan := autoPlan

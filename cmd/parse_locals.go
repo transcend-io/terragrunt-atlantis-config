@@ -147,6 +147,7 @@ func resolveLocals(localsAsCty cty.Value) ResolvedLocals {
 
 	applyReqs, ok := rawLocals["atlantis_apply_requirements"]
 	if ok {
+		resolved.ApplyRequirements = []string{}
 		it := applyReqs.ElementIterator()
 		for it.Next() {
 			_, val := it.Element()
