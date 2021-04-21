@@ -1,0 +1,38 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  create-release:
+    name: Create Release
+    runs-on: "ubuntu-latest"
+
+    steps:
+      # Checkout code
+      - uses: actions/checkout@v2
+
+      # Install golang
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '^1.16'
+
+      # Install golang deps, using a cache
+      - uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ubuntu-latest-1.16-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ubuntu-latest-1.16-go-
+      
+      # build binaries for all supported environments
+      - run: make build-all
+
+      # Create the release
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          files: build/${GITHUB_REF#refs/*/}/*
