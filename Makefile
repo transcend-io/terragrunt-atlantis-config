@@ -16,7 +16,7 @@ clean:
 
 .PHONY: build
 build: clean
-	@$(GOPATH)/bin/goxc \
+	goxc \
     -bc="darwin,amd64" \
     -pv=$(VERSION) \
     -d=$(PATH_BUILD) \
@@ -24,7 +24,7 @@ build: clean
 
 .PHONY: build-all
 build-all: clean
-	@$(GOPATH)/bin/goxc \
+	goxc \
 	-os="$(XC_OS)" \
 	-arch="$(XC_ARCH)" \
     -pv=$(VERSION) \
