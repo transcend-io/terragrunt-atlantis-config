@@ -35,8 +35,11 @@ jobs:
       - run: make build-all
 
       # Create the release
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
-          files: build/${GITHUB_REF#refs/*/}/*
+          files: "build/${{ steps.get_version.outputs.VERSION }}/*"
