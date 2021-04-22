@@ -387,3 +387,12 @@ func TestFilterFlagWithInfraLiveNonProd(t *testing.T) {
 		filepath.Join("..", "test_examples", "terragrunt-infrastructure-live-example", "non-prod"),
 	})
 }
+
+func TestFilterGlobFlagWithInfraLiveMySql(t *testing.T) {
+	runTest(t, filepath.Join("golden", "filterGlobInfraLiveMySQL.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "terragrunt-infrastructure-live-example"),
+		"--filter",
+		filepath.Join("..", "test_examples", "terragrunt-infrastructure-live-example", "*", "*", "*", "mysql"),
+	})
+}
