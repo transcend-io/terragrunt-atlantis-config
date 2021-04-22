@@ -322,20 +322,41 @@ func getAllTerragruntFiles() ([]string, error) {
 	// If filterPath is provided, override workingPath instead of gitRoot
 	// We do this here because we want to keep the relative path structure of Terragrunt files
 	// to root and just ignore the ConfigFiles
-	workingPath := gitRoot
+	workingPaths := []string{gitRoot}
 	if filterPath != "" {
-		workingPath, err = filepath.Abs(filterPath)
+		// get all matching folders
+		workingPaths, err = filepath.Glob(filterPath)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	paths, err := config.FindConfigFilesInPath(workingPath, options)
-	if err != nil {
-		return nil, err
+	uniqueConfigFilePaths := make(map[string]bool)
+	orderedConfigFilePaths := []string{}
+	for _, workingPath := range workingPaths {
+		paths, err := config.FindConfigFilesInPath(workingPath, options)
+		if err != nil {
+			return nil, err
+		}
+		for _, p := range paths {
+			// if path not yet seen, insert once
+			if !uniqueConfigFilePaths[p] {
+				orderedConfigFilePaths = append(orderedConfigFilePaths, p)
+				uniqueConfigFilePaths[p] = true
+			}
+		}
 	}
 
-	return paths, nil
+	uniqueConfigFileAbsPaths := []string{}
+	for _, uniquePath := range orderedConfigFilePaths {
+		uniqueAbsPath, err := filepath.Abs(uniquePath)
+		if err != nil {
+			return nil, err
+		}
+		uniqueConfigFileAbsPaths = append(uniqueConfigFileAbsPaths, uniqueAbsPath)
+	}
+
+	return uniqueConfigFileAbsPaths, nil
 }
 
 func main(cmd *cobra.Command, args []string) error {
@@ -466,7 +487,7 @@ func init() {
 	generateCmd.PersistentFlags().StringVar(&defaultWorkflow, "workflow", "", "Name of the workflow to be customized in the atlantis server. Default is to not set")
 	generateCmd.PersistentFlags().StringSliceVar(&defaultApplyRequirements, "apply-requirements", []string{}, "Requirements that must be satisfied before `atlantis apply` can be run. Currently the only supported requirements are `approved` and `mergeable`. Can be overridden by locals")
 	generateCmd.PersistentFlags().StringVar(&outputPath, "output", "", "Path of the file where configuration will be generated. Default is not to write to file")
-	generateCmd.PersistentFlags().StringVar(&filterPath, "filter", "", "Path to the directory you want scope down the config for. Default is all files in root")
+	generateCmd.PersistentFlags().StringVar(&filterPath, "filter", "", "Path or glob expression to the directory you want scope down the config for. Default is all files in root")
 	generateCmd.PersistentFlags().StringVar(&gitRoot, "root", pwd, "Path to the root directory of the git repo you want to build config for. Default is current dir")
 	generateCmd.PersistentFlags().StringVar(&defaultTerraformVersion, "terraform-version", "", "Default terraform version to specify for all modules. Can be overriden by locals")
 }
