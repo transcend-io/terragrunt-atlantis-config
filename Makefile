@@ -20,7 +20,7 @@ build: clean
     -bc="darwin,amd64" \
     -pv=$(VERSION) \
     -d=$(PATH_BUILD) \
-    -build-ldflags "-X main.VERSION=$(VERSION)"
+    -build-ldflags "-X main.VERSION=$(VERSION) -extldflags=-static"
 
 .PHONY: build-all
 build-all: clean
@@ -29,7 +29,7 @@ build-all: clean
 	-arch="$(XC_ARCH)" \
     -pv=$(VERSION) \
     -d=$(PATH_BUILD) \
-    -build-ldflags "-X main.VERSION=$(VERSION)"
+    -build-ldflags "-X main.VERSION=$(VERSION) -extldflags=-static"
 
 .PHONY: gotestsum
 gotestsum:
