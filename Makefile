@@ -1,4 +1,4 @@
-VERSION=1.5.0
+VERSION=1.5.1
 PATH_BUILD=build/
 FILE_COMMAND=terragrunt-atlantis-config
 FILE_ARCH=darwin_amd64
@@ -16,6 +16,7 @@ clean:
 
 .PHONY: build
 build: clean
+	CGO_ENABLED=0 \
 	goxc \
     -bc="darwin,amd64" \
     -pv=$(VERSION) \
@@ -24,6 +25,7 @@ build: clean
 
 .PHONY: build-all
 build-all: clean
+	CGO_ENABLED=0 \
 	goxc \
 	-os="$(XC_OS)" \
 	-arch="$(XC_ARCH)" \
