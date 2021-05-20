@@ -15,6 +15,7 @@ require (
 	github.com/mitchellh/go-testing-interface v1.14.1 // indirect
 	github.com/sirupsen/logrus v1.6.0
 	github.com/spf13/cobra v0.0.5
+	github.com/stretchr/testify v1.7.0
 	github.com/urfave/cli v1.22.4 // indirect
 	github.com/zclconf/go-cty v1.8.1
 	github.com/zclconf/go-cty-yaml v1.0.2 // indirect
