@@ -7,6 +7,10 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/ghodss/yaml"
+	"github.com/stretchr/testify/assert"
+	"golang.org/x/sync/singleflight"
 )
 
 // Resets all flag values to their defaults in between tests
@@ -17,8 +21,8 @@ func resetForRun() error {
 	}
 
 	// reset caches
-	getDependenciesCache = make(map[string]getDependenciesOutput)
-
+	getDependenciesCache = newGetDependenciesCache()
+	requestGroup = singleflight.Group{}
 	// reset flags
 	gitRoot = pwd
 	autoPlan = false
@@ -57,21 +61,26 @@ func runTest(t *testing.T, goldenFile string, args []string) {
 		filename,
 	}, args...)
 
-	content, err := RunWithFlags(filename, allArgs)
+	contentBytes, err := RunWithFlags(filename, allArgs)
+	content := &AtlantisConfig{}
+	yaml.Unmarshal(contentBytes, content)
 	if err != nil {
 		t.Error(err)
 		return
 	}
 
-	goldenContents, err := ioutil.ReadFile(goldenFile)
+	goldenContentsBytes, err := ioutil.ReadFile(goldenFile)
+	goldenContents := &AtlantisConfig{}
+	yaml.Unmarshal(goldenContentsBytes, goldenContents)
 	if err != nil {
 		t.Error("Failed to read golden file")
 		return
 	}
 
-	if string(content) != string(goldenContents) {
-		t.Errorf("Content did not match golden file.\n\nExpected (Golden file) Contents: \n%s\n\nGenerated Content: \n%s", string(goldenContents), string(content))
-	}
+	assert.ElementsMatch(t, content.Projects, goldenContents.Projects)
+	content.Projects = nil
+	goldenContents.Projects = nil
+	assert.Equal(t, content, goldenContents)
 }
 
 func TestSettingRoot(t *testing.T) {
