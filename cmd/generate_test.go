@@ -77,9 +77,6 @@ func runTest(t *testing.T, goldenFile string, args []string) {
 		return
 	}
 
-	assert.ElementsMatch(t, content.Projects, goldenContents.Projects)
-	content.Projects = nil
-	goldenContents.Projects = nil
 	assert.Equal(t, content, goldenContents)
 }
 

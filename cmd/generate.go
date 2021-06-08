@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"regexp"
+	"sort"
 
 	log "github.com/sirupsen/logrus"
 
@@ -460,6 +461,9 @@ func main(cmd *cobra.Command, args []string) error {
 	if err := errGroup.Wait(); err != nil {
 		return err
 	}
+
+	// Sort the projects in config by Dir
+	sort.Slice(config.Projects, func(i, j int) bool { return config.Projects[i].Dir < config.Projects[j].Dir })
 
 	// Convert config to YAML string
 	yamlBytes, err := yaml.Marshal(&config)
