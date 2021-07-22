@@ -48,7 +48,7 @@ Then, make sure `terragrunt-atlantis-config` is present on your Atlantis server.
 
 ```hcl
 variable "terragrunt_atlantis_config_version" {
-  default = "1.7.0"
+  default = "1.7.1"
 }
 
 build {
@@ -169,7 +169,7 @@ You can install this tool locally to checkout what kinds of config it will gener
 Recommended: Install any version via go get:
 
 ```bash
-cd && GO111MODULE=on go get github.com/transcend-io/terragrunt-atlantis-config@v1.7.0 && cd -
+cd && GO111MODULE=on go get github.com/transcend-io/terragrunt-atlantis-config@v1.7.1 && cd -
 ```
 
 This module officially supports golang versions v1.13, v1.14, v1.15, and v1.16, tested on CircleCI with each build
@@ -194,9 +194,9 @@ Finally, check the log output (or your output file) for the YAML.
 
 To test any changes you've made, run `make test`.
 
-Once all your changes are passing and your PR is reviewed, a merge into `master` will trigger a CircleCI job to build the new binary, test it, and deploy it's artifacts to an S3 bucket.
+Once all your changes are passing and your PR is reviewed, a merge into `master` will trigger a Github Actions job to build the new binary, test it, and deploy it's artifacts to Github Releases along with checksums.
 
-You can then open a PR on our homebrew tap similar to https://github.com/transcend-io/homebrew-tap/pull/4, and as soon as that merges your code will be released.
+You can then open a PR on our homebrew tap similar to https://github.com/transcend-io/homebrew-tap/pull/4, and as soon as that merges your code will be released. Homebrew is not updated for every release, as Github is the primary artifact store.
 
 ## Stargazers over time
 
