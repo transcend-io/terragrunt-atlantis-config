@@ -44,7 +44,7 @@ jobs:
           path: 'build/${{ steps.get_version.outputs.VERSION }}/*'
           checksum_digests: sha256,sha512
           checksum_format: gnu
-          checksum_output: one_file
+          checksum_output: one_file_per_digest
 
       # Create the release
       - uses: "marvinpinto/action-automatic-releases@latest"
@@ -52,5 +52,5 @@ jobs:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
           files: |
-            "build/${{ steps.get_version.outputs.VERSION }}/*"
-            "${{ steps.checksums.outputs.generated-files }}""
+            build/${{ steps.get_version.outputs.VERSION }}/*
+            ${{ steps.checksums.outputs.generated-files }}
