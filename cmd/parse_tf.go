@@ -16,10 +16,7 @@ var localModuleSourcePrefixes = []string{
 
 func parseTerraformLocalModuleSource(path string) ([]string, error) {
 	parser := configs.NewParser(nil)
-	module, errors := parser.LoadConfigDir(path)
-	if len(errors) > 0 {
-		return nil, errors[0]
-	}
+	module, _ := parser.LoadConfigDir(path)
 
 	var sourceMap = map[string]bool{}
 	for _, moduleCall := range module.ModuleCalls {
