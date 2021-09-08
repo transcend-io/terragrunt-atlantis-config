@@ -8,7 +8,8 @@ require (
 	github.com/go-errors/errors v1.1.1 // indirect
 	github.com/gruntwork-io/terragrunt v0.28.24
 	github.com/hashicorp/hcl/v2 v2.9.1
-	github.com/hashicorp/terraform v0.12.28
+	github.com/hashicorp/terraform v0.12.28 // indirect
+	github.com/hashicorp/terraform-config-inspect v0.0.0-20210625153042-09f34846faab
 	github.com/hashicorp/terraform-svchost v0.0.0-20191119180714-d2e4933b9136 // indirect
 	github.com/howeyc/gopass v0.0.0-20190910152052-7cb4b85ec19c // indirect
 	github.com/mattn/go-zglob v0.0.2 // indirect

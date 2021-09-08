@@ -7,6 +7,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - ../root-module/*.tf*
     - ../terraform-module/*.tf*
   dir: terragrunt-module
 version: 3
