@@ -711,6 +711,8 @@ github.com/hashicorp/terraform v0.12.28/go.mod h1:CBxNAiTW0pLap44/3GU4j7cYE2bMhk
 github.com/hashicorp/terraform-config-inspect v0.0.0-20191212124732-c6ae6269b9d7/go.mod h1:p+ivJws3dpqbp1iP84+npOyAmTTOLMgCzrXd3GSdn/A=
 github.com/hashicorp/terraform-config-inspect v0.0.0-20210318070130-9a80970d6b34 h1:y4kOB9aYVSsJWVqewwUZmHxPSNjkDbOeW7eb9yFIc3Q=
 github.com/hashicorp/terraform-config-inspect v0.0.0-20210318070130-9a80970d6b34/go.mod h1:Z0Nnk4+3Cy89smEbrq+sl1bxc9198gIP4I7wcQF6Kqs=
+github.com/hashicorp/terraform-config-inspect v0.0.0-20210625153042-09f34846faab h1:P08dNG+lM+gjaaMk8SsMi/mIPs8z7jrkEmnpcCwy/U0=
+github.com/hashicorp/terraform-config-inspect v0.0.0-20210625153042-09f34846faab/go.mod h1:Z0Nnk4+3Cy89smEbrq+sl1bxc9198gIP4I7wcQF6Kqs=
 github.com/hashicorp/terraform-svchost v0.0.0-20191011084731-65d371908596/go.mod h1:kNDNcF7sN4DocDLBkQYz73HGKwN1ANB1blq4lIYLYvg=
 github.com/hashicorp/terraform-svchost v0.0.0-20191119180714-d2e4933b9136 h1:81Dg7SK6Q5vzqFItO8e1iIF2Nj8bLXV23NXjEgbev/s=
 github.com/hashicorp/terraform-svchost v0.0.0-20191119180714-d2e4933b9136/go.mod h1:kNDNcF7sN4DocDLBkQYz73HGKwN1ANB1blq4lIYLYvg=
