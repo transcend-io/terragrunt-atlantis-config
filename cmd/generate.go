@@ -10,6 +10,7 @@ import (
 	"github.com/gruntwork-io/terragrunt/cli"
 	"github.com/gruntwork-io/terragrunt/config"
 	"github.com/gruntwork-io/terragrunt/options"
+	"github.com/gruntwork-io/terragrunt/util"
 	"github.com/spf13/cobra"
 
 	"golang.org/x/sync/errgroup"
@@ -139,6 +140,15 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 			// TODO: Make more robust. Check for bitbucket, etc.
 			if !strings.Contains(*source, "git::") && !strings.Contains(*source, "github.com") {
 				dependencies = append(dependencies, filepath.Join(*source, "*.tf*"))
+
+				dir := filepath.Dir(path)
+				ls, err := parseTerraformLocalModuleSource(util.JoinPath(dir, *source))
+				if err != nil {
+					return nil, err
+				}
+				sort.Strings(ls)
+
+				dependencies = append(dependencies, ls...)
 			}
 		}
 
