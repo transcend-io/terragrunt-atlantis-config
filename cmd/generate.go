@@ -220,8 +220,8 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 			}
 		}
 
-		if strings.HasSuffix(path, "/terragrunt.hcl") {
-			dir := strings.TrimSuffix(path, "/terragrunt.hcl")
+		if filepath.Base(path) == "terragrunt.hcl" {
+			dir := filepath.Dir(path)
 
 			ls, err := parseTerraformLocalModuleSource(dir)
 			if err != nil {
