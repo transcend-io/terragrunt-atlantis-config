@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
-	"sort"
 	"strings"
 
 	"github.com/gruntwork-io/terragrunt/util"
@@ -71,7 +70,6 @@ func parseTerraformLocalModuleSource(path string) ([]string, error) {
 	for source := range sourceMap {
 		sources = append(sources, source)
 	}
-	sort.Strings(sources)
 
 	return sources, nil
 }
