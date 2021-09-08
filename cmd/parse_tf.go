@@ -8,17 +8,14 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/gruntwork-io/terragrunt/util"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclparse"
 )
 
 var localModuleSourcePrefixes = []string{
-	"./",
-	"../",
-	".\\",
-	"..\\",
+	"." + string(filepath.Separator),
+	".." + string(filepath.Separator),
 }
 
 type ModuleCall struct {
@@ -47,8 +44,8 @@ func parseTerraformLocalModuleSource(path string) ([]string, error) {
 	var sourceMap = map[string]bool{}
 	for _, source := range modules {
 		if isLocalTerraformModuleSource(source) {
-			modulePath := util.JoinPath(path, source)
-			modulePathGlob := util.JoinPath(modulePath, "*.tf*")
+			modulePath := filepath.Join(path, source)
+			modulePathGlob := filepath.Join(modulePath, "*.tf*")
 
 			if _, exists := sourceMap[modulePathGlob]; exists {
 				continue
