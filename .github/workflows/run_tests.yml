@@ -1,7 +1,6 @@
 
 name: Build and test code
-on:
-  push
+on: [ push, pull_request ]
 
 jobs:
   run-tests:
