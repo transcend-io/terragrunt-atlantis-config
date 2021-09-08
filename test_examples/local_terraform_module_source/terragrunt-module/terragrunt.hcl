@@ -1,5 +1,5 @@
 terraform {
-  source = "../terraform-module"
+  source = "../root-module"
 }
 
 inputs = {

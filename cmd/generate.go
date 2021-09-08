@@ -10,6 +10,7 @@ import (
 	"github.com/gruntwork-io/terragrunt/cli"
 	"github.com/gruntwork-io/terragrunt/config"
 	"github.com/gruntwork-io/terragrunt/options"
+	"github.com/gruntwork-io/terragrunt/util"
 	"github.com/spf13/cobra"
 
 	"golang.org/x/sync/errgroup"
@@ -139,6 +140,15 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 			// TODO: Make more robust. Check for bitbucket, etc.
 			if !strings.Contains(*source, "git::") && !strings.Contains(*source, "github.com") {
 				dependencies = append(dependencies, filepath.Join(*source, "*.tf*"))
+
+				dir := filepath.Dir(path)
+				ls, err := parseTerraformLocalModuleSource(util.JoinPath(dir, *source))
+				if err != nil {
+					return nil, err
+				}
+				sort.Strings(ls)
+
+				dependencies = append(dependencies, ls...)
 			}
 		}
 
@@ -147,14 +157,10 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 			extraArgs := parsedConfig.Terraform.ExtraArgs
 			for _, arg := range extraArgs {
 				if arg.RequiredVarFiles != nil {
-					for _, file := range *arg.RequiredVarFiles {
-						dependencies = append(dependencies, file)
-					}
+					dependencies = append(dependencies, *arg.RequiredVarFiles...)
 				}
 				if arg.OptionalVarFiles != nil {
-					for _, file := range *arg.OptionalVarFiles {
-						dependencies = append(dependencies, file)
-					}
+					dependencies = append(dependencies, *arg.OptionalVarFiles...)
 				}
 				if arg.Arguments != nil {
 					for _, cliFlag := range *arg.Arguments {
@@ -190,7 +196,7 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 			}
 
 			depPath := dep
-			terrOpts, err := options.NewTerragruntOptions(depPath)
+			terrOpts, _ := options.NewTerragruntOptions(depPath)
 			childDeps, err := getDependencies(depPath, terrOpts)
 			if err != nil {
 				continue
@@ -222,6 +228,18 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 					cascadedDeps = append(cascadedDeps, childDepAbsPath)
 				}
 			}
+		}
+
+		if filepath.Base(path) == "terragrunt.hcl" {
+			dir := filepath.Dir(path)
+
+			ls, err := parseTerraformLocalModuleSource(dir)
+			if err != nil {
+				return nil, err
+			}
+			sort.Strings(ls)
+
+			cascadedDeps = append(cascadedDeps, ls...)
 		}
 
 		getDependenciesCache.set(path, getDependenciesOutput{cascadedDeps, err})
