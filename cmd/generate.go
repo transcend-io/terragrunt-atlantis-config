@@ -227,6 +227,7 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 			if err != nil {
 				return nil, err
 			}
+			sort.Strings(ls)
 
 			cascadedDeps = append(cascadedDeps, ls...)
 		}
