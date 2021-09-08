@@ -190,7 +190,7 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 			}
 
 			depPath := dep
-			terrOpts, _ := options.NewTerragruntOptions(depPath)
+			terrOpts, err := options.NewTerragruntOptions(depPath)
 			childDeps, err := getDependencies(depPath, terrOpts)
 			if err != nil {
 				continue
@@ -222,17 +222,6 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 					cascadedDeps = append(cascadedDeps, childDepAbsPath)
 				}
 			}
-		}
-
-		if strings.HasSuffix(path, "/terragrunt.hcl") {
-			dir := strings.TrimSuffix(path, "/terragrunt.hcl")
-
-			ls, err := parseTerraformLocalModuleSource(dir)
-			if err != nil {
-				return nil, err
-			}
-
-			cascadedDeps = append(cascadedDeps, ls...)
 		}
 
 		getDependenciesCache.set(path, getDependenciesOutput{cascadedDeps, err})
