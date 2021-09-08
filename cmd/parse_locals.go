@@ -104,12 +104,7 @@ func parseLocals(path string, terragruntOptions *options.TerragruntOptions, incl
 		parentLocals.ApplyRequirements = childLocals.ApplyRequirements
 	}
 
-	for _, dep := range childLocals.ExtraAtlantisDependencies {
-		parentLocals.ExtraAtlantisDependencies = append(
-			parentLocals.ExtraAtlantisDependencies,
-			dep,
-		)
-	}
+	parentLocals.ExtraAtlantisDependencies = append(parentLocals.ExtraAtlantisDependencies, childLocals.ExtraAtlantisDependencies...)
 
 	return parentLocals, nil
 }

@@ -147,14 +147,10 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 			extraArgs := parsedConfig.Terraform.ExtraArgs
 			for _, arg := range extraArgs {
 				if arg.RequiredVarFiles != nil {
-					for _, file := range *arg.RequiredVarFiles {
-						dependencies = append(dependencies, file)
-					}
+					dependencies = append(dependencies, *arg.RequiredVarFiles...)
 				}
 				if arg.OptionalVarFiles != nil {
-					for _, file := range *arg.OptionalVarFiles {
-						dependencies = append(dependencies, file)
-					}
+					dependencies = append(dependencies, *arg.OptionalVarFiles...)
 				}
 				if arg.Arguments != nil {
 					for _, cliFlag := range *arg.Arguments {
