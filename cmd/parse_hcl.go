@@ -40,7 +40,10 @@ func isParentModule(path string, terragruntOptions *options.TerragruntOptions) (
 	}
 
 	extensions := config.EvalContextExtensions{}
-	evalContext := config.CreateTerragruntEvalContext(path, terragruntOptions, extensions)
+	evalContext, err := config.CreateTerragruntEvalContext(path, terragruntOptions, extensions)
+	if err != nil {
+		return false, err
+	}
 
 	// Mock all the functions out so they don't do anything. Otherwise they may throw errors that we don't care about
 	evalContext.Functions = map[string]function.Function{}

@@ -1,0 +1,33 @@
+automerge: false
+parallel_apply: true
+parallel_plan: true
+projects:
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+  dir: includes_tf_12_then_13
+  terraform_version: 0.13.9001
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+  dir: includes_tf_13_then_12
+  terraform_version: 0.12.9001
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+  dir: uses_terraform_12
+  terraform_version: 0.12.9001
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+  dir: uses_terraform_13
+  terraform_version: 0.13.9001
+version: 3
