@@ -409,3 +409,11 @@ func TestFilterGlobFlagWithInfraLiveMySql(t *testing.T) {
 		filepath.Join("..", "test_examples", "terragrunt-infrastructure-live-example", "*", "*", "*", "mysql"),
 	})
 }
+
+func TestMultipleIncludes(t *testing.T) {
+	runTest(t, filepath.Join("golden", "multiple_includes.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "multiple_includes"),
+		"--terraform-version", "0.14.9001",
+	})
+}

@@ -16,7 +16,7 @@
 This tool creates Atlantis YAML configurations for Terragrunt projects by:
 
 - Finding all `terragrunt.hcl` in a repo
-- Evaluating their "dependency" and "terraform" source blocks to find their dependencies
+- Evaluating their `dependency`, `terraform`, `locals`, and other source blocks to find their dependencies
 - Creating a Directed Acyclic Graph of all dependencies
 - Constructing and logging YAML in Atlantis' config spec that reflects the graph
 
@@ -48,7 +48,7 @@ Then, make sure `terragrunt-atlantis-config` is present on your Atlantis server.
 
 ```hcl
 variable "terragrunt_atlantis_config_version" {
-  default = "1.8.1"
+  default = "1.9.0"
 }
 
 build {
@@ -70,7 +70,7 @@ and just like that, your developers should never have to worry about an `atlanti
 
 ## Extra dependencies
 
-For 99% of cases, this tool can sniff out all dependencies in a module. However, you may have times when you want to add in additional dependencies such as:
+For basic cases, this tool can sniff out all dependencies in a module. However, you may have times when you want to add in additional dependencies such as:
 
 - You use Terragrunt's `read_terragrunt_config` function in your locals, and want to depend on the read file
 - Your Terragrunt module should be run anytime some non-terragrunt file is updated, such as a Dockerfile or Packer template
@@ -162,6 +162,14 @@ Enabling this feature may consume more resources like cpu, memory, network, and 
 As when defining the workspace this info is also needed when running `atlantis plan/apply -d ${git_root}/stage/app -w stage_app` to run the command on specific directory,
 you can also use the `atlantis plan/apply -p stage_app` in case you have enabled the `create-project-name` cli argument (it is `false` by default).
 
+## Rules for merging config
+
+Each terragrunt module can have locals, but can also have zero to many `include` blocks that can specify parent terragrunt files that can also have locals.
+
+In most cases (for string/boolean locals), the primary terragrunt module has the highest precedence, followed by the locals in the lowest appearing `include` block, etc. all the way until the lowest precedence at the locals in the first `include` block to appear.
+
+However, there is one exception where the values are merged, which is the `atlantis_extra_dependencies` local. For this local, all values are appended to one another. This way, you can have `include` files declare their own dependencies.
+
 ## Local Installation and Usage
 
 You can install this tool locally to checkout what kinds of config it will generate for your repo, though in production it is recommended to [install this tool directly onto your Atlantis server](##integrate-into-your-atlantis-server)
@@ -169,7 +177,7 @@ You can install this tool locally to checkout what kinds of config it will gener
 Recommended: Install any version via go get:
 
 ```bash
-cd && GO111MODULE=on go get github.com/transcend-io/terragrunt-atlantis-config@v1.8.1 && cd -
+cd && GO111MODULE=on go get github.com/transcend-io/terragrunt-atlantis-config@v1.9.0 && cd -
 ```
 
 This module officially supports golang versions v1.13, v1.14, v1.15, and v1.16, tested on CircleCI with each build
@@ -192,7 +200,7 @@ Finally, check the log output (or your output file) for the YAML.
 
 ## Contributing
 
-To test any changes you've made, run `make test`.
+To test any changes you've made, run `make gotestsum` (or `make test` for standard golang testing).
 
 Once all your changes are passing and your PR is reviewed, a merge into `master` will trigger a Github Actions job to build the new binary, test it, and deploy it's artifacts to Github Releases along with checksums.
 
