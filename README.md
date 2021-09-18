@@ -24,49 +24,45 @@ This is especially useful for organizations that use monorepos for their Terragr
 
 ## Integrate into your Atlantis Server
 
-The recommended way to use this tool is to install it onto your Atlantis server, and then use a [Pre-Workflow hook](https://www.runatlantis.io/docs/pre-workflow-hooks.html#pre-workflow-hooks) to run it after every clone. This way, Atlantis can automatically determine what modules should be planned/applied for any change to your repository.
+### Install `terragrunt-atlantis-config`
 
-To get started, add a `pre_workflow_hooks` field to your `repos` section of your [server-side repo config](https://www.runatlantis.io/docs/server-side-repo-config.html#do-i-need-a-server-side-repo-config-file):
-
-```json
-{
-  "repos": [
-    {
-      "id": "<your_github_repo>",
-      "workflow": "default",
-      "pre_workflow_hooks": [
-        {
-          "run": "terragrunt-atlantis-config generate --output atlantis.yaml --autoplan --parallel --create-workspace"
-        }
-      ]
-    }
-  ]
-}
+```sh
+$ export TG_ATL_CGF_VER=1.9.0
+$ wget "https://github.com/transcend-io/terragrunt-atlantis-config/releases/download/v${TG_ATL_CGF_VER}/terragrunt-atlantis-config_${TG_ATL_CGF_VER}_linux_amd64.tar.gz"
+$ tar xf terragrunt-atlantis-config_${TG_ATL_CGF_VER}_linux_amd64.tar.gz
+$ sudo mv terragrunt-atlantis-config_${TG_ATL_CGF_VER}_linux_amd64/terragrunt-atlantis-config_${TG_ATL_CGF_VER}_linux_amd64 terragrunt-atlantis-config
+$ sudo install terragrunt-atlantis-config /usr/local/bin
 ```
 
-Then, make sure `terragrunt-atlantis-config` is present on your Atlantis server. There are many different ways to configure a server, but this example in [Packer](https://www.packer.io/) should show the bash commands you'll need just about anywhere:
+### Setup
 
-```hcl
-variable "terragrunt_atlantis_config_version" {
-  default = "1.9.0"
-}
+To get started, you will need to set up an `atlantis` server side [configuration](https://www.runatlantis.io/docs/server-side-repo-config.html#do-i-need-a-server-side-repo-config-file) in which you will instruct your `atlantis` server to:
 
-build {
-  // ...
-  provisioner "shell" {
-    inline = [
-      "wget https://github.com/transcend-io/terragrunt-atlantis-config/releases/download/v${var.terragrunt_atlantis_config_version}/terragrunt-atlantis-config_${var.terragrunt_atlantis_config_version}_linux_amd64.tar.gz",
-      "sudo tar xf terragrunt-atlantis-config_${var.terragrunt_atlantis_config_version}_linux_amd64.tar.gz",
-      "sudo mv terragrunt-atlantis-config_${var.terragrunt_atlantis_config_version}_linux_amd64/terragrunt-atlantis-config_${var.terragrunt_atlantis_config_version}_linux_amd64 terragrunt-atlantis-config",
-      "sudo install terragrunt-atlantis-config /usr/local/bin",
-    ]
-    inline_shebang = "/bin/bash -e"
-  }
-  // ...
-}
+- run `terragrunt-atlantis-config` as a [`pre_workflow_hook`](https://www.runatlantis.io/docs/pre-workflow-hooks.html)
+- override the default behavior of `atlantis` to execute `terragrunt` in its workflows instead of `terraform`; a working example is the following:
+
+```yaml
+repos:
+- id: "/.*/" # (or <your_repo_id>)
+  allowed_overrides: [workflow, apply_requirements]
+  allow_custom_workflows: true
+  workflow: terragrunt
+  apply_requirements: [mergeable]
+  pre_workflow_hooks:
+    - run: terragrunt-atlantis-config generate --output atlantis.yaml --autoplan --parallel --create-workspace
+workflows:
+  terragrunt:
+    plan:
+      steps:
+      - run: terragrunt plan -no-color -out=$PLANFILE
+      - run: terragrunt show -no-color -json $PLANFILE > $SHOWFILE
+    apply:
+      steps:
+      - run: terragrunt apply -no-color $PLANFILE
 ```
 
-and just like that, your developers should never have to worry about an `atlantis.yaml` file, or even need to know what it is.
+**NOTE**: The above configuration removes the necessity of maintaining an `atlantis.yaml` (repo config) in your GH repository.
+
 
 ## Extra dependencies
 
