@@ -141,8 +141,14 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 			if !strings.Contains(*source, "git::") && !strings.Contains(*source, "github.com") {
 				dependencies = append(dependencies, filepath.Join(*source, "*.tf*"))
 
-				dir := filepath.Dir(path)
-				ls, err := parseTerraformLocalModuleSource(util.JoinPath(dir, *source))
+				var dir string
+
+				if filepath.IsAbs(*source) {
+					dir = *source
+				} else {
+					dir = util.JoinPath(filepath.Dir(path), *source)
+				}
+				ls, err := parseTerraformLocalModuleSource(dir)
 				if err != nil {
 					return nil, err
 				}

@@ -168,6 +168,13 @@ func TestLocalTerraformModuleSource(t *testing.T) {
 	})
 }
 
+func TestLocalTerraformAbsModuleSource(t *testing.T) {
+	runTest(t, filepath.Join("golden", "local_terraform_abs_module.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "local_terraform_abs_module_source"),
+	})
+}
+
 func TestLocalTfModuleSource(t *testing.T) {
 	runTest(t, filepath.Join("golden", "local_tf_module.yaml"), []string{
 		"--root",
