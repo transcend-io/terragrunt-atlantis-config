@@ -424,3 +424,10 @@ func TestMultipleIncludes(t *testing.T) {
 		"--terraform-version", "0.14.9001",
 	})
 }
+
+func TestTerraformRegistryModule(t *testing.T) {
+	runTest(t, filepath.Join("golden", "basic.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "terraform_registry_module_source"),
+	})
+}

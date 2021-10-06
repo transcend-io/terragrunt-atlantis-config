@@ -138,7 +138,7 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 		if parsedConfig.Terraform != nil && parsedConfig.Terraform.Source != nil {
 			source := parsedConfig.Terraform.Source
 			// TODO: Make more robust. Check for bitbucket, etc.
-			if !strings.Contains(*source, "git::") && !strings.Contains(*source, "github.com") {
+			if !strings.Contains(*source, "git::") && !strings.Contains(*source, "github.com") && !strings.Contains(*source, "tfr:///") {
 				dependencies = append(dependencies, filepath.Join(*source, "*.tf*"))
 
 				var dir string
