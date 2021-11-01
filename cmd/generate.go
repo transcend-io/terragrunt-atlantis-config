@@ -265,6 +265,7 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 	if err != nil {
 		return nil, err
 	}
+	options.OriginalTerragruntConfigPath = sourcePath
 	options.RunTerragrunt = cli.RunTerragrunt
 	options.Env = getEnvs()
 
