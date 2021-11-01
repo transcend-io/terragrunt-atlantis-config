@@ -236,6 +236,7 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 
 			depPath := dep
 			terrOpts, _ := options.NewTerragruntOptions(depPath)
+			terrOpts.OriginalTerragruntConfigPath = terragruntOptions.OriginalTerragruntConfigPath
 			childDeps, err := getDependencies(depPath, terrOpts)
 			if err != nil {
 				continue
@@ -298,6 +299,7 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 	if err != nil {
 		return nil, err
 	}
+	options.OriginalTerragruntConfigPath = sourcePath
 	options.RunTerragrunt = cli.RunTerragrunt
 	options.Env = getEnvs()
 
