@@ -34,6 +34,9 @@ type ResolvedLocals struct {
 
 	// Terraform version to use just for this project
 	TerraformVersion string
+
+	// If set to true, create Atlantis project
+	markedProject *bool
 }
 
 // parseHcl uses the HCL2 parser to parse the given string into an HCL file body.
@@ -71,6 +74,10 @@ func mergeResolvedLocals(parent ResolvedLocals, child ResolvedLocals) ResolvedLo
 
 	if child.Skip != nil {
 		parent.Skip = child.Skip
+	}
+
+	if child.markedProject != nil {
+		parent.markedProject = child.markedProject
 	}
 
 	if child.ApplyRequirements != nil || len(child.ApplyRequirements) > 0 {
@@ -155,6 +162,12 @@ func resolveLocals(localsAsCty cty.Value) ResolvedLocals {
 			_, val := it.Element()
 			resolved.ApplyRequirements = append(resolved.ApplyRequirements, val.AsString())
 		}
+	}
+
+	markedProject, ok := rawLocals["atlantis_project"]
+	if ok {
+		hasValue := markedProject.True()
+		resolved.markedProject = &hasValue
 	}
 
 	extraDependenciesAsCty, ok := rawLocals["extra_atlantis_dependencies"]

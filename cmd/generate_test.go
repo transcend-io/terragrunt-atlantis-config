@@ -39,6 +39,10 @@ func resetForRun() error {
 	outputPath = ""
 	defaultTerraformVersion = ""
 	defaultApplyRequirements = []string{}
+	projectHclFiles = []string{}
+	createHclProjectChilds = false
+	createHclProjectExternalChilds = true
+	useProjectMarkers = false
 
 	return nil
 }
@@ -429,5 +433,54 @@ func TestTerraformRegistryModule(t *testing.T) {
 	runTest(t, filepath.Join("golden", "basic.yaml"), []string{
 		"--root",
 		filepath.Join("..", "test_examples", "terraform_registry_module_source"),
+	})
+}
+
+func TestEnvHCLProjectsNoChilds(t *testing.T) {
+	runTest(t, filepath.Join("golden", "envhcl_nochilds.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples"),
+		"--project-hcl-files=env.hcl",
+		"--create-hcl-project-childs=false",
+		"--create-hcl-project-external-childs=false",
+	})
+}
+
+func TestEnvHCLProjectsSubChilds(t *testing.T) {
+	runTest(t, filepath.Join("golden", "envhcl_subchilds.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples"),
+		"--project-hcl-files=env.hcl",
+		"--create-hcl-project-childs=true",
+		"--create-hcl-project-external-childs=false",
+	})
+}
+
+func TestEnvHCLProjectsExternalChilds(t *testing.T) {
+	runTest(t, filepath.Join("golden", "envhcl_externalchilds.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples"),
+		"--project-hcl-files=env.hcl",
+		"--create-hcl-project-childs=false",
+		"--create-hcl-project-external-childs=true",
+	})
+}
+
+func TestEnvHCLProjectsAllChilds(t *testing.T) {
+	runTest(t, filepath.Join("golden", "envhcl_allchilds.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples"),
+		"--project-hcl-files=env.hcl",
+		"--create-hcl-project-childs=true",
+		"--create-hcl-project-external-childs=true",
+	})
+}
+
+func TestEnvHCLProjectMarker(t *testing.T) {
+	runTest(t, filepath.Join("golden", "project_marker.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "project_hcl_with_project_marker"),
+		"--project-hcl-files=env.hcl",
+		"--use-project-markers=true",
 	})
 }
