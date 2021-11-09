@@ -131,6 +131,17 @@ One way to customize the behavior of this module is through CLI flag values pass
 | `--filter`                   | Path or glob expression to the directory you want scope down the config for. Default is all files in root                                                                                          | ""                |
 | `--num-executors`                   | Number of executors used for parallel generation of projects. Default is 15                                                                                          | 15                |
 
+## Project generation
+
+These flags offer additional options to generate Atlantis projects based on HCL configuration files in the terragrunt hierarchy. This, for example, enables Atlantis to use `terragrunt run-all` workflows on staging environment or product levels in a terragrunt hierarchy. Mostly useful in large terragrunt projects containing lots of interdependent child modules. Atlantis `locals` can be used in the defined project marker files.
+
+| Flag Name                    | Description                                                                                                                                                                     | Default Value     | Type |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- |----- |
+| `--project-hcl-files`        | Comma-separated names of arbitrary hcl files in the terragrunt hierarchy to create Atlantis projects for.<br>Disables the `--filter` flag  | ""      |  list(string) |
+| `--use-project-markers`      | If enabled, project hcl files must include `locals { atlantis_project = true }` for project creation.  | false      |  bool |
+| `--create-hcl-project-childs`        | Creates Atlantis projects for terragrunt child modules below the directories containing the HCL files defined in --project-hcl-files  | false       | bool |
+| `--create-hcl-project-external-childs`    | Creates Atlantis projects for terragrunt child modules outside the directories containing the HCL files defined in --project-hcl-files  | true          | bool |
+
 ## All Locals
 
 Another way to customize the output is to use `locals` values in your terragrunt modules. These can be set in either the parent or child terragrunt modules, and the settings will only affect the current module (or all child modules for parent locals).
@@ -143,6 +154,7 @@ Another way to customize the output is to use `locals` values in your terragrunt
 | `atlantis_autoplan`           | Allows overriding the `--autoplan` flag for a single module                                                                                                    | bool         |
 | `atlantis_skip`               | If true on a child module, that module will not appear in the output.<br>If true on a parent module, none of that parent's children will appear in the output. | bool         |
 | `extra_atlantis_dependencies` | See [Extra dependencies](https://github.com/transcend-io/terragrunt-atlantis-config#extra-dependencies)                                                        | list(string) |
+| `atlantis_project`            | Create Atlantis project for a project hcl file. Only functional with `--project-hcl-files` and `--use-project-markers` | bool         |
 
 ## Separate workspace for parallel plan and apply
 
