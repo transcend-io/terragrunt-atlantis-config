@@ -161,8 +161,12 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 		// Get deps from the `Source` field of the `Terraform` block
 		if parsedConfig.Terraform != nil && parsedConfig.Terraform.Source != nil {
 			source := parsedConfig.Terraform.Source
-			// TODO: Make more robust. Check for bitbucket, etc.
-			if !strings.Contains(*source, "git::") && !strings.Contains(*source, "github.com") && !strings.Contains(*source, "tfr:///") {
+			isLocal, err := isModuleSourceLocal(*source)
+			if err != nil {
+				return nil, err
+			}
+
+			if isLocal {
 				dependencies = append(dependencies, filepath.Join(*source, "*.tf*"))
 
 				var dir string
@@ -619,6 +623,24 @@ func getAllTerragruntProjectHclFiles() map[string][]string {
 		}
 	}
 	return uniqueHclFileAbsPaths
+}
+
+func isModuleSourceLocal(raw string) (bool, error) {
+	var moduleSourceLocalPrefixes = []string{
+		"./",
+		"../",
+		".\\",
+		"..\\",
+		"/",
+	}
+
+	for _, prefix := range moduleSourceLocalPrefixes {
+		if strings.HasPrefix(raw, prefix) {
+			return true, nil
+		}
+	}
+
+	return false, nil
 }
 
 func main(cmd *cobra.Command, args []string) error {
