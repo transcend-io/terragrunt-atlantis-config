@@ -4,6 +4,7 @@ import (
 	"regexp"
 	"sort"
 
+	"github.com/hashicorp/go-getter"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/ghodss/yaml"
@@ -161,8 +162,22 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 		// Get deps from the `Source` field of the `Terraform` block
 		if parsedConfig.Terraform != nil && parsedConfig.Terraform.Source != nil {
 			source := parsedConfig.Terraform.Source
-			// TODO: Make more robust. Check for bitbucket, etc.
-			if !strings.Contains(*source, "git::") && !strings.Contains(*source, "github.com") && !strings.Contains(*source, "tfr:///") {
+
+			// Use `go-getter` to normalize the source paths
+			var parsedSource string
+			parsedSource, err = getter.Detect(*source, path, getter.Detectors)
+			if err != nil {
+				return nil, err
+			}
+
+			// Check if the normalized source matches a pattern of remote sources
+			var isRemoteSource bool
+			isRemoteSource, err := regexp.MatchString(`^(https?|tfr|git|hg|s3|gcs)\:`, parsedSource)
+			if err != nil {
+				return nil, err
+			}
+
+			if !isRemoteSource {
 				dependencies = append(dependencies, filepath.Join(*source, "*.tf*"))
 
 				var dir string
