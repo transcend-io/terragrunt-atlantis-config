@@ -11,7 +11,6 @@ import (
 	"github.com/gruntwork-io/terragrunt/cli"
 	"github.com/gruntwork-io/terragrunt/config"
 	"github.com/gruntwork-io/terragrunt/options"
-	"github.com/gruntwork-io/terragrunt/util"
 	"github.com/spf13/cobra"
 
 	"golang.org/x/sync/errgroup"
@@ -164,8 +163,7 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 			source := parsedConfig.Terraform.Source
 
 			// Use `go-getter` to normalize the source paths
-			var parsedSource string
-			parsedSource, err = getter.Detect(*source, path, getter.Detectors)
+			parsedSource, err := getter.Detect(*source, filepath.Dir(path), getter.Detectors)
 			if err != nil {
 				return nil, err
 			}
@@ -178,16 +176,12 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 
 			// If the normalized source begins with `file://`, or matched the Windows drive letter check, it is a local path
 			if strings.HasPrefix(parsedSource, "file://") || isWindowsPath {
-				dependencies = append(dependencies, filepath.Join(*source, "*.tf*"))
+				// Remove the prefix so we have a valid filesystem path
+				parsedSource = strings.TrimPrefix(parsedSource, "file://")
 
-				var dir string
-				if filepath.IsAbs(*source) {
-					dir = *source
-				} else {
-					dir = util.JoinPath(filepath.Dir(path), *source)
-				}
+				dependencies = append(dependencies, filepath.Join(parsedSource, "*.tf*"))
 
-				ls, err := parseTerraformLocalModuleSource(dir)
+				ls, err := parseTerraformLocalModuleSource(parsedSource)
 				if err != nil {
 					return nil, err
 				}
@@ -655,7 +649,7 @@ func main(cmd *cobra.Command, args []string) error {
 			workingDirs = append(workingDirs, projectHclDirMap[projectHclFile]...)
 		}
 		// parse terragrunt child modules outside the scope of projectHclDirs
-		if createHclProjectExternalChilds == true {
+		if createHclProjectExternalChilds {
 			workingDirs = append(workingDirs, gitRoot)
 		}
 	}
