@@ -170,23 +170,17 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 				return nil, err
 			}
 
-			// Check if the normalized source matches a pattern of remote sources
-			var isRemoteSource bool
-			isRemoteSource, err := regexp.MatchString(`^(https?|tfr|git|hg|s3|gcs)\:`, parsedSource)
-			if err != nil {
-				return nil, err
-			}
-
-			if !isRemoteSource {
+			// If the normalized source begins with `file:///` it is a local path
+			if strings.HasPrefix(parsedSource, "file:///") {
 				dependencies = append(dependencies, filepath.Join(*source, "*.tf*"))
 
 				var dir string
-
 				if filepath.IsAbs(*source) {
 					dir = *source
 				} else {
 					dir = util.JoinPath(filepath.Dir(path), *source)
 				}
+
 				ls, err := parseTerraformLocalModuleSource(dir)
 				if err != nil {
 					return nil, err
