@@ -4,13 +4,13 @@ import (
 	"regexp"
 	"sort"
 
+	"github.com/hashicorp/go-getter"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/ghodss/yaml"
 	"github.com/gruntwork-io/terragrunt/cli"
 	"github.com/gruntwork-io/terragrunt/config"
 	"github.com/gruntwork-io/terragrunt/options"
-	"github.com/gruntwork-io/terragrunt/util"
 	"github.com/spf13/cobra"
 
 	"golang.org/x/sync/errgroup"
@@ -161,18 +161,27 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 		// Get deps from the `Source` field of the `Terraform` block
 		if parsedConfig.Terraform != nil && parsedConfig.Terraform.Source != nil {
 			source := parsedConfig.Terraform.Source
-			// TODO: Make more robust. Check for bitbucket, etc.
-			if !strings.Contains(*source, "git::") && !strings.Contains(*source, "github.com") && !strings.Contains(*source, "tfr:///") {
-				dependencies = append(dependencies, filepath.Join(*source, "*.tf*"))
 
-				var dir string
+			// Use `go-getter` to normalize the source paths
+			parsedSource, err := getter.Detect(*source, filepath.Dir(path), getter.Detectors)
+			if err != nil {
+				return nil, err
+			}
 
-				if filepath.IsAbs(*source) {
-					dir = *source
-				} else {
-					dir = util.JoinPath(filepath.Dir(path), *source)
-				}
-				ls, err := parseTerraformLocalModuleSource(dir)
+			// Check if the path begins with a drive letter, denoting Windows
+			isWindowsPath, err := regexp.MatchString(`^[A-Z]:`, parsedSource)
+			if err != nil {
+				return nil, err
+			}
+
+			// If the normalized source begins with `file://`, or matched the Windows drive letter check, it is a local path
+			if strings.HasPrefix(parsedSource, "file://") || isWindowsPath {
+				// Remove the prefix so we have a valid filesystem path
+				parsedSource = strings.TrimPrefix(parsedSource, "file://")
+
+				dependencies = append(dependencies, filepath.Join(parsedSource, "*.tf*"))
+
+				ls, err := parseTerraformLocalModuleSource(parsedSource)
 				if err != nil {
 					return nil, err
 				}
@@ -640,7 +649,7 @@ func main(cmd *cobra.Command, args []string) error {
 			workingDirs = append(workingDirs, projectHclDirMap[projectHclFile]...)
 		}
 		// parse terragrunt child modules outside the scope of projectHclDirs
-		if createHclProjectExternalChilds == true {
+		if createHclProjectExternalChilds {
 			workingDirs = append(workingDirs, gitRoot)
 		}
 	}

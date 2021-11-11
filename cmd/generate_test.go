@@ -429,10 +429,87 @@ func TestMultipleIncludes(t *testing.T) {
 	})
 }
 
-func TestTerraformRegistryModule(t *testing.T) {
+func TestRemoteModuleSourceBitbucket(t *testing.T) {
 	runTest(t, filepath.Join("golden", "basic.yaml"), []string{
 		"--root",
-		filepath.Join("..", "test_examples", "terraform_registry_module_source"),
+		filepath.Join("..", "test_examples", "remote_module_source_bitbucket"),
+	})
+}
+
+func TestRemoteModuleSourceGCS(t *testing.T) {
+	runTest(t, filepath.Join("golden", "basic.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "remote_module_source_gcs"),
+	})
+}
+
+func TestRemoteModuleSourceGitHTTPS(t *testing.T) {
+	runTest(t, filepath.Join("golden", "basic.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "remote_module_source_git_https"),
+	})
+}
+
+func TestRemoteModuleSourceGitSCPLike(t *testing.T) {
+	runTest(t, filepath.Join("golden", "basic.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "remote_module_source_git_scp_like"),
+	})
+}
+
+func TestRemoteModuleSourceGitSSH(t *testing.T) {
+	runTest(t, filepath.Join("golden", "basic.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "remote_module_source_git_ssh"),
+	})
+}
+
+func TestRemoteModuleSourceGithubHTTPS(t *testing.T) {
+	runTest(t, filepath.Join("golden", "basic.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "remote_module_source_github_https"),
+	})
+}
+
+func TestRemoteModuleSourceGithubSSH(t *testing.T) {
+	runTest(t, filepath.Join("golden", "basic.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "remote_module_source_github_ssh"),
+	})
+}
+
+func TestRemoteModuleSourceHTTP(t *testing.T) {
+	runTest(t, filepath.Join("golden", "basic.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "remote_module_source_http"),
+	})
+}
+
+func TestRemoteModuleSourceHTTPS(t *testing.T) {
+	runTest(t, filepath.Join("golden", "basic.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "remote_module_source_https"),
+	})
+}
+
+func TestRemoteModuleSourceMercurial(t *testing.T) {
+	runTest(t, filepath.Join("golden", "basic.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "remote_module_source_mercurial"),
+	})
+}
+
+func TestRemoteModuleSourceS3(t *testing.T) {
+	runTest(t, filepath.Join("golden", "basic.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "remote_module_source_s3"),
+	})
+}
+
+func TestRemoteModuleSourceTerraformRegistry(t *testing.T) {
+	runTest(t, filepath.Join("golden", "basic.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "remote_module_source_terraform_registry"),
 	})
 }
 

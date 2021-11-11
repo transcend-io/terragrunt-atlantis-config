@@ -370,13 +370,79 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
-  dir: skip/skip_false
+  dir: remote_module_source_bitbucket
 - autoplan:
     enabled: false
     when_modified:
     - '*.hcl'
     - '*.tf*'
-  dir: terraform_registry_module_source
+  dir: remote_module_source_gcs
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+  dir: remote_module_source_git_https
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+  dir: remote_module_source_git_scp_like
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+  dir: remote_module_source_git_ssh
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+  dir: remote_module_source_github_https
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+  dir: remote_module_source_github_ssh
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+  dir: remote_module_source_http
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+  dir: remote_module_source_https
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+  dir: remote_module_source_mercurial
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+  dir: remote_module_source_s3
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+  dir: remote_module_source_terraform_registry
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+  dir: skip/skip_false
 - autoplan:
     enabled: false
     when_modified:
