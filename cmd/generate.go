@@ -170,8 +170,14 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 				return nil, err
 			}
 
-			// If the normalized source begins with `file:///` it is a local path
-			if strings.HasPrefix(parsedSource, "file://") {
+			// Check if the path begins with a drive letter, denoting Windows
+			isWindowsPath, err := regexp.MatchString(`^[A-Z]:`, parsedSource)
+			if err != nil {
+				return nil, err
+			}
+
+			// If the normalized source begins with `file://`, or matched the Windows drive letter check, it is a local path
+			if strings.HasPrefix(parsedSource, "file://") || isWindowsPath {
 				dependencies = append(dependencies, filepath.Join(*source, "*.tf*"))
 
 				var dir string
