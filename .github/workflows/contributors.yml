@@ -28,8 +28,8 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
         with:
-          commit-message: [Chore] Update Contributors SVG
-          title: [Chore] Update Contributors SVG
+          commit-message: '[Chore] Update Contributors SVG'
+          title: '[Chore] Update Contributors SVG'
           delete-branch: true
           assignees: dmattia
           reviewers: dmattia
