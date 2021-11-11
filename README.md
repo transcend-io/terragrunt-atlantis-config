@@ -218,6 +218,10 @@ Once all your changes are passing and your PR is reviewed, a merge into `master`
 
 You can then open a PR on our homebrew tap similar to https://github.com/transcend-io/homebrew-tap/pull/4, and as soon as that merges your code will be released. Homebrew is not updated for every release, as Github is the primary artifact store.
 
+## Contributors
+
+<img src="./CONTRIBUTORS.svg">
+
 ## Stargazers over time
 
 [![Stargazers over time](https://starchart.cc/transcend-io/terragrunt-atlantis-config.svg)](https://starchart.cc/transcend-io/terragrunt-atlantis-config)
