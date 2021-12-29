@@ -511,5 +511,19 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - ../common/terragrunt.hcl
+    - ../dependency/terragrunt.hcl
+  dir: with_original_dir/child
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+  dir: with_original_dir/dependency
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
   dir: with_parent/child
 version: 3
