@@ -561,3 +561,10 @@ func TestEnvHCLProjectMarker(t *testing.T) {
 		"--use-project-markers=true",
 	})
 }
+
+func TestWithOriginalDir(t *testing.T) {
+	runTest(t, filepath.Join("golden", "withOriginalDir.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "with_original_dir"),
+	})
+}
