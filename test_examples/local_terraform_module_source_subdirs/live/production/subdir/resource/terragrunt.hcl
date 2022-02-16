@@ -3,7 +3,7 @@ include {
 }
 
 terraform {
-  source = "${find_in_parent_folders()}/../../..//modules/subdir/resource"
+  source = "${find_in_parent_folders()}/../../../modules/subdir/resource"
 }
 
 inputs = {
