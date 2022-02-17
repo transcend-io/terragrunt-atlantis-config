@@ -15,6 +15,10 @@ the Terraform code, defined in the `terragrunt-infrastructure-modules-example` r
 `terragrunt.hcl` files that reference that code (at a specific version, too!) and fill in variables specific to each
 environment.
 
+Be sure to read through [the Terragrunt documentation on DRY
+Architectures](https://terragrunt.gruntwork.io/docs/features/keep-your-terragrunt-architecture-dry/) to understand the
+features of Terragrunt used in this folder organization.
+
 Note: This code is solely for demonstration purposes. This is not production-ready code, so use at your own risk. If
 you are interested in battle-tested, production-ready Terraform code, check out [Gruntwork](http://www.gruntwork.io/).
 
@@ -26,14 +30,16 @@ you are interested in battle-tested, production-ready Terraform code, check out 
 
 ### Pre-requisites
 
-1. Install [Terraform](https://www.terraform.io/) version `0.12.0` or newer and
-   [Terragrunt](https://github.com/gruntwork-io/terragrunt) version `v0.23.0` or newer.
-1. Update the `bucket` parameter in `non-prod/terragrunt.hcl` and `prod/terragrunt.hcl` to unique names. We use S3
-   [as a Terraform backend](https://www.terraform.io/docs/backends/types/s3.html) to store your Terraform state, and
-   S3 bucket names must be globally unique. The names currently in the file are already taken, so you'll have to
-   specify your own. Alternatives, you can set the environment variable `TG_BUCKET_PREFIX` to set a custom prefix.
+1. Install [Terraform](https://www.terraform.io/) version `0.13.0` or newer and
+   [Terragrunt](https://github.com/gruntwork-io/terragrunt) version `v0.32.0` or newer.
+1. Update the `bucket` parameter in the root `terragrunt.hcl`. We use S3 [as a Terraform
+   backend](https://www.terraform.io/docs/backends/types/s3.html) to store your
+   Terraform state, and S3 bucket names must be globally unique. The name currently in
+   the file is already taken, so you'll have to specify your own. Alternatives, you can
+   set the environment variable `TG_BUCKET_PREFIX` to set a custom prefix.
 1. Configure your AWS credentials using one of the supported [authentication
    mechanisms](https://www.terraform.io/docs/providers/aws/#authentication).
+1. Fill in your AWS Account ID's in `prod/account.hcl` and `non-prod/account.hcl`.
 
 
 ### Deploying a single module

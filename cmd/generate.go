@@ -106,6 +106,30 @@ func lookupProjectHcl(m map[string][]string, value string) (key string) {
 	return key
 }
 
+// func stringInSlice(a string, list []string) bool {
+// 	for _, b := range list {
+// 		if b == a {
+// 			return true
+// 		}
+// 	}
+// 	return false
+// }
+
+func sliceUnion(a, b []string) []string {
+	m := make(map[string]bool)
+
+	for _, item := range a {
+		m[item] = true
+	}
+
+	for _, item := range b {
+		if _, ok := m[item]; !ok {
+			a = append(a, item)
+		}
+	}
+	return a
+}
+
 // Parses the terragrunt config at `path` to find all modules it depends on
 func getDependencies(path string, terragruntOptions *options.TerragruntOptions) ([]string, error) {
 	res, err, _ := requestGroup.Do(path, func() (interface{}, error) {
@@ -114,16 +138,25 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 		if ok {
 			return cachedResult.dependencies, cachedResult.err
 		}
-		// if theres no terraform source and we're ignoring parent terragrunt configs
+
+		// parse the module path to find what it includes, as well as its potential to be a parent
 		// return nils to indicate we should skip this project
-		isParent, err := isParentModule(path, terragruntOptions)
+		isParent, includes, err := parseModule(path, terragruntOptions)
 		if err != nil {
 			getDependenciesCache.set(path, getDependenciesOutput{nil, err})
 			return nil, err
 		}
-		if ignoreParentTerragrunt && isParent {
+		if isParent && !createParentProject && ignoreParentTerragrunt {
 			getDependenciesCache.set(path, getDependenciesOutput{nil, nil})
 			return nil, nil
+		}
+
+		dependencies := []string{}
+		if len(includes) > 0 {
+			for _, includeDep := range includes {
+				getDependenciesCache.set(includeDep.Path, getDependenciesOutput{nil, err})
+				dependencies = append(dependencies, includeDep.Path)
+			}
 		}
 
 		// Parse the HCL file
@@ -146,9 +179,8 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 		}
 
 		// Get deps from locals
-		dependencies := []string{}
 		if locals.ExtraAtlantisDependencies != nil {
-			dependencies = locals.ExtraAtlantisDependencies
+			dependencies = sliceUnion(dependencies, locals.ExtraAtlantisDependencies)
 		}
 
 		// Get deps from `dependencies` and `dependency` blocks
@@ -285,12 +317,12 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 		getDependenciesCache.set(path, getDependenciesOutput{cascadedDeps, err})
 		return cascadedDeps, nil
 	})
+
 	if res != nil {
 		return res.([]string), err
 	} else {
 		return nil, err
 	}
-
 }
 
 // Creates an AtlantisProject for a directory
@@ -307,6 +339,7 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	// dependencies being nil is a sign from `getDependencies` that this project should be skipped
 	if dependencies == nil {
 		return nil, nil
@@ -381,7 +414,7 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 		ApplyRequirements: applyRequirements,
 		Autoplan: AutoplanConfig{
 			Enabled:      resolvedAutoPlan,
-			WhenModified: relativeDependencies,
+			WhenModified: uniqueStrings(relativeDependencies),
 		},
 	}
 
@@ -792,6 +825,8 @@ var gitRoot string
 var autoPlan bool
 var autoMerge bool
 var ignoreParentTerragrunt bool
+var createParentProject bool
+var includeParentChanges bool
 var ignoreDependencyBlocks bool
 var parallel bool
 var createWorkspace bool
@@ -828,6 +863,8 @@ func init() {
 	generateCmd.PersistentFlags().BoolVar(&autoPlan, "autoplan", false, "Enable auto plan. Default is disabled")
 	generateCmd.PersistentFlags().BoolVar(&autoMerge, "automerge", false, "Enable auto merge. Default is disabled")
 	generateCmd.PersistentFlags().BoolVar(&ignoreParentTerragrunt, "ignore-parent-terragrunt", true, "Ignore parent terragrunt configs (those which don't reference a terraform module). Default is enabled")
+	generateCmd.PersistentFlags().BoolVar(&createParentProject, "create-parent-project", false, "Create a project for the parent terragrunt configs (those which don't reference a terraform module). Default is disabled")
+	generateCmd.PersistentFlags().BoolVar(&includeParentChanges, "include-parent-changes", false, "Create a project for the parent terragrunt configs (those which don't reference a terraform module). Default is disabled")
 	generateCmd.PersistentFlags().BoolVar(&ignoreDependencyBlocks, "ignore-dependency-blocks", false, "When true, dependencies found in `dependency` blocks will be ignored")
 	generateCmd.PersistentFlags().BoolVar(&parallel, "parallel", true, "Enables plans and applys to happen in parallel. Default is enabled")
 	generateCmd.PersistentFlags().BoolVar(&createWorkspace, "create-workspace", false, "Use different workspace for each project. Default is use default workspace")
