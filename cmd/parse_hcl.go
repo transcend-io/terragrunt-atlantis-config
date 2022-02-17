@@ -11,7 +11,7 @@ import (
 
 type parsedHcl struct {
 	Terraform *terraformConfig `hcl:"terraform,block"`
-	Includes  *includeConfig   `hcl:"include,block"`
+	Includes  []*includeConfig `hcl:"include,block"`
 }
 
 type terraformConfig struct {
@@ -20,6 +20,7 @@ type terraformConfig struct {
 
 type includeConfig struct {
 	Path *string `hcl:"path,attr"`
+	Name string  `hcl:"name,label"`
 }
 
 // Not all modules need an include statement, as they could define everything in one file without a parent
@@ -54,8 +55,12 @@ func isParentModule(path string, terragruntOptions *options.TerragruntOptions) (
 	gohcl.DecodeBody(file.Body, evalContext, &parsed)
 
 	// If the file has an `includes` block, it cannot be a parent as terragrunt only allows one level of inheritance
-	if parsed.Includes != nil && parsed.Includes.Path != nil {
-		return false, nil
+	if parsed.Includes != nil && len(parsed.Includes) > 0 {
+		for _, include := range parsed.Includes {
+			if include.Path != nil {
+				return false, nil
+			}
+		}
 	}
 
 	// If the file does not define a terraform source block, it is likely a parent (though not guaranteed)
