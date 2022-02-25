@@ -7,6 +7,8 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - ../../../../terragrunt.hcl
+    - ../../../../_envcommon/mysql.hcl
     - ../../../account.hcl
     - ../../region.hcl
     - ../env.hcl
@@ -16,6 +18,8 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - ../../../../terragrunt.hcl
+    - ../../../../_envcommon/webserver-cluster.hcl
     - ../../../account.hcl
     - ../../region.hcl
     - ../env.hcl
@@ -25,6 +29,8 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - ../../../../terragrunt.hcl
+    - ../../../../_envcommon/mysql.hcl
     - ../../../account.hcl
     - ../../region.hcl
     - ../env.hcl
@@ -34,6 +40,8 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - ../../../../terragrunt.hcl
+    - ../../../../_envcommon/webserver-cluster.hcl
     - ../../../account.hcl
     - ../../region.hcl
     - ../env.hcl

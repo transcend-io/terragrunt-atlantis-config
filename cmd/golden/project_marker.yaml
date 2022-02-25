@@ -9,6 +9,7 @@ projects:
     - '*.tf*'
     - '**/*.hcl'
     - '**/*.tf*'
+    - ../../../terragrunt.hcl
     - ../../account.hcl
     - ../region.hcl
     - ../../arbitrary.hcl

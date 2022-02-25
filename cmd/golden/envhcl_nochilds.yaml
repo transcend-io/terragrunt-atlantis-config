@@ -9,6 +9,7 @@ projects:
     - '*.tf*'
     - '**/*.hcl'
     - '**/*.tf*'
+    - ../terragrunt.hcl
   dir: invalid_parent_module/child
 - autoplan:
     enabled: false
@@ -17,6 +18,7 @@ projects:
     - '*.tf*'
     - '**/*.hcl'
     - '**/*.tf*'
+    - ../../../terragrunt.hcl
   dir: multi_accounts_vpc_route53_tgw/network-account/eu-west-1/network
 - autoplan:
     enabled: false
@@ -25,6 +27,7 @@ projects:
     - '*.tf*'
     - '**/*.hcl'
     - '**/*.tf*'
+    - ../../../terragrunt.hcl
     - ../env-a/network/vpc/terragrunt.hcl
     - ../../../network-account/eu-west-1/network/transit-gateway/terragrunt.hcl
   dir: multi_accounts_vpc_route53_tgw/prod/eu-west-1/_global
@@ -35,6 +38,7 @@ projects:
     - '*.tf*'
     - '**/*.hcl'
     - '**/*.tf*'
+    - ../../../terragrunt.hcl
     - ../../../network-account/eu-west-1/network/transit-gateway/terragrunt.hcl
   dir: multi_accounts_vpc_route53_tgw/prod/eu-west-1/env-a
 - autoplan:
@@ -44,6 +48,7 @@ projects:
     - '*.tf*'
     - '**/*.hcl'
     - '**/*.tf*'
+    - ../../../terragrunt.hcl
     - ../stage/network/terragrunt.hcl
   dir: no_terraform_blocks/myproject/eu-south-1/infra
 - autoplan:
@@ -53,6 +58,7 @@ projects:
     - '*.tf*'
     - '**/*.hcl'
     - '**/*.tf*'
+    - ../../../terragrunt.hcl
   dir: no_terraform_blocks/myproject/eu-south-1/stage
 - autoplan:
     enabled: false
@@ -61,6 +67,7 @@ projects:
     - '*.tf*'
     - '**/*.hcl'
     - '**/*.tf*'
+    - ../../terragrunt.hcl
   dir: no_terraform_blocks/myproject/global
 - autoplan:
     enabled: false
@@ -69,6 +76,7 @@ projects:
     - '*.tf*'
     - '**/*.hcl'
     - '**/*.tf*'
+    - ../../../terragrunt.hcl
     - ../../account.hcl
     - ../region.hcl
     - ../../arbitrary.hcl
@@ -82,6 +90,7 @@ projects:
     - '*.tf*'
     - '**/*.hcl'
     - '**/*.tf*'
+    - ../../../terragrunt.hcl
     - ../../account.hcl
     - ../region.hcl
   dir: project_hcl_with_atlantis_locals/non-prod/us-east-1/stage
@@ -93,6 +102,7 @@ projects:
     - '*.tf*'
     - '**/*.hcl'
     - '**/*.tf*'
+    - ../../../terragrunt.hcl
     - ../../account.hcl
     - ../region.hcl
     - ../../arbitrary.hcl
@@ -106,6 +116,7 @@ projects:
     - '*.tf*'
     - '**/*.hcl'
     - '**/*.tf*'
+    - ../../../terragrunt.hcl
     - ../../account.hcl
     - ../region.hcl
   dir: project_hcl_with_project_marker/non-prod/us-east-1/stage
@@ -117,8 +128,11 @@ projects:
     - '*.tf*'
     - '**/*.hcl'
     - '**/*.tf*'
+    - ../../../terragrunt.hcl
+    - ../../../_envcommon/mysql.hcl
     - ../../account.hcl
     - ../region.hcl
+    - ../../../_envcommon/webserver-cluster.hcl
   dir: terragrunt-infrastructure-live-example/non-prod/us-east-1/qa
 - autoplan:
     enabled: false
@@ -127,8 +141,11 @@ projects:
     - '*.tf*'
     - '**/*.hcl'
     - '**/*.tf*'
+    - ../../../terragrunt.hcl
+    - ../../../_envcommon/mysql.hcl
     - ../../account.hcl
     - ../region.hcl
+    - ../../../_envcommon/webserver-cluster.hcl
   dir: terragrunt-infrastructure-live-example/non-prod/us-east-1/stage
 - autoplan:
     enabled: false
@@ -137,7 +154,10 @@ projects:
     - '*.tf*'
     - '**/*.hcl'
     - '**/*.tf*'
+    - ../../../terragrunt.hcl
+    - ../../../_envcommon/mysql.hcl
     - ../../account.hcl
     - ../region.hcl
+    - ../../../_envcommon/webserver-cluster.hcl
   dir: terragrunt-infrastructure-live-example/prod/us-east-1/prod
 version: 3

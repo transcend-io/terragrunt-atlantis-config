@@ -9,6 +9,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - ../terragrunt.hcl
   dir: child_that_does_not_override
 - apply_requirements:
   - mergeable
@@ -17,6 +18,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - ../terragrunt.hcl
   dir: child_that_overrides
 - apply_requirements: []
   autoplan:
@@ -24,6 +26,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - ../terragrunt.hcl
   dir: child_that_overrides_to_empty
 - autoplan:
     enabled: false
