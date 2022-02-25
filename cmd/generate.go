@@ -106,15 +106,7 @@ func lookupProjectHcl(m map[string][]string, value string) (key string) {
 	return key
 }
 
-// func stringInSlice(a string, list []string) bool {
-// 	for _, b := range list {
-// 		if b == a {
-// 			return true
-// 		}
-// 	}
-// 	return false
-// }
-
+// sliceUnion takes two slices of strings and produces a union of them, containing only unique values
 func sliceUnion(a, b []string) []string {
 	m := make(map[string]bool)
 
@@ -826,7 +818,6 @@ var autoPlan bool
 var autoMerge bool
 var ignoreParentTerragrunt bool
 var createParentProject bool
-var includeParentChanges bool
 var ignoreDependencyBlocks bool
 var parallel bool
 var createWorkspace bool
@@ -864,7 +855,6 @@ func init() {
 	generateCmd.PersistentFlags().BoolVar(&autoMerge, "automerge", false, "Enable auto merge. Default is disabled")
 	generateCmd.PersistentFlags().BoolVar(&ignoreParentTerragrunt, "ignore-parent-terragrunt", true, "Ignore parent terragrunt configs (those which don't reference a terraform module). Default is enabled")
 	generateCmd.PersistentFlags().BoolVar(&createParentProject, "create-parent-project", false, "Create a project for the parent terragrunt configs (those which don't reference a terraform module). Default is disabled")
-	generateCmd.PersistentFlags().BoolVar(&includeParentChanges, "include-parent-changes", false, "Create a project for the parent terragrunt configs (those which don't reference a terraform module). Default is disabled")
 	generateCmd.PersistentFlags().BoolVar(&ignoreDependencyBlocks, "ignore-dependency-blocks", false, "When true, dependencies found in `dependency` blocks will be ignored")
 	generateCmd.PersistentFlags().BoolVar(&parallel, "parallel", true, "Enables plans and applys to happen in parallel. Default is enabled")
 	generateCmd.PersistentFlags().BoolVar(&createWorkspace, "create-workspace", false, "Use different workspace for each project. Default is use default workspace")
