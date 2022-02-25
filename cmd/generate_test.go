@@ -34,6 +34,7 @@ func resetForRun() error {
 	createWorkspace = false
 	createProjectName = false
 	preserveWorkflows = true
+	preserveProjects = true
 	defaultWorkflow = ""
 	filterPath = ""
 	outputPath = ""
@@ -345,6 +346,53 @@ func TestPreservingOldWorkflows(t *testing.T) {
 	}
 
 	goldenContents, err := ioutil.ReadFile(filepath.Join("golden", "oldWorkflowsPreserved.yaml"))
+	if err != nil {
+		t.Error("Failed to read golden file")
+		return
+	}
+
+	if string(content) != string(goldenContents) {
+		t.Errorf("Content did not match golden file.\n\nExpected Content: %s\n\nContent: %s", string(goldenContents), string(content))
+	}
+}
+
+func TestPreservingOldProjects(t *testing.T) {
+	err := resetForRun()
+	if err != nil {
+		t.Error("Failed to reset default flags")
+		return
+	}
+
+	randomInt := rand.Int()
+	filename := filepath.Join("test_artifacts", fmt.Sprintf("%d.yaml", randomInt))
+	defer os.Remove(filename)
+
+	// Create an existing file to simulate an existing atlantis.yaml file
+	contents := []byte(`projects:
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+  dir: someDir
+  name: projectFromPreviousRun 
+`)
+	ioutil.WriteFile(filename, contents, 0644)
+
+	content, err := RunWithFlags(filename, []string{
+		"generate",
+		"--preserve-projects",
+		"--output",
+		filename,
+		"--root",
+		filepath.Join("..", "test_examples", "basic_module"),
+	})
+	if err != nil {
+		t.Error("Failed to read file")
+		return
+	}
+
+	goldenContents, err := ioutil.ReadFile(filepath.Join("golden", "oldProjectsPreserved.yaml"))
 	if err != nil {
 		t.Error("Failed to read golden file")
 		return

@@ -48,7 +48,7 @@ Then, make sure `terragrunt-atlantis-config` is present on your Atlantis server.
 
 ```hcl
 variable "terragrunt_atlantis_config_version" {
-  default = "1.12.5"
+  default = "1.13.0"
 }
 
 build {
@@ -122,6 +122,7 @@ One way to customize the behavior of this module is through CLI flag values pass
 | `--create-workspace`         | Use different auto-generated workspace for each project. Default is use default workspace for everything                                                                        | false             |
 | `--create-project-name`      | Add different auto-generated name for each project                                                                                                                              | false             |
 | `--preserve-workflows`       | Preserves workflows from old output files. Useful if you want to define your workflow definitions on the client side                                                            | true              |
+| `--preserve-projects`        | Preserves projects from old output files. Useful for incremental builds using `--filter` | false              |
 | `--workflow`                 | Name of the workflow to be customized in the atlantis server. If empty, will be left out of output                                                                              | ""                |
 | `--apply-requirements`    | Requirements that must be satisfied before `atlantis apply` can be run. Currently the only supported requirements are `approved` and `mergeable`. Can be overridden by locals   | []                |
 | `--output`                   | Path of the file where configuration will be generated. Typically, you want a file named "atlantis.yaml". Default is to write to `stdout`.                                      | ""                |
@@ -189,7 +190,7 @@ You can install this tool locally to checkout what kinds of config it will gener
 Recommended: Install any version via go get:
 
 ```bash
-cd && GO111MODULE=on go get github.com/transcend-io/terragrunt-atlantis-config@v1.12.5 && cd -
+cd && GO111MODULE=on go get github.com/transcend-io/terragrunt-atlantis-config@v1.13.0 && cd -
 ```
 
 This module officially supports golang versions v1.13, v1.14, v1.15, and v1.16, tested on CircleCI with each build
