@@ -669,6 +669,9 @@ func main(cmd *cobra.Command, args []string) error {
 	if oldConfig != nil && preserveWorkflows {
 		config.Workflows = oldConfig.Workflows
 	}
+	if oldConfig != nil && preserveProjects {
+		config.Projects = oldConfig.Projects
+	}
 
 	lock := sync.Mutex{}
 	ctx := context.Background()
