@@ -82,7 +82,7 @@ func runTest(t *testing.T, goldenFile string, args []string) {
 		return
 	}
 
-	assert.Equal(t, content, goldenContents)
+	assert.Equal(t, goldenContents, content)
 }
 
 func TestSettingRoot(t *testing.T) {

@@ -1,6 +1,6 @@
 module github.com/transcend-io/terragrunt-atlantis-config
 
-go 1.14
+go 1.16
 
 require (
 	github.com/bmatcuk/doublestar v1.3.1 // indirect

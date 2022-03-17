@@ -138,7 +138,7 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 			getDependenciesCache.set(path, getDependenciesOutput{nil, err})
 			return nil, err
 		}
-		if isParent && !createParentProject && ignoreParentTerragrunt {
+		if isParent && ignoreParentTerragrunt {
 			getDependenciesCache.set(path, getDependenciesOutput{nil, nil})
 			return nil, nil
 		}
