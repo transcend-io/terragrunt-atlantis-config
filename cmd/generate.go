@@ -694,6 +694,9 @@ func main(cmd *cobra.Command, args []string) error {
 	if oldConfig != nil && preserveWorkflows {
 		config.Workflows = oldConfig.Workflows
 	}
+	if oldConfig != nil && preserveProjects {
+		config.Projects = oldConfig.Projects
+	}
 
 	lock := sync.Mutex{}
 	ctx := context.Background()
@@ -827,6 +830,7 @@ var defaultWorkflow string
 var filterPath string
 var outputPath string
 var preserveWorkflows bool
+var preserveProjects bool
 var cascadeDependencies bool
 var defaultApplyRequirements []string
 var numExecutors int64
@@ -860,6 +864,7 @@ func init() {
 	generateCmd.PersistentFlags().BoolVar(&createWorkspace, "create-workspace", false, "Use different workspace for each project. Default is use default workspace")
 	generateCmd.PersistentFlags().BoolVar(&createProjectName, "create-project-name", false, "Add different name for each project. Default is false")
 	generateCmd.PersistentFlags().BoolVar(&preserveWorkflows, "preserve-workflows", true, "Preserves workflows from old output files. Default is true")
+	generateCmd.PersistentFlags().BoolVar(&preserveProjects, "preserve-projects", false, "Preserves projects from old output files to enable incremental builds. Default is false")
 	generateCmd.PersistentFlags().BoolVar(&cascadeDependencies, "cascade-dependencies", true, "When true, dependencies will cascade, meaning that a module will be declared to depend not only on its dependencies, but all dependencies of its dependencies all the way down. Default is true")
 	generateCmd.PersistentFlags().StringVar(&defaultWorkflow, "workflow", "", "Name of the workflow to be customized in the atlantis server. Default is to not set")
 	generateCmd.PersistentFlags().StringSliceVar(&defaultApplyRequirements, "apply-requirements", []string{}, "Requirements that must be satisfied before `atlantis apply` can be run. Currently the only supported requirements are `approved` and `mergeable`. Can be overridden by locals")
