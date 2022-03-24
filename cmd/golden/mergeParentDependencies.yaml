@@ -7,6 +7,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - ../../parent/terragrunt.hcl
     - some_parent_dep
     - ../file_in_parent_of_child.json
     - ../../parent/folder_under_parent/common_tags.hcl
@@ -17,6 +18,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - ../../parent/terragrunt.hcl
     - some_parent_dep
     - local_tags.yaml
     - ../file_in_parent_of_child.json

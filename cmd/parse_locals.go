@@ -6,6 +6,7 @@ package cmd
 
 import (
 	"github.com/gruntwork-io/terragrunt/config"
+	"github.com/gruntwork-io/terragrunt/errors"
 	"github.com/gruntwork-io/terragrunt/options"
 	"github.com/gruntwork-io/terragrunt/util"
 	"github.com/hashicorp/hcl/v2"
@@ -41,6 +42,14 @@ type ResolvedLocals struct {
 
 // parseHcl uses the HCL2 parser to parse the given string into an HCL file body.
 func parseHcl(parser *hclparse.Parser, hcl string, filename string) (file *hcl.File, err error) {
+	// The HCL2 parser and especially cty conversions will panic in many types of errors, so we have to recover from
+	// those panics here and convert them to normal errors
+	defer func() {
+		if recovered := recover(); recovered != nil {
+			err = errors.WithStackTrace(config.PanicWhileParsingConfig{RecoveredValue: recovered, ConfigFile: filename})
+		}
+	}()
+
 	if filepath.Ext(filename) == ".json" {
 		file, parseDiagnostics := parser.ParseJSON([]byte(hcl), filename)
 		if parseDiagnostics != nil && parseDiagnostics.HasErrors() {
@@ -104,8 +113,7 @@ func parseLocals(path string, terragruntOptions *options.TerragruntOptions, incl
 	}
 
 	// Decode just the Base blocks. See the function docs for DecodeBaseBlocks for more info on what base blocks are.
-	decodeSectionTypes := []config.PartialDecodeSectionType{}
-	localsAsCty, trackInclude, err := config.DecodeBaseBlocks(terragruntOptions, parser, file, path, includeFromChild, decodeSectionTypes)
+	localsAsCty, trackInclude, err := config.DecodeBaseBlocks(terragruntOptions, parser, file, path, includeFromChild, nil)
 	if err != nil {
 		return ResolvedLocals{}, err
 	}

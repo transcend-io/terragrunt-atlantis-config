@@ -1,20 +1,19 @@
-
 name: Build and test code
-on: [ push, pull_request ]
+on: [push, pull_request]
 
 jobs:
   run-tests:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        golang-version: [1.13, 1.14, 1.15, 1.16]
+        golang-version: [1.13, 1.14, 1.15, 1.16, 1.17]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
       - name: Setup golang v${{ matrix.golang-version }}
         uses: actions/setup-go@v2
         with:
-          go-version: '^${{ matrix.golang-version }}'
+          go-version: "^${{ matrix.golang-version }}"
       - uses: actions/cache@v2
         with:
           path: ~/go/pkg/mod

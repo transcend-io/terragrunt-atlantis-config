@@ -1,6 +1,6 @@
 module github.com/transcend-io/terragrunt-atlantis-config
 
-go 1.14
+go 1.16
 
 require (
 	github.com/bmatcuk/doublestar v1.3.1 // indirect
@@ -8,7 +8,7 @@ require (
 	github.com/go-errors/errors v1.1.1 // indirect
 	github.com/gruntwork-io/terragrunt v0.36.1
 	github.com/hashicorp/go-getter v1.5.9
-	github.com/hashicorp/hcl/v2 v2.10.0
+	github.com/hashicorp/hcl/v2 v2.11.1
 	github.com/hashicorp/terraform-config-inspect v0.0.0-20210625153042-09f34846faab
 	github.com/howeyc/gopass v0.0.0-20190910152052-7cb4b85ec19c // indirect
 	github.com/imdario/mergo v0.3.12 // indirect

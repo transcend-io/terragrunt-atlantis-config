@@ -13,5 +13,6 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - ../terragrunt.hcl
   dir: child
 version: 3
