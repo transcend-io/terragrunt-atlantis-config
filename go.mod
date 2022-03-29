@@ -6,7 +6,7 @@ require (
 	github.com/bmatcuk/doublestar v1.3.1 // indirect
 	github.com/ghodss/yaml v1.0.1-0.20190212211648-25d852aebe32
 	github.com/go-errors/errors v1.1.1 // indirect
-	github.com/gruntwork-io/terragrunt v0.36.1
+	github.com/gruntwork-io/terragrunt v0.36.6
 	github.com/hashicorp/go-getter v1.5.9
 	github.com/hashicorp/hcl/v2 v2.11.1
 	github.com/hashicorp/terraform-config-inspect v0.0.0-20210625153042-09f34846faab
