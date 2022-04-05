@@ -315,6 +315,31 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 	}
 }
 
+func createProjects(sourcePath string) ([]AtlantisProject, error) {
+	if len(workspaces) == 0 {
+		project, err := createProject(sourcePath)
+		if err != nil || project == nil {
+			return []AtlantisProject{}, err
+		}
+
+		return []AtlantisProject{*project}, nil
+	}
+
+	var projects []AtlantisProject
+	for _, workspace := range workspaces {
+		project, err := createProject(sourcePath)
+		if err != nil {
+			return nil, err
+		}
+		if project != nil {
+			project.Workspace = workspace
+			projects = append(projects, *project)
+		}
+	}
+
+	return projects, nil
+}
+
 // Creates an AtlantisProject for a directory
 func createProject(sourcePath string) (*AtlantisProject, error) {
 	options, err := options.NewTerragruntOptionsWithConfigPath(sourcePath)
@@ -729,13 +754,9 @@ func main(cmd *cobra.Command, args []string) error {
 
 				errGroup.Go(func() error {
 					defer sem.Release(1)
-					project, err := createProject(terragruntPath)
+					projects, err := createProjects(terragruntPath)
 					if err != nil {
 						return err
-					}
-					// if project and err are nil then skip this project
-					if err == nil && project == nil {
-						return nil
 					}
 
 					// Lock the list as only one goroutine should be writing to config.Projects at a time
@@ -749,24 +770,30 @@ func main(cmd *cobra.Command, args []string) error {
 
 						// TODO: with Go 1.19, we can replace for loop with slices.IndexFunc for increased performance
 						for i := range config.Projects {
-							if config.Projects[i].Dir == project.Dir {
-								updateProject = true
-								log.Info("Updated project for ", terragruntPath)
-								config.Projects[i] = *project
+							for j := range projects {
+								if config.Projects[i].Dir == projects[j].Dir && config.Projects[i].Workspace == projects[j].Workspace {
+									updateProject = true
+									log.Info("Updated project for ", terragruntPath)
+									config.Projects[i] = projects[j]
 
-								// projects should be unique, let's exit for loop for performance
-								// once first occurrence is found and replaced
+									// projects should be unique, let's exit for loop for performance
+									// once first occurrence is found and replaced
+									break
+								}
+							}
+
+							if updateProject {
 								break
 							}
 						}
 
 						if !updateProject {
 							log.Info("Created project for ", terragruntPath)
-							config.Projects = append(config.Projects, *project)
+							config.Projects = append(config.Projects, projects...)
 						}
 					} else {
 						log.Info("Created project for ", terragruntPath)
-						config.Projects = append(config.Projects, *project)
+						config.Projects = append(config.Projects, projects...)
 					}
 
 					return nil
@@ -895,6 +922,7 @@ var createParentProject bool
 var ignoreDependencyBlocks bool
 var parallel bool
 var createWorkspace bool
+var workspaces []string
 var createProjectName bool
 var defaultTerraformVersion string
 var defaultWorkflow string
@@ -934,6 +962,7 @@ func init() {
 	generateCmd.PersistentFlags().BoolVar(&ignoreDependencyBlocks, "ignore-dependency-blocks", false, "When true, dependencies found in `dependency` blocks will be ignored")
 	generateCmd.PersistentFlags().BoolVar(&parallel, "parallel", true, "Enables plans and applys to happen in parallel. Default is enabled")
 	generateCmd.PersistentFlags().BoolVar(&createWorkspace, "create-workspace", false, "Use different workspace for each project. Default is use default workspace")
+	generateCmd.PersistentFlags().StringSliceVar(&workspaces, "workspace", []string{}, "Add this workspace for each project. Default is to not specify a workspace")
 	generateCmd.PersistentFlags().BoolVar(&createProjectName, "create-project-name", false, "Add different name for each project. Default is false")
 	generateCmd.PersistentFlags().BoolVar(&preserveWorkflows, "preserve-workflows", true, "Preserves workflows from old output files. Default is true")
 	generateCmd.PersistentFlags().BoolVar(&preserveProjects, "preserve-projects", false, "Preserves projects from old output files to enable incremental builds. Default is false")
@@ -955,6 +984,10 @@ func init() {
 // Runs a set of arguments, returning the output
 func RunWithFlags(filename string, args []string) ([]byte, error) {
 	rootCmd.SetArgs(args)
+
+	if createWorkspace && len(workspaces) > 0 {
+		log.Fatal("--workspace and --create-workspace are mutually exclusive")
+	}
 	rootCmd.Execute()
 
 	return os.ReadFile(filename)
