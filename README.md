@@ -187,10 +187,10 @@ However, there is one exception where the values are merged, which is the `atlan
 
 You can install this tool locally to checkout what kinds of config it will generate for your repo, though in production it is recommended to [install this tool directly onto your Atlantis server](##integrate-into-your-atlantis-server)
 
-Recommended: Install any version via go get:
+Recommended: Install any version via go install:
 
 ```bash
-cd && GO111MODULE=on go get github.com/transcend-io/terragrunt-atlantis-config@v1.14.2 && cd -
+go install github.com/transcend-io/terragrunt-atlantis-config@v1.14.2
 ```
 
 This module officially supports golang versions v1.13, v1.14, v1.15, and v1.16, tested on CircleCI with each build
