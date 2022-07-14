@@ -113,7 +113,7 @@ If you specify `extra_atlantis_dependencies` in the parent Terragrunt module, th
 One way to customize the behavior of this module is through CLI flag values passed in at runtime. These settings will apply to all modules.
 
 | Flag Name                    | Description                                                                                                                                                                     | Default Value     |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- |
+|------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------|
 | `--autoplan`                 | The default value for autoplan settings. Can be overriden by locals.                                                                                                            | false             |
 | `--automerge`                | Enables the automerge setting for a repo.                                                                                                                                       | false             |
 | `--cascade-dependencies`     | When true, dependencies will cascade, meaning that a module will be declared to depend not only on its dependencies, but all dependencies of its dependencies all the way down. | true              |
@@ -122,15 +122,16 @@ One way to customize the behavior of this module is through CLI flag values pass
 | `--create-workspace`         | Use different auto-generated workspace for each project. Default is use default workspace for everything                                                                        | false             |
 | `--create-project-name`      | Add different auto-generated name for each project                                                                                                                              | false             |
 | `--preserve-workflows`       | Preserves workflows from old output files. Useful if you want to define your workflow definitions on the client side                                                            | true              |
-| `--preserve-projects`        | Preserves projects from old output files. Useful for incremental builds using `--filter` | false              |
+| `--preserve-projects`        | Preserves projects from old output files. Useful for incremental builds using `--filter`                                                                                        | false             |
 | `--workflow`                 | Name of the workflow to be customized in the atlantis server. If empty, will be left out of output                                                                              | ""                |
-| `--apply-requirements`    | Requirements that must be satisfied before `atlantis apply` can be run. Currently the only supported requirements are `approved` and `mergeable`. Can be overridden by locals   | []                |
+| `--apply-requirements`       | Requirements that must be satisfied before `atlantis apply` can be run. Currently the only supported requirements are `approved` and `mergeable`. Can be overridden by locals   | []                |
 | `--output`                   | Path of the file where configuration will be generated. Typically, you want a file named "atlantis.yaml". Default is to write to `stdout`.                                      | ""                |
 | `--root`                     | Path to the root directory of the git repo you want to build config for.                                                                                                        | current directory |
 | `--terraform-version`        | Default terraform version to specify for all modules. Can be overriden by locals                                                                                                | ""                |
 | `--ignore-dependency-blocks` | When true, dependencies found in `dependency` and `dependencies` blocks will be ignored                                                                                         | false             |
-| `--filter`                   | Path or glob expression to the directory you want scope down the config for. Default is all files in root                                                                                          | ""                |
-| `--num-executors`                   | Number of executors used for parallel generation of projects. Default is 15                                                                                          | 15                |
+| `--filter`                   | Path or glob expression to the directory you want scope down the config for. Default is all files in root                                                                       | ""                |
+| `--num-executors`            | Number of executors used for parallel generation of projects. Default is 15                                                                                                     | 15                |
+| `--execution-order-groups`   | Computes execution_order_group for projects                                                                                                                                     | false             |
 
 ## Project generation
 

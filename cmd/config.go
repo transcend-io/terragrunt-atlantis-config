@@ -52,6 +52,9 @@ type AtlantisProject struct {
 
 	// We only want to output `apply_requirements` if explicitly stated in a local value
 	ApplyRequirements *[]string `json:"apply_requirements,omitempty"`
+
+	// Atlantis use ExecutionOrderGroup for sort projects before applying/planning
+	ExecutionOrderGroup int `json:"execution_order_group,omitempty"`
 }
 
 // Autoplan settings for which plans affect other plans
