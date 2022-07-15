@@ -790,8 +790,60 @@ func main(cmd *cobra.Command, args []string) error {
 			}
 		}
 	}
+
 	// Sort the projects in config by Dir
 	sort.Slice(config.Projects, func(i, j int) bool { return config.Projects[i].Dir < config.Projects[j].Dir })
+
+	if executionOrderGroups {
+		projectsMap := make(map[string]*AtlantisProject, len(config.Projects))
+		for i := range config.Projects {
+			projectsMap[config.Projects[i].Dir] = &config.Projects[i]
+		}
+
+		// Compute order groups in the cycle to avoid incorrect values in cascade dependencies
+		hasChanges := true
+		for i := 0; hasChanges && i <= len(config.Projects); i++ {
+			hasChanges = false
+			for _, project := range config.Projects {
+				executionOrderGroup := 0
+				// choose order group based on dependencies
+				for _, dep := range project.Autoplan.WhenModified {
+					depPath := filepath.Dir(filepath.Join(project.Dir, dep))
+					if depPath == project.Dir {
+						// skip dependency on oneself
+						continue
+					}
+
+					depProject, ok := projectsMap[depPath]
+					if !ok {
+						// skip not project dependencies
+						continue
+					}
+					if depProject.ExecutionOrderGroup+1 > executionOrderGroup {
+						executionOrderGroup = depProject.ExecutionOrderGroup + 1
+					}
+				}
+				if projectsMap[project.Dir].ExecutionOrderGroup != executionOrderGroup {
+					projectsMap[project.Dir].ExecutionOrderGroup = executionOrderGroup
+					// repeat the main cycle when changed some project
+					hasChanges = true
+				}
+			}
+		}
+
+		if hasChanges {
+			// Should be unreachable
+			log.Warn("Computing execution_order_groups failed. Probably cycle exists")
+		}
+
+		// Sort by execution_order_group
+		sort.Slice(config.Projects, func(i, j int) bool {
+			if config.Projects[i].ExecutionOrderGroup == config.Projects[j].ExecutionOrderGroup {
+				return config.Projects[i].Dir < config.Projects[j].Dir
+			}
+			return config.Projects[i].ExecutionOrderGroup < config.Projects[j].ExecutionOrderGroup
+		})
+	}
 
 	// Convert config to YAML string
 	yamlBytes, err := yaml.Marshal(&config)
@@ -838,6 +890,7 @@ var projectHclFiles []string
 var createHclProjectChilds bool
 var createHclProjectExternalChilds bool
 var useProjectMarkers bool
+var executionOrderGroups bool
 
 // generateCmd represents the generate command
 var generateCmd = &cobra.Command{
@@ -877,6 +930,7 @@ func init() {
 	generateCmd.PersistentFlags().BoolVar(&createHclProjectChilds, "create-hcl-project-childs", false, "Creates Atlantis projects for terragrunt child modules below the directories containing the HCL files defined in --project-hcl-files")
 	generateCmd.PersistentFlags().BoolVar(&createHclProjectExternalChilds, "create-hcl-project-external-childs", true, "Creates Atlantis projects for terragrunt child modules outside the directories containing the HCL files defined in --project-hcl-files")
 	generateCmd.PersistentFlags().BoolVar(&useProjectMarkers, "use-project-markers", false, "Creates Atlantis projects only for project hcl files with locals: atlantis_project = true")
+	generateCmd.PersistentFlags().BoolVar(&executionOrderGroups, "execution-order-groups", false, "Computes execution_order_groups for projects")
 }
 
 // Runs a set of arguments, returning the output

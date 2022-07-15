@@ -616,3 +616,11 @@ func TestWithOriginalDir(t *testing.T) {
 		filepath.Join("..", "test_examples", "with_original_dir"),
 	})
 }
+
+func TestWithExecutionOrderGroups(t *testing.T) {
+	runTest(t, filepath.Join("golden", "withExecutionOrderGroups.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "chained_dependencies"),
+		"--execution-order-groups",
+	})
+}
