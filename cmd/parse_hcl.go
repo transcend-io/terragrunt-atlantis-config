@@ -9,6 +9,8 @@ import (
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/hashicorp/hcl/v2/hclwrite"
+
+	"path/filepath"
 )
 
 const bareIncludeKey = ""
@@ -71,17 +73,20 @@ func decodeHcl(
 	}()
 
 	// Check if we need to update the file to label any bare include blocks.
-	updatedBytes, isUpdated, err := updateBareIncludeBlock(file, filename)
-	if err != nil {
-		return err
-	}
-	if isUpdated {
-		// Code was updated, so we need to reparse the new updated contents. This is necessarily because the blocks
-		// returned by hclparse does not support editing, and so we have to go through hclwrite, which leads to a
-		// different AST representation.
-		file, err = parseHcl(hclparse.NewParser(), string(updatedBytes), filename)
+	// Excluding json because of https://github.com/transcend-io/terragrunt-atlantis-config/issues/244.
+	if filepath.Ext(filename) != ".json" {
+		updatedBytes, isUpdated, err := updateBareIncludeBlock(file, filename)
 		if err != nil {
 			return err
+		}
+		if isUpdated {
+			// Code was updated, so we need to reparse the new updated contents. This is necessarily because the blocks
+			// returned by hclparse does not support editing, and so we have to go through hclwrite, which leads to a
+			// different AST representation.
+			file, err = parseHcl(hclparse.NewParser(), string(updatedBytes), filename)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
