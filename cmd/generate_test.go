@@ -30,6 +30,7 @@ func resetForRun() error {
 	cascadeDependencies = true
 	ignoreParentTerragrunt = true
 	ignoreDependencyBlocks = false
+	ignoreIncludeBlocks = false
 	parallel = true
 	createWorkspace = false
 	createProjectName = false
@@ -199,6 +200,21 @@ func TestIgnoringTerragruntDependencies(t *testing.T) {
 		"--root",
 		filepath.Join("..", "test_examples", "terragrunt_dependency"),
 		"--ignore-dependency-blocks",
+	})
+}
+
+func TestTerragruntIncludes(t *testing.T) {
+	runTest(t, filepath.Join("golden", "terragrunt_include.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "terragrunt_include"),
+	})
+}
+
+func TestIgnoringTerragruntIncludes(t *testing.T) {
+	runTest(t, filepath.Join("golden", "terragrunt_include_ignored.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "terragrunt_include"),
+		"--ignore-include-blocks",
 	})
 }
 
