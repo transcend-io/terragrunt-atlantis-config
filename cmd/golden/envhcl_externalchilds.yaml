@@ -564,6 +564,13 @@ projects:
 - autoplan:
     enabled: false
     when_modified:
+      - '*.hcl'
+      - '*.tf*'
+      - ../include.hcl
+  dir: terragrunt_include/includer
+- autoplan:
+    enabled: false
+    when_modified:
     - '*.hcl'
     - '*.tf*'
     - ../terragrunt.hcl
