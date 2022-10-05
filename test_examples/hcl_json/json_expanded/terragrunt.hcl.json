@@ -1,0 +1,38 @@
+{
+  "include": [
+    {
+      "": [
+        {
+            "path": "${find_in_parent_folders()}"
+        }
+      ]
+    }
+  ],  
+  "terraform": [
+      {
+        "source": "git::https://github.com/"
+      }
+    ],
+    "locals": {
+      "atlantis_workflow": "terragruntjson"
+    },
+    "dependency": [
+      {
+        "project": [
+          {
+            "config_path": "${get_parent_terragrunt_dir()}/someRandomDir"
+          }
+        ]
+      }
+    ],
+    "inputs": {
+      "autoscaler_name": "mig-autoscaler",
+      "autoscaling_mode": "ON",
+      "cooldown_period": 60,
+      "profile": "cy",
+      "project_id": "${dependency.project.outputs.project_id}",
+      "region": "asia-east1",
+      "target_size": 2,
+      "update_policy": []
+    }
+  }
