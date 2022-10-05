@@ -747,8 +747,32 @@ func main(cmd *cobra.Command, args []string) error {
 					lock.Lock()
 					defer lock.Unlock()
 
-					log.Info("Created project for ", terragruntPath)
-					config.Projects = append(config.Projects, *project)
+					// When preserving existing projects, we should update existing blocks instead of creating a
+					// duplicate, when generating something which already has representation
+					if preserveProjects {
+						updateProject := false
+
+						// TODO: with Go 1.19, we can replace for loop with slices.IndexFunc for increased performance
+						for i := range config.Projects {
+							if config.Projects[i].Dir == project.Dir {
+								updateProject = true
+								log.Info("Updated project for ", terragruntPath)
+								config.Projects[i] = *project
+
+								// projects should be unique, let's exit for loop for performance
+								// once first occurrence is found and replaced
+								break
+							}
+						}
+
+						if !updateProject {
+							log.Info("Created project for ", terragruntPath)
+							config.Projects = append(config.Projects, *project)
+						}
+					} else {
+						log.Info("Created project for ", terragruntPath)
+						config.Projects = append(config.Projects, *project)
+					}
 
 					return nil
 				})
