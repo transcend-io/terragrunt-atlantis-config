@@ -349,7 +349,7 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 		return nil, nil
 	}
 
-	// All dependencies depend on their own .hcl file, and any tf files in their directory
+	// All dependencies depend on their own .hcl file, and any tf or hcl.json files in their directory
 	relativeDependencies := []string{
 		"*.hcl",
 		"*.tf*",
