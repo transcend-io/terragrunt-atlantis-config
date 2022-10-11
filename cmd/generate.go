@@ -353,6 +353,7 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 	relativeDependencies := []string{
 		"*.hcl",
 		"*.tf*",
+		"*.hcl.json",
 	}
 
 	// Add other dependencies based on their relative paths. We always want to output with Unix path separators
