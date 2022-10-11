@@ -374,6 +374,7 @@ func TestPreservingOldProjects(t *testing.T) {
     when_modified:
     - '*.hcl'
     - '*.tf*'
+	- '*.hcl.json'
   dir: someDir
   name: projectFromPreviousRun 
 `)
