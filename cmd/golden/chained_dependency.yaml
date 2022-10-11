@@ -7,12 +7,14 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
   dir: dependency
 - autoplan:
     enabled: false
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - ../dependency/terragrunt.hcl
   dir: depender
 - autoplan:
@@ -20,6 +22,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - ../depender/terragrunt.hcl
     - ../dependency/terragrunt.hcl
     - nested/terragrunt.hcl
@@ -29,6 +32,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - ../../dependency/terragrunt.hcl
   dir: depender_on_depender/nested
 version: 3

@@ -513,12 +513,14 @@ func createHclProject(sourcePaths []string, workingDir string, projectHcl string
 			return nil, nil
 		}
 
-		// All dependencies depend on their own .hcl file, and any tf files in their directory
+		// All dependencies depend on their own .hcl file, and any tf or hcl.json files in their directory
 		relativeDependencies := []string{
 			"*.hcl",
 			"*.tf*",
+			"*.hcl.json",
 			"**/*.hcl",
 			"**/*.tf*",
+			"**/*.hcl.json",
 		}
 
 		// Add other dependencies based on their relative paths. We always want to output with Unix path separators
