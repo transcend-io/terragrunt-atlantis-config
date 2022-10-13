@@ -75,11 +75,6 @@ func runTest(t *testing.T, goldenFile string, args []string) {
 		return
 	}
 
-	if goldenFile == filepath.Join("golden", "withParent.yaml") {
-		os.Stdout.WriteString(fmt.Sprintf("allArgs:\n%#v\n", allArgs))
-		os.Stdout.WriteString(fmt.Sprintf("file:\n%#v\n", content))
-	}
-
 	goldenContentsBytes, err := ioutil.ReadFile(goldenFile)
 	goldenContents := &AtlantisConfig{}
 	yaml.Unmarshal(goldenContentsBytes, goldenContents)
