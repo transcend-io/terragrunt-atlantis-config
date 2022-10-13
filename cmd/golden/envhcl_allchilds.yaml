@@ -118,6 +118,12 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+  dir: custom_project_name/projectA
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
   dir: different_workflow_names/defaultWorkflow
 - autoplan:
     enabled: false

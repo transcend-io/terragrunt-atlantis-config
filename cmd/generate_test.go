@@ -235,6 +235,14 @@ func TestWithProjectNames(t *testing.T) {
 	})
 }
 
+func TestCustomProjectName(t *testing.T) {
+	runTest(t, filepath.Join("golden", "custom_project_name.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "custom_project_name"),
+		"--create-project-name",
+	})
+}
+
 func TestMergingLocalDependenciesFromParent(t *testing.T) {
 	runTest(t, filepath.Join("golden", "mergeParentDependencies.yaml"), []string{
 		"--root",
