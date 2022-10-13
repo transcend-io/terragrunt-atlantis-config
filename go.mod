@@ -1,6 +1,6 @@
 module github.com/transcend-io/terragrunt-atlantis-config
 
-go 1.16
+go 1.18
 
 require (
 	github.com/bmatcuk/doublestar v1.3.1 // indirect
@@ -14,7 +14,7 @@ require (
 	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/mattn/go-zglob v0.0.2 // indirect
 	github.com/sirupsen/logrus v1.6.0
-	github.com/spf13/cobra v0.0.5
+	github.com/spf13/cobra v1.6.0
 	github.com/stretchr/testify v1.7.0
 	github.com/urfave/cli v1.22.4 // indirect
 	github.com/zclconf/go-cty v1.8.3
