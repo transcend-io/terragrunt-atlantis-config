@@ -1,4 +1,6 @@
-VERSION=1.16.0
+# Will use the default value beta if the environment variable doesn't exist
+TAG_VERSION?=beta
+
 PATH_BUILD=build/
 FILE_COMMAND=terragrunt-atlantis-config
 FILE_ARCH=darwin_amd64
@@ -19,9 +21,9 @@ build: clean
 	CGO_ENABLED=0 \
 	goxc \
     -bc="darwin,amd64" \
-    -pv=$(VERSION) \
+    -pv=$(TAG_VERSION) \
     -d=$(PATH_BUILD) \
-    -build-ldflags "-X main.VERSION=$(VERSION)"
+    -build-ldflags "-X main.VERSION=$(TAG_VERSION)"
 
 .PHONY: build-all
 build-all: clean
@@ -29,9 +31,9 @@ build-all: clean
 	goxc \
 	-os="$(XC_OS)" \
 	-arch="$(XC_ARCH)" \
-    -pv=$(VERSION) \
+    -pv=$(TAG_VERSION) \
     -d=$(PATH_BUILD) \
-    -build-ldflags "-X main.VERSION=$(VERSION)"
+    -build-ldflags "-X main.VERSION=$(TAG_VERSION)"
 
 .PHONY: gotestsum
 gotestsum:
@@ -47,14 +49,14 @@ test:
 
 .PHONY: version
 version:
-	@echo $(VERSION)
+	@echo $(TAG_VERSION)
 
 .PHONY: sign
 sign:  build-all
-	rm -f $(PATH_BUILD)${VERSION}/SHA256SUMS
-	shasum -a256 $(PATH_BUILD)${VERSION}/* > $(PATH_BUILD)${VERSION}/SHA256SUMS
+	rm -f $(PATH_BUILD)${TAG_VERSION}/SHA256SUMS
+	cd $(PATH_BUILD)${TAG_VERSION} && shasum -a256 * > SHA256SUMS
 
 .PHONY: install
 install:
 	install -d -m 755 '$(HOME)/bin/'
-	install $(PATH_BUILD)$(FILE_COMMAND)/$(VERSION)/$(FILE_COMMAND)_$(VERSION)_$(FILE_ARCH) '$(HOME)/bin/$(FILE_COMMAND)'
+	install $(PATH_BUILD)$(FILE_COMMAND)/$(TAG_VERSION)/$(FILE_COMMAND)_$(TAG_VERSION)_$(FILE_ARCH) '$(HOME)/bin/$(FILE_COMMAND)'

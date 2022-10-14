@@ -1,4 +1,4 @@
-name: release
+name: Release
 
 on:
   push:
@@ -29,28 +29,21 @@ jobs:
           key: ubuntu-latest-1.16-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ubuntu-latest-1.16-go-
-      
-      # build binaries for all supported environments
-      - run: sudo apt update && sudo apt install -y make
-      - run: make build-all
-
-      # Create the binary checksums
-      - name: Get the version
+      - name: Get the tag version
         id: get_version
-        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/v}
-      - uses: tristan-weil/ghaction-checksum-sign-artifact@v1
-        id: checksums
-        with:
-          path: 'build/${{ steps.get_version.outputs.VERSION }}/*'
-          checksum_digests: sha256,sha512
-          checksum_format: gnu
-          checksum_output: one_file_per_digest
-
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+      # build binaries for all supported environments
+      - name: Build and sign
+        run: |
+          sudo apt update && sudo apt install -y make
+          make sign
+        env:
+          TAG_VERSION: ${{ env.VERSION }}
       # Create the release
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
           files: |
-            build/${{ steps.get_version.outputs.VERSION }}/*
-            ${{ steps.checksums.outputs.generated-files }}
+            build/${{ env.VERSION }}/*
+
