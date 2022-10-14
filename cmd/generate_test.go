@@ -67,6 +67,7 @@ func runTest(t *testing.T, goldenFile string, args []string) {
 	}, args...)
 
 	contentBytes, err := RunWithFlags(filename, allArgs)
+
 	content := &AtlantisConfig{}
 	yaml.Unmarshal(contentBytes, content)
 	if err != nil {
@@ -231,6 +232,14 @@ func TestWithProjectNames(t *testing.T) {
 	runTest(t, filepath.Join("golden", "withProjectName.yaml"), []string{
 		"--root",
 		filepath.Join("..", "test_examples", "invalid_parent_module"),
+		"--create-project-name",
+	})
+}
+
+func TestCustomProjectName(t *testing.T) {
+	runTest(t, filepath.Join("golden", "custom_project_name.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "custom_project_name"),
 		"--create-project-name",
 	})
 }
