@@ -21,6 +21,9 @@ type ResolvedLocals struct {
 	// The Atlantis workflow to use for some project
 	AtlantisWorkflow string
 
+	// The Atlantis project name to use for some project
+	AtlantisProjectName string
+
 	// Apply requirements to override the global `--apply-requirements` flag
 	ApplyRequirements []string
 
@@ -71,6 +74,10 @@ func parseHcl(parser *hclparse.Parser, hcl string, filename string) (file *hcl.F
 func mergeResolvedLocals(parent ResolvedLocals, child ResolvedLocals) ResolvedLocals {
 	if child.AtlantisWorkflow != "" {
 		parent.AtlantisWorkflow = child.AtlantisWorkflow
+	}
+
+	if child.AtlantisProjectName != "" {
+		parent.AtlantisProjectName = child.AtlantisProjectName
 	}
 
 	if child.TerraformVersion != "" {
@@ -143,6 +150,11 @@ func resolveLocals(localsAsCty cty.Value) ResolvedLocals {
 	workflowValue, ok := rawLocals["atlantis_workflow"]
 	if ok {
 		resolved.AtlantisWorkflow = workflowValue.AsString()
+	}
+
+	projectNameValue, ok := rawLocals["atlantis_project_name"]
+	if ok {
+		resolved.AtlantisProjectName = projectNameValue.AsString()
 	}
 
 	versionValue, ok := rawLocals["atlantis_terraform_version"]
