@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/ghodss/yaml"
@@ -35,7 +36,7 @@ func resetForRun() error {
 	preserveWorkflows = true
 	preserveProjects = true
 	defaultWorkflow = ""
-	filterPath = ""
+	filterPaths = []string{}
 	outputPath = ""
 	defaultTerraformVersion = ""
 	defaultApplyRequirements = []string{}
@@ -374,7 +375,7 @@ func TestPreservingOldProjects(t *testing.T) {
     - '*.hcl'
     - '*.tf*'
   dir: someDir
-  name: projectFromPreviousRun 
+  name: projectFromPreviousRun
 `)
 	os.WriteFile(filename, contents, 0644)
 
@@ -456,6 +457,21 @@ func TestFilterFlagWithInfraLiveNonProd(t *testing.T) {
 		filepath.Join("..", "test_examples", "terragrunt-infrastructure-live-example"),
 		"--filter",
 		filepath.Join("..", "test_examples", "terragrunt-infrastructure-live-example", "non-prod"),
+	})
+}
+
+func TestFilterFlagWithInfraLiveProdAndNonProd(t *testing.T) {
+	runTest(t, filepath.Join("golden", "filterInfraLiveProdAndNonProd.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "terragrunt-infrastructure-live-example"),
+		"--filter",
+		strings.Join(
+			[]string{
+				filepath.Join("..", "test_examples", "terragrunt-infrastructure-live-example", "non-prod"),
+				filepath.Join("..", "test_examples", "terragrunt-infrastructure-live-example", "prod"),
+			},
+			",",
+		),
 	})
 }
 
