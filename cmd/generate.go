@@ -467,7 +467,11 @@ func createHclProject(sourcePaths []string, workingDir string, projectHcl string
 
 	if locals.ExtraAtlantisDependencies != nil {
 		for _, dep := range locals.ExtraAtlantisDependencies {
-			relDep, err := filepath.Rel(workingDir, dep)
+			absolutePath := dep
+			if !filepath.IsAbs(absolutePath) {
+				absolutePath = filepath.Join(workingDir, dep)
+			}
+			relDep, err := filepath.Rel(workingDir, absolutePath)
 			if err != nil {
 				return nil, err
 			}

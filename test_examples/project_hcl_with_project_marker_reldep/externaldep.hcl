@@ -1,0 +1,3 @@
+locals{
+  key = "value"
+}

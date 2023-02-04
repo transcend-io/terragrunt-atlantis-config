@@ -196,7 +196,7 @@ projects:
     - ../terragrunt.hcl
     - ../someRandomDir/terragrunt.hcl
   dir: hcl_json/json_expanded
-  workflow: terragruntjson  
+  workflow: terragruntjson
 - autoplan:
     enabled: false
     when_modified:
@@ -408,6 +408,26 @@ projects:
     - ../region.hcl
   dir: project_hcl_with_project_marker/non-prod/us-east-1/stage
   workflow: workflowSpecifiedInParent
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+    - ../../../../terragrunt.hcl
+    - ../../../account.hcl
+    - ../../region.hcl
+    - ../environment.hcl
+  dir: project_hcl_with_project_marker_reldep/non-prod/us-east-1/qa/mysql
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+    - ../../../../terragrunt.hcl
+    - ../../../account.hcl
+    - ../../region.hcl
+    - ../environment.hcl
+  dir: project_hcl_with_project_marker_reldep/non-prod/us-east-1/qa/webserver-cluster
 - autoplan:
     enabled: false
     when_modified:
