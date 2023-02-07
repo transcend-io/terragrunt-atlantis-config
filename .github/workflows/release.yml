@@ -17,7 +17,7 @@ jobs:
           go-version: '^1.16'
 
       # Install external go modules before cloning
-      - run: go install github.com/laher/goxc@latest
+      - run: go install github.com/mitchellh/gox@latest
 
       # Checkout code
       - uses: actions/checkout@v2
@@ -32,7 +32,7 @@ jobs:
       
       # build binaries for all supported environments
       - run: sudo apt update && sudo apt install -y make
-      - run: make build-all
+      - run: make archives
 
       # Create the binary checksums
       - name: Get the version
