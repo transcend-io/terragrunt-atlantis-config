@@ -1,0 +1,5 @@
+automerge: true
+autodiscover: false
+parallel_apply: true
+parallel_plan: true
+version: 3
