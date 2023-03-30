@@ -16,6 +16,9 @@ type AtlantisConfig struct {
 	// If Atlantis should merge after finishing `atlantis apply`
 	AutoMerge bool `json:"automerge"`
 
+	// If Atlantis should do a autodiscovery when dont have projects in config
+	AutoDiscover bool `json:"autodiscover"`
+
 	// If Atlantis should allow plans to occur in parallel
 	ParallelPlan bool `json:"parallel_plan"`
 
