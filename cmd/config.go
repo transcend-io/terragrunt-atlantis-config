@@ -17,7 +17,7 @@ type AtlantisConfig struct {
 	AutoMerge bool `json:"automerge"`
 
 	// If Atlantis should do a autodiscovery when dont have projects in config
-	AutoDiscover bool `json:"autodiscover"`
+	AutoDiscover *Autodiscover `json:"autodiscover"`
 
 	// If Atlantis should allow plans to occur in parallel
 	ParallelPlan bool `json:"parallel_plan"`
@@ -67,6 +67,11 @@ type AutoplanConfig struct {
 
 	// If autoplan should be enabled for this dir
 	Enabled bool `json:"enabled"`
+}
+
+// Autodiscover settings
+type Autodiscover struct {
+	Enabled bool
 }
 
 // Checks if an output file already exists. If it does, it reads it

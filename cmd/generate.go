@@ -688,7 +688,7 @@ func main(cmd *cobra.Command, args []string) error {
 	config := AtlantisConfig{
 		Version:       3,
 		AutoMerge:     autoMerge,
-		AutoDiscover:  autoDiscover,
+		AutoDiscover:  &Autodiscover{Enabled: autoDiscover},
 		ParallelPlan:  parallel,
 		ParallelApply: parallel,
 	}
