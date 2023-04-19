@@ -12,6 +12,7 @@ import (
 	"github.com/gruntwork-io/terragrunt/config"
 	"github.com/gruntwork-io/terragrunt/options"
 	"github.com/spf13/cobra"
+	"github.com/yargevad/filepathx"
 
 	"golang.org/x/sync/errgroup"
 	"golang.org/x/sync/semaphore"
@@ -590,7 +591,7 @@ func getAllTerragruntFiles(path string) ([]string, error) {
 	// filters are not working (yet) if using project hcl files (which are kind of filters by themselves)
 	if filterPath != "" && len(projectHclFiles) == 0 {
 		// get all matching folders
-		workingPaths, err = filepath.Glob(filterPath)
+		workingPaths, err = filepathx.Glob(filterPath)
 		if err != nil {
 			return nil, err
 		}
