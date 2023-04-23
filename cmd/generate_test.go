@@ -469,6 +469,15 @@ func TestFilterGlobFlagWithInfraLiveMySql(t *testing.T) {
 	})
 }
 
+func TestFilterGlobFlagWithInfraLiveMySqlDoubleWildcard(t *testing.T) {
+	runTest(t, filepath.Join("golden", "filterGlobInfraLiveMySQL.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "terragrunt-infrastructure-live-example"),
+		"--filter",
+		filepath.Join("..", "test_examples", "terragrunt-infrastructure-live-example", "**", "mysql"),
+	})
+}
+
 func TestMultipleIncludes(t *testing.T) {
 	runTest(t, filepath.Join("golden", "multiple_includes.yaml"), []string{
 		"--root",

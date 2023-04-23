@@ -12,6 +12,7 @@ import (
 	"github.com/gruntwork-io/terragrunt/config"
 	"github.com/gruntwork-io/terragrunt/options"
 	"github.com/spf13/cobra"
+	"github.com/yargevad/filepathx"
 
 	"golang.org/x/sync/errgroup"
 	"golang.org/x/sync/semaphore"
@@ -590,9 +591,15 @@ func getAllTerragruntFiles(path string) ([]string, error) {
 	// filters are not working (yet) if using project hcl files (which are kind of filters by themselves)
 	if filterPath != "" && len(projectHclFiles) == 0 {
 		// get all matching folders
-		workingPaths, err = filepath.Glob(filterPath)
+		workingPaths, err = filepathx.Glob(filterPath)
+
 		if err != nil {
 			return nil, err
+		}
+
+		if len(workingPaths) == 0 {
+		  log.Info("Exiting since NO PATHS found for glob patter: ", filterPath)
+		  return nil, err
 		}
 	}
 
@@ -707,6 +714,10 @@ func main(cmd *cobra.Command, args []string) error {
 		terragruntFiles, err := getAllTerragruntFiles(workingDir)
 		if err != nil {
 			return err
+		}
+
+		if len(terragruntFiles) == 0 {
+			return nil
 		}
 
 		if len(projectHclDirs) == 0 || createHclProjectChilds || (createHclProjectExternalChilds && workingDir == gitRoot) {
