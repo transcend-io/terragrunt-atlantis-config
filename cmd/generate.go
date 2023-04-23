@@ -592,8 +592,14 @@ func getAllTerragruntFiles(path string) ([]string, error) {
 	if filterPath != "" && len(projectHclFiles) == 0 {
 		// get all matching folders
 		workingPaths, err = filepathx.Glob(filterPath)
+
 		if err != nil {
 			return nil, err
+		}
+
+		if len(workingPaths) == 0 {
+		  log.Info("Exiting since NO PATHS found for glob patter: ", filterPath)
+		  return nil, err
 		}
 	}
 
@@ -708,6 +714,10 @@ func main(cmd *cobra.Command, args []string) error {
 		terragruntFiles, err := getAllTerragruntFiles(workingDir)
 		if err != nil {
 			return err
+		}
+
+		if len(terragruntFiles) == 0 {
+			return nil
 		}
 
 		if len(projectHclDirs) == 0 || createHclProjectChilds || (createHclProjectExternalChilds && workingDir == gitRoot) {
