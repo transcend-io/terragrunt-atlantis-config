@@ -146,7 +146,6 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 		dependencies := []string{}
 		if len(includes) > 0 {
 			for _, includeDep := range includes {
-				getDependenciesCache.set(includeDep.Path, getDependenciesOutput{nil, err})
 				dependencies = append(dependencies, includeDep.Path)
 			}
 		}
