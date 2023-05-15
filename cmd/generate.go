@@ -24,6 +24,16 @@ import (
 	"sync"
 )
 
+func newTerragruntOptions(path string) (*options.TerragruntOptions, error) {
+	o, err := options.NewTerragruntOptionsWithConfigPath(path)
+	if err != nil {
+		return nil, err
+	}
+	o.Env = getEnvs()
+	o.OriginalIAMRoleOptions = options.IAMRoleOptions{RoleARN: iamRole}
+	return o, nil
+}
+
 // Parse env vars into a map
 func getEnvs() map[string]string {
 	envs := os.Environ()
@@ -31,7 +41,9 @@ func getEnvs() map[string]string {
 
 	for _, env := range envs {
 		results := strings.SplitN(env, "=", 1)
-		m[results[0]] = results[1]
+		if len(results) > 1 {
+			m[results[0]] = results[1]
+		}
 	}
 
 	return m
@@ -257,7 +269,7 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 			}
 
 			depPath := dep
-			terrOpts, _ := options.NewTerragruntOptionsWithConfigPath(depPath)
+			terrOpts, _ := newTerragruntOptions(depPath)
 			terrOpts.OriginalTerragruntConfigPath = terragruntOptions.OriginalTerragruntConfigPath
 			childDeps, err := getDependencies(depPath, terrOpts)
 			if err != nil {
@@ -317,12 +329,11 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 
 // Creates an AtlantisProject for a directory
 func createProject(sourcePath string) (*AtlantisProject, error) {
-	options, err := options.NewTerragruntOptionsWithConfigPath(sourcePath)
+	options, err := newTerragruntOptions(sourcePath)
 	if err != nil {
 		return nil, err
 	}
 	options.OriginalTerragruntConfigPath = sourcePath
-	options.Env = getEnvs()
 
 	dependencies, err := getDependencies(sourcePath, options)
 	if err != nil {
@@ -436,11 +447,10 @@ func createHclProject(sourcePaths []string, workingDir string, projectHcl string
 	terraformVersion := defaultTerraformVersion
 
 	projectHclFile := filepath.Join(workingDir, projectHcl)
-	projectHclOptions, err := options.NewTerragruntOptionsWithConfigPath(workingDir)
+	projectHclOptions, err := newTerragruntOptions(workingDir)
 	if err != nil {
 		return nil, err
 	}
-	projectHclOptions.Env = getEnvs()
 
 	locals, err := parseLocals(projectHclFile, projectHclOptions, nil)
 	if err != nil {
@@ -492,11 +502,10 @@ func createHclProject(sourcePaths []string, workingDir string, projectHcl string
 
 	// build dependencies for terragrunt childs in directories below project hcl file
 	for _, sourcePath := range sourcePaths {
-		options, err := options.NewTerragruntOptionsWithConfigPath(sourcePath)
+		options, err := newTerragruntOptions(sourcePath)
 		if err != nil {
 			return nil, err
 		}
-		options.Env = getEnvs()
 
 		dependencies, err := getDependencies(sourcePath, options)
 		if err != nil {
@@ -572,7 +581,7 @@ func createHclProject(sourcePaths []string, workingDir string, projectHcl string
 
 // Finds the absolute paths of all terragrunt.hcl files
 func getAllTerragruntFiles(path string) ([]string, error) {
-	options, err := options.NewTerragruntOptionsWithConfigPath(path)
+	options, err := newTerragruntOptions(path)
 	if err != nil {
 		return nil, err
 	}
@@ -910,6 +919,7 @@ var createHclProjectChilds bool
 var createHclProjectExternalChilds bool
 var useProjectMarkers bool
 var executionOrderGroups bool
+var iamRole string
 
 // generateCmd represents the generate command
 var generateCmd = &cobra.Command{
@@ -950,6 +960,7 @@ func init() {
 	generateCmd.PersistentFlags().BoolVar(&createHclProjectExternalChilds, "create-hcl-project-external-childs", true, "Creates Atlantis projects for terragrunt child modules outside the directories containing the HCL files defined in --project-hcl-files")
 	generateCmd.PersistentFlags().BoolVar(&useProjectMarkers, "use-project-markers", false, "Creates Atlantis projects only for project hcl files with locals: atlantis_project = true")
 	generateCmd.PersistentFlags().BoolVar(&executionOrderGroups, "execution-order-groups", false, "Computes execution_order_groups for projects")
+	generateCmd.PersistentFlags().StringVar(&iamRole, "iam-role", "", "IAM role to pass to terragrunt")
 }
 
 // Runs a set of arguments, returning the output
