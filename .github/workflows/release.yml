@@ -38,13 +38,6 @@ jobs:
       - name: Get the version
         id: get_version
         run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/v}
-      - uses: tristan-weil/ghaction-checksum-sign-artifact@v1
-        id: checksums
-        with:
-          path: 'build/${{ steps.get_version.outputs.VERSION }}/*'
-          checksum_digests: sha256,sha512
-          checksum_format: gnu
-          checksum_output: one_file_per_digest
 
       # Create the release
       - uses: "marvinpinto/action-automatic-releases@latest"
@@ -53,4 +46,3 @@ jobs:
           prerelease: false
           files: |
             build/${{ steps.get_version.outputs.VERSION }}/*
-            ${{ steps.checksums.outputs.generated-files }}
