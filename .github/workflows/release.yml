@@ -14,7 +14,7 @@ jobs:
       # Install golang
       - uses: actions/setup-go@v2
         with:
-          go-version: '^1.20'
+          go-version: "^1.20"
 
       # Install external go modules before cloning
       - run: go install github.com/laher/goxc@latest
@@ -29,7 +29,7 @@ jobs:
           key: ubuntu-latest-1.20-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ubuntu-latest-1.20-go-
-      
+
       # build binaries for all supported environments
       - run: sudo apt update && sudo apt install -y make
       - run: make build-all
@@ -38,11 +38,12 @@ jobs:
       - name: Get the version
         id: get_version
         run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/v}
-      - name: Create checksums
-        run: |
-          readonly BUILD_DIR="build/${{ steps.get_version.outputs.VERSION }}"
-          find "$BUILD_DIR" -type f -exec sha256sum {} + | awk -v build_dir="$BUILD_DIR" '{sub("^"build_dir"/", ""); print $1, $2}' > SHA256SUMS
-          find "$BUILD_DIR" -type f -exec sha512sum {} + | awk -v build_dir="$BUILD_DIR" '{sub("^"build_dir"/", ""); print $1, $2}' > SHA512SUMS
+      - uses: jmgilman/actions-generate-checksum@v1
+        id: checksums
+        with:
+          patterns: "build/${{ steps.get_version.outputs.VERSION }}/*"
+          method: sha512
+          output: checksums.txt
 
       # Create the release
       - uses: "marvinpinto/action-automatic-releases@latest"
@@ -51,5 +52,4 @@ jobs:
           prerelease: false
           files: |
             build/${{ steps.get_version.outputs.VERSION }}/*
-            SHA256SUMS
-            SHA512SUMS
+            checksums.txt
