@@ -37,7 +37,7 @@ jobs:
       # Create the binary checksums
       - name: Get the version
         id: get_version
-        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/v}
+        run: echo VERSION=${GITHUB_REF#refs/tags/v} >> $GITHUB_OUTPUT
       - uses: jmgilman/actions-generate-checksum@v1
         id: checksums
         with:
