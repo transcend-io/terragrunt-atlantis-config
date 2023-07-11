@@ -32,7 +32,7 @@ jobs:
       
       # build binaries for all supported environments
       - run: sudo apt update && sudo apt install -y make
-      - run: make build-all
+      - run: make archives
 
       # Create the binary checksums
       - name: Get the version
