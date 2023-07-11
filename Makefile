@@ -6,7 +6,7 @@ S3_BUCKET_NAME=cloudfront-origin-homebrew-tap-transcend-io
 PROFILE=transcend-prod
 
 # Determine the arch/os combos we're building for
-XC_ARCH=amd64 arm
+XC_ARCH=amd64
 XC_OS=linux darwin windows
 
 .PHONY: clean
@@ -17,21 +17,17 @@ clean:
 .PHONY: build
 build: clean
 	CGO_ENABLED=0 \
-	goxc \
-    -bc="darwin,amd64" \
-    -pv=$(VERSION) \
-    -d=$(PATH_BUILD) \
-    -build-ldflags "-X main.VERSION=$(VERSION)"
+	gox \
+    -osarch="darwin/amd64 linux/amd64" \
+    -ldflags="-X main.VERSION=$(VERSION)"
 
 .PHONY: build-all
 build-all: clean
 	CGO_ENABLED=0 \
-	goxc \
+	gox \
 	-os="$(XC_OS)" \
 	-arch="$(XC_ARCH)" \
-    -pv=$(VERSION) \
-    -d=$(PATH_BUILD) \
-    -build-ldflags "-X main.VERSION=$(VERSION)"
+    -ldflags="-X main.VERSION=$(VERSION)"
 
 .PHONY: gotestsum
 gotestsum:
