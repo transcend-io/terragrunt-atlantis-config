@@ -89,7 +89,7 @@ cloud.google.com/go/datastream v1.2.0/go.mod h1:i/uTP8/fZwgATHS/XFu0TcNUhuA0twZx
 cloud.google.com/go/datastream v1.3.0/go.mod h1:cqlOX8xlyYF/uxhiKn6Hbv6WjwPPuI9W2M9SAXwaLLQ=
 cloud.google.com/go/dialogflow v1.15.0/go.mod h1:HbHDWs33WOGJgn6rfzBW1Kv807BE3O1+xGbn59zZWI4=
 cloud.google.com/go/dialogflow v1.16.1/go.mod h1:po6LlzGfK+smoSmTBnbkIZY2w8ffjz/RcGSS+sh1el0=
-cloud.google.com/go/dialogflow v1.17.0/go.mod h1:YNP09C/kXA1aZdBgC/VtXX74G/TKn7XVCcVumTflA+8=
+cloud.google.com/go/dialogflow v1.17.1/go.mod h1:YNP09C/kXA1aZdBgC/VtXX74G/TKn7XVCcVumTflA+8=
 cloud.google.com/go/documentai v1.7.0/go.mod h1:lJvftZB5NRiFSX4moiye1SMxHx0Bc3x1+p9e/RfXYiU=
 cloud.google.com/go/documentai v1.8.0/go.mod h1:xGHNEB7CtsnySCNrCFdCyyMz44RhFEEX2Q7UD0c5IhU=
 cloud.google.com/go/domains v0.6.0/go.mod h1:T9Rz3GasrpYk6mEGHh4rymIhjlnIuB4ofT1wTxDeT4Y=

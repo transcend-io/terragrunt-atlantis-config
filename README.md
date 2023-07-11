@@ -48,7 +48,7 @@ Then, make sure `terragrunt-atlantis-config` is present on your Atlantis server.
 
 ```hcl
 variable "terragrunt_atlantis_config_version" {
-  default = "1.16.0"
+  default = "1.17.1"
 }
 
 build {
@@ -120,7 +120,7 @@ One way to customize the behavior of this module is through CLI flag values pass
 | `--ignore-parent-terragrunt` | Ignore parent Terragrunt configs (those which don't reference a terraform module).<br>In most cases, this should be set to `true`                                               | true              |
 | `--parallel`                 | Enables `plan`s and `apply`s to happen in parallel. Will typically be used with `--create-workspace`                                                                            | true              |
 | `--create-workspace`         | Use different auto-generated workspace for each project. Default is use default workspace for everything                                                                        | false             |
-| `--create-project-name`      | Add different auto-generated name for each project                                                                                                                              | false             |
+| `--create-project-name`      | Add different auto-generated name for each project. The project names can be customised thanks to the local variable `atlantis_project_name`, see [All Locals](#all-locals).                                                                                                                              | false             |
 | `--preserve-workflows`       | Preserves workflows from old output files. Useful if you want to define your workflow definitions on the client side                                                            | true              |
 | `--preserve-projects`        | Preserves projects from old output files. Useful for incremental builds using `--filter`                                                                                        | false             |
 | `--workflow`                 | Name of the workflow to be customized in the atlantis server. If empty, will be left out of output                                                                              | ""                |
@@ -154,6 +154,7 @@ Another way to customize the output is to use `locals` values in your terragrunt
 | `atlantis_apply_requirements` | The custom `apply_requirements` array to use for a module                                                                                                      | list(string) |
 | `atlantis_terraform_version`  | Allows overriding the `--terraform-version` flag for a single module                                                                                           | string       |
 | `atlantis_autoplan`           | Allows overriding the `--autoplan` flag for a single module                                                                                                    | bool         |
+| `atlantis_project_name`       | The custom atlantis project name to use for a module, jointly with the `--create-project-name` flag | string |
 | `atlantis_skip`               | If true on a child module, that module will not appear in the output.<br>If true on a parent module, none of that parent's children will appear in the output. | bool         |
 | `extra_atlantis_dependencies` | See [Extra dependencies](https://github.com/transcend-io/terragrunt-atlantis-config#extra-dependencies)                                                        | list(string) |
 | `atlantis_project`            | Create Atlantis project for a project hcl file. Only functional with `--project-hcl-files` and `--use-project-markers` | bool         |
@@ -191,7 +192,7 @@ You can install this tool locally to checkout what kinds of config it will gener
 Recommended: Install any version via go install:
 
 ```bash
-go install github.com/transcend-io/terragrunt-atlantis-config@v1.17.0
+go install github.com/transcend-io/terragrunt-atlantis-config@v1.17.1
 ```
 
 This module officially supports golang versions v1.20, tested on CircleCI with each build

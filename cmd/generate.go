@@ -418,6 +418,9 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 	// We are going to use the same name for both workspace & project name as it is unique.
 	regex := regexp.MustCompile(`[^a-zA-Z0-9_-]+`)
 	projectName := regex.ReplaceAllString(project.Dir, "_")
+	if locals.AtlantisProjectName != "" {
+		projectName = locals.AtlantisProjectName
+	}
 
 	if createProjectName {
 		project.Name = projectName
@@ -563,6 +566,9 @@ func createHclProject(sourcePaths []string, workingDir string, projectHcl string
 	// We are going to use the same name for both workspace & project name as it is unique.
 	regex := regexp.MustCompile(`[^a-zA-Z0-9_-]+`)
 	projectName := regex.ReplaceAllString(project.Dir, "_")
+	if locals.AtlantisProjectName != "" {
+		projectName = locals.AtlantisProjectName
+	}
 
 	if createProjectName {
 		project.Name = projectName

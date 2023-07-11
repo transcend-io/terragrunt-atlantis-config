@@ -1,4 +1,4 @@
-VERSION=1.17.0
+VERSION=1.17.1
 FILE_COMMAND=terragrunt-atlantis-config
 DIR_BUILD=./build
 PATH_BUILD=${DIR_BUILD}/${FILE_COMMAND}/${VERSION}
