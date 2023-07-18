@@ -32,7 +32,7 @@ func getEnvs() map[string]string {
 	m := make(map[string]string)
 
 	for _, env := range envs {
-		results := strings.Split(env, "=")
+		results := strings.SplitN(env, "=", 1)
 		m[results[0]] = results[1]
 	}
 
