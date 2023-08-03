@@ -27,6 +27,7 @@ func resetForRun() error {
 	gitRoot = pwd
 	autoPlan = false
 	autoMerge = false
+	autoplanFileList = []string{"*.hcl", "*.tf*"}
 	cascadeDependencies = true
 	ignoreParentTerragrunt = true
 	ignoreDependencyBlocks = false
@@ -622,5 +623,13 @@ func TestWithExecutionOrderGroups(t *testing.T) {
 		"--root",
 		filepath.Join("..", "test_examples", "chained_dependencies"),
 		"--execution-order-groups",
+	})
+}
+
+func TestAutoplanFileList(t *testing.T) {
+	runTest(t, filepath.Join("golden", "autoplan_file_list.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "basic_module"),
+		"--autoplan-file-list=*.hcl,*.tf*,*.yaml,*.yml",
 	})
 }

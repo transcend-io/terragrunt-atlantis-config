@@ -350,10 +350,7 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 	}
 
 	// All dependencies depend on their own .hcl file, and any tf files in their directory
-	relativeDependencies := []string{
-		"*.hcl",
-		"*.tf*",
-	}
+	relativeDependencies := autoplanFileList
 
 	// Add other dependencies based on their relative paths. We always want to output with Unix path separators
 	for _, dependencyPath := range dependencies {
@@ -895,6 +892,7 @@ func main(cmd *cobra.Command, args []string) error {
 var gitRoot string
 var autoPlan bool
 var autoMerge bool
+var autoplanFileList []string
 var ignoreParentTerragrunt bool
 var createParentProject bool
 var ignoreDependencyBlocks bool
@@ -935,6 +933,7 @@ func init() {
 	generateCmd.PersistentFlags().BoolVar(&autoPlan, "autoplan", false, "Enable auto plan. Default is disabled")
 	generateCmd.PersistentFlags().BoolVar(&autoMerge, "automerge", false, "Enable auto merge. Default is disabled")
 	generateCmd.PersistentFlags().BoolVar(&ignoreParentTerragrunt, "ignore-parent-terragrunt", true, "Ignore parent terragrunt configs (those which don't reference a terraform module). Default is enabled")
+	generateCmd.PersistentFlags().StringSliceVar(&autoplanFileList, "autoplan-file-list", []string{"*.hcl", "*.tf*"}, "List of file patterns that Atlantis will use to check if a directory contains modified files that should trigger project planning")
 	generateCmd.PersistentFlags().BoolVar(&createParentProject, "create-parent-project", false, "Create a project for the parent terragrunt configs (those which don't reference a terraform module). Default is disabled")
 	generateCmd.PersistentFlags().BoolVar(&ignoreDependencyBlocks, "ignore-dependency-blocks", false, "When true, dependencies found in `dependency` blocks will be ignored")
 	generateCmd.PersistentFlags().BoolVar(&parallel, "parallel", true, "Enables plans and applys to happen in parallel. Default is enabled")
