@@ -17,7 +17,6 @@ import (
 	"golang.org/x/sync/singleflight"
 
 	"context"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -880,7 +879,7 @@ func main(cmd *cobra.Command, args []string) error {
 
 	// Write output
 	if len(outputPath) != 0 {
-		ioutil.WriteFile(outputPath, []byte(yamlString), 0644)
+		os.WriteFile(outputPath, []byte(yamlString), 0644)
 	} else {
 		log.Println(yamlString)
 	}
@@ -958,5 +957,5 @@ func RunWithFlags(filename string, args []string) ([]byte, error) {
 	rootCmd.SetArgs(args)
 	rootCmd.Execute()
 
-	return ioutil.ReadFile(filename)
+	return os.ReadFile(filename)
 }
