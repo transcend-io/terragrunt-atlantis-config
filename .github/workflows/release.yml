@@ -17,10 +17,10 @@ jobs:
           go-version: "^1.20"
 
       # Checkout code
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       # Install golang deps, using a cache
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: ~/go/pkg/mod
           key: ubuntu-latest-1.20-go-${{ hashFiles('**/go.sum') }}
@@ -35,7 +35,7 @@ jobs:
       - name: Get the version
         id: get_version
         run: echo VERSION=${GITHUB_REF#refs/tags/v} >> $GITHUB_OUTPUT
-      - uses: jmgilman/actions-generate-checksum@v1
+      - uses: jmgilman/actions-generate-checksum@24a35957fba81c6cbaefeb1e3d59ee56e3db5077
         id: checksums
         with:
           patterns: "build/${{ steps.get_version.outputs.VERSION }}/*"
@@ -43,7 +43,7 @@ jobs:
           output: checksums.txt
 
       # Create the release
-      - uses: "marvinpinto/action-automatic-releases@latest"
+      - uses: "marvinpinto/action-automatic-releases@d68defdd11f9dcc7f52f35c1b7c236ee7513bcc1"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false

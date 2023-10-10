@@ -7,8 +7,8 @@ jobs:
   contributors:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: wow-actions/contributors-list@v1
+      - uses: actions/checkout@v4
+      - uses: wow-actions/contributors-list@a9cb338523e20921d1a535d29f00dc8458fa8fe2
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           svgPath: CONTRIBUTORS.svg
@@ -26,10 +26,10 @@ jobs:
               </a>
             </g>
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v3
+        uses: peter-evans/create-pull-request@153407881ec5c347639a548ade7d8ad1d6740e38
         with:
-          commit-message: '[Chore] Update Contributors SVG'
-          title: '[Chore] Update Contributors SVG'
+          commit-message: "[Chore] Update Contributors SVG"
+          title: "[Chore] Update Contributors SVG"
           delete-branch: true
           assignees: dmattia
           reviewers: dmattia

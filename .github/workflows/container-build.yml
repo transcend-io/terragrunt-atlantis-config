@@ -26,11 +26,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the latest SHA for this branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         if: github.event_name != 'workflow_dispatch'
 
       - name: Checkout the specified tag
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         if: github.event_name == 'workflow_dispatch'
         with:
           ref: ${{ github.event.inputs.tag }}
@@ -46,7 +46,7 @@ jobs:
       - name: Build and cache first build stage
         # update the first stage cache only when pushing to or tagging main
         if: github.event_name == 'push'
-        uses: docker/build-push-action@v1
+        uses: docker/build-push-action@v5
         env:
           # use BuildKit to speed up builds and improve caching
           DOCKER_BUILDKIT: 1
@@ -61,7 +61,7 @@ jobs:
           cache_froms: ${{ env.GHCR_HOSTNAME }}/${{ github.repository }}:build
 
       - name: Build the container image
-        uses: docker/build-push-action@v1
+        uses: docker/build-push-action@v5
         env:
           # use BuildKit to speed up builds and improve caching
           DOCKER_BUILDKIT: 1
