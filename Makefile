@@ -20,7 +20,7 @@ build: clean
 	-mod=readonly \
 	-modcacherw \
 	-ldflags "-X main.VERSION=$(VERSION)" \
-	-o $(PATH_BUILD)$(FILE_COMMAND)/$(VERSION)/$(FILE_COMMAND)_$(VERSION)_$(FILE_ARCH)
+	-o $(PATH_BUILD)$(VERSION)/$(FILE_COMMAND)_$(VERSION)_$(FILE_ARCH)
 
 .PHONY: build-all
 build-all: clean
@@ -35,7 +35,7 @@ build-all: clean
 			-mod=readonly \
 			-modcacherw \
 			-ldflags "-X main.VERSION=$(VERSION)" \
-			-o $(PATH_BUILD)$(FILE_COMMAND)/$(VERSION)/$(FILE_COMMAND)_$(VERSION)_$${os}_$${arch} ; \
+			-o $(PATH_BUILD)$(VERSION)/$(FILE_COMMAND)_$(VERSION)_$${os}_$${arch} ; \
 		done \
 	done
 
@@ -57,10 +57,10 @@ version:
 
 .PHONY: sign
 sign:  build-all
-	rm -f $(PATH_BUILD)${VERSION}/SHA256SUMS
-	shasum -a256 $(PATH_BUILD)${VERSION}/* > $(PATH_BUILD)${VERSION}/SHA256SUMS
+	rm -f $(PATH_BUILD)$(VERSION)/SHA256SUMS
+	shasum -a256 $(PATH_BUILD)$(VERSION)/* > $(PATH_BUILD)$(VERSION)/SHA256SUMS
 
 .PHONY: install
 install:
 	install -d -m 755 '$(HOME)/.local/bin/'
-	install $(PATH_BUILD)$(FILE_COMMAND)/$(VERSION)/$(FILE_COMMAND)_$(VERSION)_$(FILE_ARCH) '$(HOME)/.local/bin/$(FILE_COMMAND)'
+	install $(PATH_BUILD)$(VERSION)/$(FILE_COMMAND)_$(VERSION)_$(FILE_ARCH) '$(HOME)/.local/bin/$(FILE_COMMAND)'
