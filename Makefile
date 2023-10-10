@@ -27,6 +27,7 @@ build-all: clean
 	for arch in $(XC_ARCH); do \
 		for os in $(XC_OS); do \
 			echo "Building for '$$os/$$arch'" ; \
+			ext="" ; [ "$$os" = "windows" ] && ext=".exe" ; \
 			CGO_ENABLED=0 \
 			GOARCH=$$arch \
 			GOOS=$$os \
@@ -35,7 +36,7 @@ build-all: clean
 			-mod=readonly \
 			-modcacherw \
 			-ldflags "-X main.VERSION=$(VERSION)" \
-			-o $(PATH_BUILD)$(VERSION)/$(FILE_COMMAND)_$(VERSION)_$${os}_$${arch} ; \
+			-o $(PATH_BUILD)$(VERSION)/$(FILE_COMMAND)_$(VERSION)_$${os}_$${arch}$${ext} ; \
 		done \
 	done
 
