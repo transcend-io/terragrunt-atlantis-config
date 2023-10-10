@@ -1,37 +1,43 @@
 VERSION=1.17.4
 PATH_BUILD=build/
 FILE_COMMAND=terragrunt-atlantis-config
-FILE_ARCH=darwin_amd64
-S3_BUCKET_NAME=cloudfront-origin-homebrew-tap-transcend-io
-PROFILE=transcend-prod
+FILE_ARCH=$(shell go env GOOS)_$(shell go env GOARCH)
 
 # Determine the arch/os combos we're building for
-XC_ARCH=amd64 arm
+XC_ARCH=amd64 arm64
 XC_OS=linux darwin windows
 
 .PHONY: clean
 clean:
 	rm -rf ./build
-	rm -rf '$(HOME)/bin/$(FILE_COMMAND)'
+	rm -rf "$(HOME)/.local/bin/$(FILE_COMMAND)"
 
 .PHONY: build
 build: clean
 	CGO_ENABLED=0 \
-	goxc \
-    -bc="darwin,amd64" \
-    -pv=$(VERSION) \
-    -d=$(PATH_BUILD) \
-    -build-ldflags "-X main.VERSION=$(VERSION)"
+	go build \
+	-trimpath \
+	-mod=readonly \
+	-modcacherw \
+	-ldflags "-X main.VERSION=$(VERSION)" \
+	-o $(PATH_BUILD)$(FILE_COMMAND)/$(VERSION)/$(FILE_COMMAND)_$(VERSION)_$(FILE_ARCH)
 
 .PHONY: build-all
 build-all: clean
-	CGO_ENABLED=0 \
-	goxc \
-	-os="$(XC_OS)" \
-	-arch="$(XC_ARCH)" \
-    -pv=$(VERSION) \
-    -d=$(PATH_BUILD) \
-    -build-ldflags "-X main.VERSION=$(VERSION)"
+	for arch in $(XC_ARCH); do \
+		for os in $(XC_OS); do \
+			echo "Building for '$$os/$$arch'" ; \
+			CGO_ENABLED=0 \
+			GOARCH=$$arch \
+			GOOS=$$os \
+			go build \
+			-trimpath \
+			-mod=readonly \
+			-modcacherw \
+			-ldflags "-X main.VERSION=$(VERSION)" \
+			-o $(PATH_BUILD)$(FILE_COMMAND)/$(VERSION)/$(FILE_COMMAND)_$(VERSION)_$${os}_$${arch} ; \
+		done \
+	done
 
 .PHONY: gotestsum
 gotestsum:
@@ -56,5 +62,5 @@ sign:  build-all
 
 .PHONY: install
 install:
-	install -d -m 755 '$(HOME)/bin/'
-	install $(PATH_BUILD)$(FILE_COMMAND)/$(VERSION)/$(FILE_COMMAND)_$(VERSION)_$(FILE_ARCH) '$(HOME)/bin/$(FILE_COMMAND)'
+	install -d -m 755 '$(HOME)/.local/bin/'
+	install $(PATH_BUILD)$(FILE_COMMAND)/$(VERSION)/$(FILE_COMMAND)_$(VERSION)_$(FILE_ARCH) '$(HOME)/.local/bin/$(FILE_COMMAND)'
