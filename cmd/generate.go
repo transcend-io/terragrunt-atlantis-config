@@ -8,7 +8,6 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/ghodss/yaml"
-	"github.com/gruntwork-io/terragrunt/cli"
 	"github.com/gruntwork-io/terragrunt/config"
 	"github.com/gruntwork-io/terragrunt/options"
 	"github.com/spf13/cobra"
@@ -259,7 +258,7 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 			}
 
 			depPath := dep
-			terrOpts, _ := options.NewTerragruntOptions(depPath)
+			terrOpts, _ := options.NewTerragruntOptionsWithConfigPath(depPath)
 			terrOpts.OriginalTerragruntConfigPath = terragruntOptions.OriginalTerragruntConfigPath
 			childDeps, err := getDependencies(depPath, terrOpts)
 			if err != nil {
@@ -319,12 +318,11 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 
 // Creates an AtlantisProject for a directory
 func createProject(sourcePath string) (*AtlantisProject, error) {
-	options, err := options.NewTerragruntOptions(sourcePath)
+	options, err := options.NewTerragruntOptionsWithConfigPath(sourcePath)
 	if err != nil {
 		return nil, err
 	}
 	options.OriginalTerragruntConfigPath = sourcePath
-	options.RunTerragrunt = cli.RunTerragrunt
 	options.Env = getEnvs()
 
 	dependencies, err := getDependencies(sourcePath, options)
@@ -439,11 +437,10 @@ func createHclProject(sourcePaths []string, workingDir string, projectHcl string
 	terraformVersion := defaultTerraformVersion
 
 	projectHclFile := filepath.Join(workingDir, projectHcl)
-	projectHclOptions, err := options.NewTerragruntOptions(workingDir)
+	projectHclOptions, err := options.NewTerragruntOptionsWithConfigPath(workingDir)
 	if err != nil {
 		return nil, err
 	}
-	projectHclOptions.RunTerragrunt = cli.RunTerragrunt
 	projectHclOptions.Env = getEnvs()
 
 	locals, err := parseLocals(projectHclFile, projectHclOptions, nil)
@@ -496,11 +493,10 @@ func createHclProject(sourcePaths []string, workingDir string, projectHcl string
 
 	// build dependencies for terragrunt childs in directories below project hcl file
 	for _, sourcePath := range sourcePaths {
-		options, err := options.NewTerragruntOptions(sourcePath)
+		options, err := options.NewTerragruntOptionsWithConfigPath(sourcePath)
 		if err != nil {
 			return nil, err
 		}
-		options.RunTerragrunt = cli.RunTerragrunt
 		options.Env = getEnvs()
 
 		dependencies, err := getDependencies(sourcePath, options)
@@ -577,7 +573,7 @@ func createHclProject(sourcePaths []string, workingDir string, projectHcl string
 
 // Finds the absolute paths of all terragrunt.hcl files
 func getAllTerragruntFiles(path string) ([]string, error) {
-	options, err := options.NewTerragruntOptions(path)
+	options, err := options.NewTerragruntOptionsWithConfigPath(path)
 	if err != nil {
 		return nil, err
 	}
