@@ -13,7 +13,7 @@ jobs:
       - name: Setup golang v${{ matrix.golang-version }}
         uses: actions/setup-go@v2
         with:
-          go-version: "^${{ matrix.golang-version }}"
+          go-version: '^${{ matrix.golang-version }}'
       - uses: actions/cache@v2
         with:
           path: ~/go/pkg/mod
