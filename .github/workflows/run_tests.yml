@@ -9,7 +9,7 @@ jobs:
         golang-version: [1.20, 1.21]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Setup golang v${{ matrix.golang-version }}
         uses: actions/setup-go@v2
         with:

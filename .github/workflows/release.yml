@@ -20,7 +20,7 @@ jobs:
       - run: go install github.com/laher/goxc@latest
 
       # Checkout code
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       # Install golang deps, using a cache
       - uses: actions/cache@v2

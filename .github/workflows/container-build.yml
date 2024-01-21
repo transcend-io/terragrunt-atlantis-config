@@ -26,11 +26,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the latest SHA for this branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         if: github.event_name != 'workflow_dispatch'
 
       - name: Checkout the specified tag
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         if: github.event_name == 'workflow_dispatch'
         with:
           ref: ${{ github.event.inputs.tag }}
