@@ -194,7 +194,7 @@ Recommended: Install any version via go install:
 go install github.com/transcend-io/terragrunt-atlantis-config@v1.21.0
 ```
 
-This module officially supports golang versions v1.20, and v1.21, tested on Github with each build. 
+This module officially supports golang version v1.21, tested on Github with each build. 
 This module also officially supports both Windows and Nix-based file formats, tested on Github with each build. 
 
 Usage Examples (see below sections for all options):
