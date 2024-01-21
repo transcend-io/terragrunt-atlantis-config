@@ -191,11 +191,11 @@ You can install this tool locally to checkout what kinds of config it will gener
 Recommended: Install any version via go install:
 
 ```bash
-go install github.com/transcend-io/terragrunt-atlantis-config@v1.16.0
+go install github.com/transcend-io/terragrunt-atlantis-config@v1.21.0
 ```
 
-This module officially supports golang versions v1.13, v1.14, v1.15, and v1.16, tested on CircleCI with each build
-This module also officially supports both Windows and Nix-based file formats, tested on CircleCI with each build
+This module officially supports golang versions v1.17, v1.18, v1.19, v1.20, and v1.21, tested on Github with each build. 
+This module also officially supports both Windows and Nix-based file formats, tested on Github with each build. 
 
 Usage Examples (see below sections for all options):
 
