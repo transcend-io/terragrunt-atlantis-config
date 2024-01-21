@@ -12,7 +12,7 @@ jobs:
 
     steps:
       # Install golang
-      - uses: actions/setup-go@v2
+      - uses: actions/setup-go@v4
         with:
           go-version: '^1.21'
 
@@ -21,14 +21,6 @@ jobs:
 
       # Checkout code
       - uses: actions/checkout@v4
-
-      # Install golang deps, using a cache
-      - uses: actions/cache@v2
-        with:
-          path: ~/go/pkg/mod
-          key: ubuntu-latest-1.21-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ubuntu-latest-1.21-go-
       
       # build binaries for all supported environments
       - run: sudo apt update && sudo apt install -y make
