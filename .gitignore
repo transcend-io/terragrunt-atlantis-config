@@ -1,16 +1,17 @@
 ##############################
 ########### Custom ###########
 ##############################
-.vscode/
 build
 test_artifacts
 
 # IDEs
+.vscode/
 .vscode
 *.sublime-*
 .idea
 .editorconfig
 .swp
+*.code-workspace
 
 # OS files
 *.DS_Store
