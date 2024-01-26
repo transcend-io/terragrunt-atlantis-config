@@ -38,13 +38,11 @@ jobs:
       - name: Get the version
         id: get_version
         run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/v}
-      - uses: tristan-weil/ghaction-checksum-sign-artifact@v1
-        id: checksums
-        with:
-          path: 'build/${{ steps.get_version.outputs.VERSION }}/*'
-          checksum_digests: sha256,sha512
-          checksum_format: gnu
-          checksum_output: one_file_per_digest
+      - name: Create checksums
+        run: |
+          readonly BUILD_DIR="build/${{ steps.get_version.outputs.VERSION }}"
+          find "$BUILD_DIR" -type f -exec sha256sum {} + | awk '{sub(/^'"$BUILD_DIR"'\//, ""); print $1, $2}' > SHA256SUMS
+          find "$BUILD_DIR" -type f -exec sha512sum {} + | awk '{sub(/^'"$BUILD_DIR"'\//, ""); print $1, $2}' > SHA512SUMS
 
       # Create the release
       - uses: "marvinpinto/action-automatic-releases@latest"
@@ -53,4 +51,5 @@ jobs:
           prerelease: false
           files: |
             build/${{ steps.get_version.outputs.VERSION }}/*
-            ${{ steps.checksums.outputs.generated-files }}
+            SHA256SUMS
+            SHA512SUMS
