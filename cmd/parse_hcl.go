@@ -1,8 +1,8 @@
 package cmd
 
 import (
+	"github.com/gruntwork-io/go-commons/errors"
 	"github.com/gruntwork-io/terragrunt/config"
-	"github.com/gruntwork-io/terragrunt/errors"
 	"github.com/gruntwork-io/terragrunt/options"
 	"github.com/gruntwork-io/terragrunt/util"
 	"github.com/hashicorp/hcl/v2"
@@ -90,7 +90,7 @@ func decodeHcl(
 		}
 	}
 
-	evalContext, err := config.CreateTerragruntEvalContext(filename, terragruntOptions, extensions)
+	evalContext, err := extensions.CreateTerragruntEvalContext(filename, terragruntOptions)
 	if err != nil {
 		return err
 	}
@@ -124,6 +124,7 @@ func decodeAsTerragruntInclude(
 // The key signifiers of a parent are:
 //   - no include statement
 //   - no terraform source defined
+//
 // If both of those are true, it is likely a parent module
 func parseModule(path string, terragruntOptions *options.TerragruntOptions) (isParent bool, includes []config.IncludeConfig, err error) {
 	configString, err := util.ReadFileAsString(path)
