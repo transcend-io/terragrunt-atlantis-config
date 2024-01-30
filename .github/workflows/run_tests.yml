@@ -11,10 +11,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Setup golang v${{ matrix.golang-version }}
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version: "^${{ matrix.golang-version }}"
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: ~/go/pkg/mod
           key: ${{ matrix.os }}-${{ matrix.golang-version }}-go-${{ hashFiles('**/go.sum') }}
