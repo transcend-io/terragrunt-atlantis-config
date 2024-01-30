@@ -43,38 +43,24 @@ jobs:
             git checkout origin/master -- Dockerfile
           fi
 
-      - name: Build and cache first build stage
-        # update the first stage cache only when pushing to or tagging main
-        if: github.event_name == 'push'
-        uses: docker/build-push-action@v5
-        env:
-          # use BuildKit to speed up builds and improve caching
-          DOCKER_BUILDKIT: 1
+      - name: Setup Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
         with:
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.CR_PAT }}
-          registry: ${{ env.GHCR_HOSTNAME }}
-          repository: ${{ github.repository }}
-          target: build
-          tags: build
-          build_args: BUILDKIT_INLINE_CACHE=1
-          cache_froms: ${{ env.GHCR_HOSTNAME }}/${{ github.repository }}:build
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build the container image
         uses: docker/build-push-action@v5
-        env:
-          # use BuildKit to speed up builds and improve caching
-          DOCKER_BUILDKIT: 1
         with:
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.CR_PAT }}
-          registry: ${{ env.GHCR_HOSTNAME }}
-          repository: ${{ github.repository }}
-          # auto create the tag if we're in a push/pull_request
-          tag_with_ref: ${{ github.event_name != 'workflow_dispatch' }}
+          push: ${{ github.event_name != 'pull_request' }}
+          builder: ${{ steps.buildx.outputs.name }}
+          platforms: linux/amd64,linux/arm64
           # this will add the proper tag if we're in workflow_dispatch
           tags: ${{ github.event.inputs.tag }}
-          build_args: BUILDKIT_INLINE_CACHE=1
-          cache_froms: >
-            ${{ env.GHCR_HOSTNAME }}/${{ github.repository }}:build,
-            ${{ env.GHCR_HOSTNAME }}/${{ github.repository }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
