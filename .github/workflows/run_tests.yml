@@ -6,11 +6,11 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        golang-version: [1.21]
+        golang-version: ["1.21"]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - name: Setup golang v${{ matrix.golang-version }}
+      - name: Setup golang
         uses: actions/setup-go@v5
         with:
           go-version: "^${{ matrix.golang-version }}"
@@ -21,4 +21,4 @@ jobs:
           restore-keys: |
             ${{ matrix.os }}-${{ matrix.golang-version }}-go-
       - run: mkdir cmd/test_artifacts
-      - run: go test -v ./...
+      - run: go test -v -cover ./...
