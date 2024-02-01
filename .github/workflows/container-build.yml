@@ -17,6 +17,9 @@ on:
         description: Build a container image for this git tag
         required: true
 
+permissions:
+  packages: write # ghcr access
+
 env:
   # GitHub Container Registry hostname
   GHCR_HOSTNAME: ghcr.io
@@ -54,13 +57,34 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Prepare
+        id: prep
+        run: |
+          VERSION="${{ github.event.inputs.tag }}"
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            VERSION="${GITHUB_REF/refs\/tags\//}"
+          fi
+          if [[ -z "$VERSION" ]]; then
+            VERSION="ref-${GITHUB_SHA::8}"
+          fi
+          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Generate images meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ env.GHCR_HOSTNAME }}/${{ github.repository }}
+          tags: |
+            type=raw,value=${{ steps.prep.outputs.VERSION }}
+
       - name: Build the container image
         uses: docker/build-push-action@v5
         with:
-          push: ${{ github.event_name != 'pull_request' }}
+          push: ${{ github.event.inputs.tag != '' || startsWith(github.event.push.ref, 'refs/tags/') }}
           builder: ${{ steps.buildx.outputs.name }}
           platforms: linux/amd64,linux/arm64
-          # this will add the proper tag if we're in workflow_dispatch
-          tags: ${{ github.event.inputs.tag }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
