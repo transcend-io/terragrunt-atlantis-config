@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"regexp"
+	"slices"
 	"sort"
 
 	"github.com/hashicorp/go-getter"
@@ -702,15 +703,21 @@ func main(cmd *cobra.Command, args []string) error {
 	errGroup, _ := errgroup.WithContext(ctx)
 	sem := semaphore.NewWeighted(numExecutors)
 
+	projects := make(map[string][]AtlantisProject, len(workingDirs))
+
 	for _, workingDir := range workingDirs {
 		terragruntFiles, err := getAllTerragruntFiles(workingDir)
+
 		if err != nil {
 			return err
 		}
 
+		projects[workingDir] = make([]AtlantisProject, len(terragruntFiles))
+
 		if len(projectHclDirs) == 0 || createHclProjectChilds || (createHclProjectExternalChilds && workingDir == gitRoot) {
 			// Concurrently looking all dependencies
-			for _, terragruntPath := range terragruntFiles {
+			for i, terragruntPath := range terragruntFiles {
+				idx := i
 				terragruntPath := terragruntPath // https://golang.org/doc/faq#closures_and_goroutines
 
 				// don't create atlantis projects already covered by project hcl file projects
@@ -742,10 +749,6 @@ func main(cmd *cobra.Command, args []string) error {
 						return nil
 					}
 
-					// Lock the list as only one goroutine should be writing to config.Projects at a time
-					lock.Lock()
-					defer lock.Unlock()
-
 					// When preserving existing projects, we should update existing blocks instead of creating a
 					// duplicate, when generating something which already has representation
 					if preserveProjects {
@@ -770,7 +773,7 @@ func main(cmd *cobra.Command, args []string) error {
 						}
 					} else {
 						log.Info("Created project for ", terragruntPath)
-						config.Projects = append(config.Projects, *project)
+						projects[workingDir][idx] = *project
 					}
 
 					return nil
@@ -813,7 +816,11 @@ func main(cmd *cobra.Command, args []string) error {
 			}
 		}
 	}
-
+	for _, v := range projects {
+		config.Projects = append(config.Projects, v...)
+	}
+	// Since we pre-allocate the Projects slice we may have projects with empty dirs (default). Remove them.
+	config.Projects = slices.DeleteFunc(config.Projects, func(prj AtlantisProject) bool { return prj.Dir == "" })
 	// Sort the projects in config by Dir
 	sort.Slice(config.Projects, func(i, j int) bool { return config.Projects[i].Dir < config.Projects[j].Dir })
 
