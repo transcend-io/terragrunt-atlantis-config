@@ -1,6 +1,6 @@
-FROM golang AS build
+ARG GO_VERSION=1.21
+FROM golang:${GO_VERSION} AS build
 
-ENV GO111MODULE=on
 WORKDIR /app
 
 # copy source
@@ -11,7 +11,8 @@ RUN go mod download
 
 # build the executable
 COPY cmd ./cmd
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build
+ENV CGO_ENABLED=0
+RUN go build
 
 # create super thin container with the binary only
 FROM scratch

@@ -12,24 +12,21 @@ jobs:
 
     steps:
       # Install golang
-      - uses: actions/setup-go@v2
+      - uses: actions/setup-go@v5
         with:
-          go-version: '^1.16'
-
-      # Install external go modules before cloning
-      - run: go install github.com/laher/goxc@latest
+          go-version: "^1.21"
 
       # Checkout code
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       # Install golang deps, using a cache
-      - uses: actions/cache@v2
+      - uses: actions/cache@v4
         with:
           path: ~/go/pkg/mod
-          key: ubuntu-latest-1.16-go-${{ hashFiles('**/go.sum') }}
+          key: ubuntu-latest-1.21-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
-            ubuntu-latest-1.16-go-
-      
+            ubuntu-latest-1.21-go-
+
       # build binaries for all supported environments
       - run: sudo apt update && sudo apt install -y make
       - run: make build-all
@@ -37,19 +34,19 @@ jobs:
       # Create the binary checksums
       - name: Get the version
         id: get_version
-        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/v}
-      - name: Create checksums
-        run: |
-          readonly BUILD_DIR="build/${{ steps.get_version.outputs.VERSION }}"
-          find "$BUILD_DIR" -type f -exec sha256sum {} + | awk -v build_dir="$BUILD_DIR" '{sub("^"build_dir"/", ""); print $1, $2}' > SHA256SUMS
-          find "$BUILD_DIR" -type f -exec sha512sum {} + | awk -v build_dir="$BUILD_DIR" '{sub("^"build_dir"/", ""); print $1, $2}' > SHA512SUMS
+        run: echo VERSION=${GITHUB_REF#refs/tags/v} >> $GITHUB_OUTPUT
+      - uses: jmgilman/actions-generate-checksum@24a35957fba81c6cbaefeb1e3d59ee56e3db5077
+        id: checksums
+        with:
+          patterns: "build/${{ steps.get_version.outputs.VERSION }}/*"
+          method: sha512
+          output: checksums.txt
 
       # Create the release
-      - uses: "marvinpinto/action-automatic-releases@latest"
+      - uses: "marvinpinto/action-automatic-releases@d68defdd11f9dcc7f52f35c1b7c236ee7513bcc1"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
           files: |
             build/${{ steps.get_version.outputs.VERSION }}/*
-            SHA256SUMS
-            SHA512SUMS
+            checksums.txt

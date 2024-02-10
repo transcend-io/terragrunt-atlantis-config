@@ -6,19 +6,19 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        golang-version: [1.13, 1.14, 1.15, 1.16, 1.17]
+        golang-version: ["1.21"]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
-      - name: Setup golang v${{ matrix.golang-version }}
-        uses: actions/setup-go@v2
+      - uses: actions/checkout@v4
+      - name: Setup golang
+        uses: actions/setup-go@v5
         with:
           go-version: "^${{ matrix.golang-version }}"
-      - uses: actions/cache@v2
+      - uses: actions/cache@v4
         with:
           path: ~/go/pkg/mod
           key: ${{ matrix.os }}-${{ matrix.golang-version }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ matrix.os }}-${{ matrix.golang-version }}-go-
       - run: mkdir cmd/test_artifacts
-      - run: go test -v ./...
+      - run: go test -v -cover ./...
