@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"io/ioutil"
+	"os"
 
 	log "github.com/sirupsen/logrus"
 
@@ -70,7 +70,7 @@ type AutoplanConfig struct {
 // in to preserve some parts of the old config
 func readOldConfig() (*AtlantisConfig, error) {
 	// The old file not existing is not an error, as it should not exist on the very first run
-	bytes, err := ioutil.ReadFile(outputPath)
+	bytes, err := os.ReadFile(outputPath)
 	if err != nil {
 		log.Info("Could not find an old config file. Starting from scratch")
 		return nil, nil
