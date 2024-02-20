@@ -623,3 +623,12 @@ func TestWithExecutionOrderGroups(t *testing.T) {
 		"--execution-order-groups",
 	})
 }
+
+func TestEnvHCLProjectMarkerRelDeps(t *testing.T) {
+	runTest(t, filepath.Join("golden", "project_marker_reldep.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "project_hcl_with_project_marker_reldep"),
+		"--project-hcl-files=environment.hcl",
+		"--use-project-markers=true",
+	})
+}
