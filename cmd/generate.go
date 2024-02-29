@@ -201,6 +201,17 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 				// Remove the prefix so we have a valid filesystem path
 				parsedSource = strings.TrimPrefix(parsedSource, "file://")
 
+				moduleTerragruntFilePath := filepath.Join(parsedSource, "extra.hcl")
+				if _, err := os.Stat(moduleTerragruntFilePath); err == nil {
+					extraLocals, err := parseLocals(moduleTerragruntFilePath, terragruntOptions, nil)
+					if err != nil {
+						return nil, err
+					}
+					for _, extraDep := range extraLocals.ExtraAtlantisDependencies {
+						dependencies = append(dependencies, filepath.Join(parsedSource, extraDep))
+					}
+				}
+
 				dependencies = append(dependencies, filepath.Join(parsedSource, "*.tf*"))
 
 				ls, err := parseTerraformLocalModuleSource(parsedSource)
