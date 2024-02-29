@@ -48,7 +48,7 @@ Then, make sure `terragrunt-atlantis-config` is present on your Atlantis server.
 
 ```hcl
 variable "terragrunt_atlantis_config_version" {
-  default = "1.17.4"
+  default = "1.22.0"
 }
 
 build {
@@ -107,6 +107,36 @@ If you specify `extra_atlantis_dependencies` in the parent Terragrunt module, th
 1. Any function in a parent will be evaluated from the child's directory. So you can use `get_parent_terragrunt_dir()` and other functions like you normally would in terragrunt.
 2. Absolute paths will work as they would in a child module, and the path in the output will be relative from the child module to the absolute path
 3. Relative paths, like the string `"foo.json"`, will be evaluated as relative to the Child module. This means that if you need something relative to the parent module, you should use something like `"${get_parent_terragrunt_dir()}/foo.json"`
+
+### Extra dependencies in modules
+
+You might be using local modules in the same repository, referenced from `source` in a `terraform` block in `terragrunt.hcl` to share code between multiple environments for example.
+These shared local modules might contain additional non-terragrunt files that should trigger a run of the calling module.
+Such files might be a Dockerfile or python source code for lambda functions.
+If you include an `extra.hcl` file in the shared local module folder, `extra_atlantis_dependencies` declared in it will be interpreted relative to the shared module folder and included in the `when_modified` list.
+
+
+Place a file in `shared_modules/some_app/extra.hcl` declaring this extra dependency:
+```hcl
+locals {
+  extra_atlantis_dependencies = [
+    "src/*.py"
+  ]
+}
+```
+
+Will result in these triggers:
+
+```yaml
+- autoplan:
+    enabled: false
+    when_modified:
+      - "*.hcl"
+      - "../../shared_modules/src/*.py"
+      - "*.tf*"
+  dir: prod_env/customer-a
+```
+
 
 ## All Flags
 
