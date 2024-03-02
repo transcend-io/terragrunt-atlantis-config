@@ -30,6 +30,7 @@ test_artifacts
 *.dll
 *.so
 *.dylib
+terragrunt-atlantis-config
 
 # Test binary, built with `go test -c`
 *.test
