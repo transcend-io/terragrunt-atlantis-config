@@ -813,7 +813,7 @@ func main(cmd *cobra.Command, args []string) error {
 	// Sort the projects in config by Dir
 	sort.Slice(config.Projects, func(i, j int) bool { return config.Projects[i].Dir < config.Projects[j].Dir })
 
-	if executionOrderGroups {
+	if executionOrderGroups || dependsOn {
 		projectsMap := make(map[string]*AtlantisProject, len(config.Projects))
 		for i := range config.Projects {
 			projectsMap[config.Projects[i].Dir] = &config.Projects[i]
@@ -825,6 +825,7 @@ func main(cmd *cobra.Command, args []string) error {
 			hasChanges = false
 			for _, project := range config.Projects {
 				executionOrderGroup := 0
+				dependsOnList := []string{}
 				// choose order group based on dependencies
 				for _, dep := range project.Autoplan.WhenModified {
 					depPath := filepath.Dir(filepath.Join(project.Dir, dep))
@@ -838,12 +839,20 @@ func main(cmd *cobra.Command, args []string) error {
 						// skip not project dependencies
 						continue
 					}
-					if depProject.ExecutionOrderGroup+1 > executionOrderGroup {
-						executionOrderGroup = depProject.ExecutionOrderGroup + 1
+					if depProject.ExecutionOrderGroup != nil {
+						if *depProject.ExecutionOrderGroup+1 > executionOrderGroup {
+							executionOrderGroup = *depProject.ExecutionOrderGroup + 1
+						}
 					}
+					dependsOnList = append(dependsOnList, depProject.Name)
 				}
-				if projectsMap[project.Dir].ExecutionOrderGroup != executionOrderGroup {
-					projectsMap[project.Dir].ExecutionOrderGroup = executionOrderGroup
+				if projectsMap[project.Dir].ExecutionOrderGroup == nil || *projectsMap[project.Dir].ExecutionOrderGroup != executionOrderGroup {
+					if executionOrderGroups {
+						projectsMap[project.Dir].ExecutionOrderGroup = &executionOrderGroup
+					}
+					if dependsOn {
+						projectsMap[project.Dir].DependsOn = dependsOnList
+					}
 					// repeat the main cycle when changed some project
 					hasChanges = true
 				}
@@ -856,12 +865,14 @@ func main(cmd *cobra.Command, args []string) error {
 		}
 
 		// Sort by execution_order_group
-		sort.Slice(config.Projects, func(i, j int) bool {
-			if config.Projects[i].ExecutionOrderGroup == config.Projects[j].ExecutionOrderGroup {
-				return config.Projects[i].Dir < config.Projects[j].Dir
-			}
-			return config.Projects[i].ExecutionOrderGroup < config.Projects[j].ExecutionOrderGroup
-		})
+		if executionOrderGroups {
+			sort.Slice(config.Projects, func(i, j int) bool {
+				if *config.Projects[i].ExecutionOrderGroup == *config.Projects[j].ExecutionOrderGroup {
+					return config.Projects[i].Dir < config.Projects[j].Dir
+				}
+				return *config.Projects[i].ExecutionOrderGroup < *config.Projects[j].ExecutionOrderGroup
+			})
+		}
 	}
 
 	// Convert config to YAML string
@@ -910,13 +921,21 @@ var createHclProjectChilds bool
 var createHclProjectExternalChilds bool
 var useProjectMarkers bool
 var executionOrderGroups bool
+var dependsOn bool
 
 // generateCmd represents the generate command
 var generateCmd = &cobra.Command{
 	Use:   "generate",
 	Short: "Makes atlantis config",
 	Long:  `Logs Yaml representing Atlantis config to stderr`,
-	RunE:  main,
+	// Test is needed to confirm that if --depends on is set, --create-project-name is also set.
+	PreRun: func(cmd *cobra.Command, args []string) {
+		dependsOn, _ := cmd.Flags().GetBool("depends-on")
+		if dependsOn {
+			cmd.MarkFlagRequired("create-project-name")
+		}
+	},
+	RunE: main,
 }
 
 func init() {
@@ -950,6 +969,7 @@ func init() {
 	generateCmd.PersistentFlags().BoolVar(&createHclProjectExternalChilds, "create-hcl-project-external-childs", true, "Creates Atlantis projects for terragrunt child modules outside the directories containing the HCL files defined in --project-hcl-files")
 	generateCmd.PersistentFlags().BoolVar(&useProjectMarkers, "use-project-markers", false, "Creates Atlantis projects only for project hcl files with locals: atlantis_project = true")
 	generateCmd.PersistentFlags().BoolVar(&executionOrderGroups, "execution-order-groups", false, "Computes execution_order_groups for projects")
+	generateCmd.PersistentFlags().BoolVar(&dependsOn, "depends-on", false, "Computes depends_on for projects. Requires --create-project-name.")
 }
 
 // Runs a set of arguments, returning the output

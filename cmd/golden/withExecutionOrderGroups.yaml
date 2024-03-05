@@ -8,6 +8,7 @@ projects:
         - '*.hcl'
         - '*.tf*'
     dir: dependency
+    execution_order_group: 0
   - autoplan:
       enabled: false
       when_modified:

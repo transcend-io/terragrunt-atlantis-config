@@ -43,6 +43,8 @@ func resetForRun() error {
 	createHclProjectChilds = false
 	createHclProjectExternalChilds = true
 	useProjectMarkers = false
+	executionOrderGroups = false
+	dependsOn = false
 
 	return nil
 }
@@ -621,5 +623,24 @@ func TestWithExecutionOrderGroups(t *testing.T) {
 		"--root",
 		filepath.Join("..", "test_examples", "chained_dependencies"),
 		"--execution-order-groups",
+	})
+}
+
+func TestWithExecutionOrderGroupsAndDependsOn(t *testing.T) {
+	runTest(t, filepath.Join("golden", "withExecutionOrderGroupsAndDependsOn.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "chained_dependencies"),
+		"--execution-order-groups",
+		"--depends-on",
+		"--create-project-name",
+	})
+}
+
+func TestWithDependsOn(t *testing.T) {
+	runTest(t, filepath.Join("golden", "withDependsOn.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "chained_dependencies"),
+		"--depends-on",
+		"--create-project-name",
 	})
 }
