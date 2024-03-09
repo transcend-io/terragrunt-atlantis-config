@@ -8,7 +8,7 @@ assignees: ''
 ---
 ## Bug report
 
-Summarize what you were trying to do when you issue appeared.
+Summarize what you were trying to do when the issue appeared.
 
 **To Reproduce**
 
