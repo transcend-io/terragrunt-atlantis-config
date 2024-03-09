@@ -8,6 +8,8 @@ assignees: ''
 ---
 ## Bug report
 
+Summarize what you were trying to do when you issue appeared.
+
 **To Reproduce**
 
 Summarize how to reproduce the behavior. For example:
