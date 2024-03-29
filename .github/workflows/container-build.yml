@@ -19,6 +19,7 @@ on:
 
 permissions:
   packages: write # ghcr access
+  contents: write # create releases
 
 env:
   # GitHub Container Registry hostname
