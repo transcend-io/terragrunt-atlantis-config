@@ -6,19 +6,9 @@ on:
     branches: [master]
     tags: ["*"]
 
-  # run on PRs against master
-  pull_request:
-    branches: [master]
-
-  # manual trigger
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: Build a container image for this git tag
-        required: true
-
 permissions:
   packages: write # ghcr access
+  contents: write # create releases
 
 env:
   # GitHub Container Registry hostname
@@ -81,7 +71,7 @@ jobs:
       - name: Build the container image
         uses: docker/build-push-action@v5
         with:
-          push: ${{ github.event.inputs.tag != '' || startsWith(github.event.push.ref, 'refs/tags/') }}
+          push: true
           builder: ${{ steps.buildx.outputs.name }}
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}

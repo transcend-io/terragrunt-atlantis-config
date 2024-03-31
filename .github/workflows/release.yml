@@ -35,7 +35,7 @@ jobs:
       - name: Get the version
         id: get_version
         run: echo VERSION=${GITHUB_REF#refs/tags/v} >> $GITHUB_OUTPUT
-      - uses: jmgilman/actions-generate-checksum@24a35957fba81c6cbaefeb1e3d59ee56e3db5077
+      - uses: jmgilman/actions-generate-checksum@521a903edf511407d8bd5535d257402fd9bb5db0
         id: checksums
         with:
           patterns: "build/${{ steps.get_version.outputs.VERSION }}/*"
