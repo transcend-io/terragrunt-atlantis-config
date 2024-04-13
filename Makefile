@@ -1,4 +1,4 @@
-VERSION=1.17.8
+VERSION=1.17.9
 PATH_BUILD=build/
 FILE_COMMAND=terragrunt-atlantis-config
 FILE_ARCH=$(shell go env GOOS)_$(shell go env GOARCH)

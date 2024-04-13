@@ -191,7 +191,7 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 			}
 
 			// Check if the path begins with a drive letter, denoting Windows
-			isWindowsPath, err := regexp.MatchString(`^[A-Z]:`, parsedSource)
+			isWindowsPath, err := regexp.MatchString(`^[A-Za-z]:`, parsedSource)
 			if err != nil {
 				return nil, err
 			}
