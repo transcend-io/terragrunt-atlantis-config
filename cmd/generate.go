@@ -828,7 +828,7 @@ func main(cmd *cobra.Command, args []string) error {
 				dependsOnList := []string{}
 				// choose order group based on dependencies
 				for _, dep := range project.Autoplan.WhenModified {
-					depPath := filepath.Dir(filepath.Join(project.Dir, dep))
+					depPath := filepath.ToSlash(filepath.Dir(filepath.Join(project.Dir, dep)))
 					if depPath == project.Dir {
 						// skip dependency on oneself
 						continue
