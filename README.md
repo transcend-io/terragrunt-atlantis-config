@@ -132,7 +132,7 @@ One way to customize the behavior of this module is through CLI flag values pass
 | `--filter`                   | Path or glob expression to the directory you want scope down the config for. Default is all files in root                                                                       | ""                |
 | `--num-executors`            | Number of executors used for parallel generation of projects. Default is 15                                                                                                     | 15                |
 | `--execution-order-groups`   | Computes execution_order_group for projects                                                                                                                                     | false             |
-| `--depends-on            `   | Computes depends_on for projects. Project names are required.                                                                                                                   | false             |
+| `--depends-on`               | Computes depends_on for projects. Project names are required.                                                                                                                   | false             |
 
 ## Project generation
 
