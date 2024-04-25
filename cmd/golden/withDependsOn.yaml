@@ -1,0 +1,45 @@
+parallel_apply: true
+parallel_plan: true
+projects:
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+  dir: dependency
+  name: dependency
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+    - ../dependency/terragrunt.hcl
+  depends_on:
+  - dependency
+  dir: depender
+  name: depender
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+    - ../depender/terragrunt.hcl
+    - ../dependency/terragrunt.hcl
+    - nested/terragrunt.hcl
+  depends_on:
+  - depender
+  - dependency
+  - depender_on_depender_nested
+  dir: depender_on_depender
+  name: depender_on_depender
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+    - ../../dependency/terragrunt.hcl
+  depends_on:
+  - dependency
+  dir: depender_on_depender/nested
+  name: depender_on_depender_nested
+version: 3 

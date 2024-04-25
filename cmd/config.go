@@ -54,7 +54,10 @@ type AtlantisProject struct {
 	ApplyRequirements *[]string `json:"apply_requirements,omitempty"`
 
 	// Atlantis use ExecutionOrderGroup for sort projects before applying/planning
-	ExecutionOrderGroup int `json:"execution_order_group,omitempty"`
+	ExecutionOrderGroup *int `json:"execution_order_group,omitempty"`
+
+	// Atlantis uses DependsOn to define dependencies between projects
+	DependsOn []string `json:"depends_on,omitempty"`
 }
 
 // Autoplan settings for which plans affect other plans
