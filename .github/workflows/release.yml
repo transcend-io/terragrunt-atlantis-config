@@ -35,12 +35,11 @@ jobs:
       - name: Get the version
         id: get_version
         run: echo VERSION=${GITHUB_REF#refs/tags/v} >> $GITHUB_OUTPUT
-      - uses: jmgilman/actions-generate-checksum@521a903edf511407d8bd5535d257402fd9bb5db0
-        id: checksums
-        with:
-          patterns: "build/${{ steps.get_version.outputs.VERSION }}/*"
-          method: sha512
-          output: checksums.txt
+      - name: Create checksums
+        run: |
+          readonly BUILD_DIR="build/${{ steps.get_version.outputs.VERSION }}"
+          find "$BUILD_DIR" -type f -exec sha256sum {} + | awk -v build_dir="$BUILD_DIR" '{sub("^"build_dir"/", ""); print $1, $2}' > SHA256SUMS
+          find "$BUILD_DIR" -type f -exec sha512sum {} + | awk -v build_dir="$BUILD_DIR" '{sub("^"build_dir"/", ""); print $1, $2}' > SHA512SUMS
 
       # Create the release
       - uses: "marvinpinto/action-automatic-releases@d68defdd11f9dcc7f52f35c1b7c236ee7513bcc1"
@@ -49,4 +48,5 @@ jobs:
           prerelease: false
           files: |
             build/${{ steps.get_version.outputs.VERSION }}/*
-            checksums.txt
+            SHA256SUMS
+            SHA512SUMS
