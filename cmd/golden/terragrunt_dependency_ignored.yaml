@@ -7,11 +7,13 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
   dir: dependency
 - autoplan:
     enabled: false
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
   dir: depender
 version: 3
