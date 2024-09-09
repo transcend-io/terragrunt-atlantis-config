@@ -113,20 +113,20 @@ func parseLocals(path string, terragruntOptions *options.TerragruntOptions, incl
 	}
 
 	// Decode just the Base blocks. See the function docs for DecodeBaseBlocks for more info on what base blocks are.
-	createExtensions, err := config.DecodeBaseBlocks(terragruntOptions, parser, file, path, includeFromChild, nil)
+	contextExtensions, err := config.DecodeBaseBlocks(terragruntOptions, parser, file, path, includeFromChild, nil)
 	if err != nil {
 		return ResolvedLocals{}, err
 	}
 
 	// Recurse on the parent to merge in the locals from that file
 	mergedParentLocals := ResolvedLocals{}
-	if createExtensions.TrackInclude != nil && includeFromChild == nil {
-		for _, includeConfig := range createExtensions.TrackInclude.CurrentList {
+	if contextExtensions.TrackInclude != nil && includeFromChild == nil {
+		for _, includeConfig := range contextExtensions.TrackInclude.CurrentList {
 			parentLocals, _ := parseLocals(includeConfig.Path, terragruntOptions, &includeConfig)
 			mergedParentLocals = mergeResolvedLocals(mergedParentLocals, parentLocals)
 		}
 	}
-	childLocals := resolveLocals(*createExtensions.Locals)
+	childLocals := resolveLocals(*contextExtensions.Locals)
 
 	return mergeResolvedLocals(mergedParentLocals, childLocals), nil
 }
