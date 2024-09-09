@@ -259,6 +259,7 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 			depPath := dep
 			terrOpts, _ := options.NewTerragruntOptionsWithConfigPath(depPath)
 			terrOpts.OriginalTerragruntConfigPath = terragruntOptions.OriginalTerragruntConfigPath
+			terrOpts.Env = terragruntOptions.Env
 			childDeps, err := getDependencies(depPath, terrOpts)
 			if err != nil {
 				continue
