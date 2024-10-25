@@ -30,7 +30,7 @@ func getEnvs() map[string]string {
 	m := make(map[string]string)
 
 	for _, env := range envs {
-		results := strings.SplitN(env, "=", 1)
+		results := strings.SplitN(env, "=", 2)
 		m[results[0]] = results[1]
 	}
 
@@ -191,7 +191,7 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 			}
 
 			// Check if the path begins with a drive letter, denoting Windows
-			isWindowsPath, err := regexp.MatchString(`^[A-Z]:`, parsedSource)
+			isWindowsPath, err := regexp.MatchString(`^[A-Za-z]:`, parsedSource)
 			if err != nil {
 				return nil, err
 			}
@@ -270,6 +270,7 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 			depPath := dep
 			terrOpts, _ := options.NewTerragruntOptionsWithConfigPath(depPath)
 			terrOpts.OriginalTerragruntConfigPath = terragruntOptions.OriginalTerragruntConfigPath
+			terrOpts.Env = terragruntOptions.Env
 			childDeps, err := getDependencies(depPath, terrOpts)
 			if err != nil {
 				continue
@@ -588,17 +589,21 @@ func getAllTerragruntFiles(path string) ([]string, error) {
 		return nil, err
 	}
 
-	// If filterPath is provided, override workingPath instead of gitRoot
+	// If filterPaths is provided, override workingPath instead of gitRoot
 	// We do this here because we want to keep the relative path structure of Terragrunt files
 	// to root and just ignore the ConfigFiles
 	workingPaths := []string{path}
 
 	// filters are not working (yet) if using project hcl files (which are kind of filters by themselves)
-	if filterPath != "" && len(projectHclFiles) == 0 {
-		// get all matching folders
-		workingPaths, err = filepath.Glob(filterPath)
-		if err != nil {
-			return nil, err
+	if len(filterPaths) > 0 && len(projectHclFiles) == 0 {
+		workingPaths = []string{}
+		for _, filterPath := range filterPaths {
+			// get all matching folders
+			theseWorkingPaths, err := filepath.Glob(filterPath)
+			if err != nil {
+				return nil, err
+			}
+			workingPaths = append(workingPaths, theseWorkingPaths...)
 		}
 	}
 
@@ -824,7 +829,7 @@ func main(cmd *cobra.Command, args []string) error {
 	// Sort the projects in config by Dir
 	sort.Slice(config.Projects, func(i, j int) bool { return config.Projects[i].Dir < config.Projects[j].Dir })
 
-	if executionOrderGroups {
+	if executionOrderGroups || dependsOn {
 		projectsMap := make(map[string]*AtlantisProject, len(config.Projects))
 		for i := range config.Projects {
 			projectsMap[config.Projects[i].Dir] = &config.Projects[i]
@@ -836,9 +841,10 @@ func main(cmd *cobra.Command, args []string) error {
 			hasChanges = false
 			for _, project := range config.Projects {
 				executionOrderGroup := 0
+				dependsOnList := []string{}
 				// choose order group based on dependencies
 				for _, dep := range project.Autoplan.WhenModified {
-					depPath := filepath.Dir(filepath.Join(project.Dir, dep))
+					depPath := filepath.ToSlash(filepath.Dir(filepath.Join(project.Dir, dep)))
 					if depPath == project.Dir {
 						// skip dependency on oneself
 						continue
@@ -849,12 +855,20 @@ func main(cmd *cobra.Command, args []string) error {
 						// skip not project dependencies
 						continue
 					}
-					if depProject.ExecutionOrderGroup+1 > executionOrderGroup {
-						executionOrderGroup = depProject.ExecutionOrderGroup + 1
+					if depProject.ExecutionOrderGroup != nil {
+						if *depProject.ExecutionOrderGroup+1 > executionOrderGroup {
+							executionOrderGroup = *depProject.ExecutionOrderGroup + 1
+						}
 					}
+					dependsOnList = append(dependsOnList, depProject.Name)
 				}
-				if projectsMap[project.Dir].ExecutionOrderGroup != executionOrderGroup {
-					projectsMap[project.Dir].ExecutionOrderGroup = executionOrderGroup
+				if projectsMap[project.Dir].ExecutionOrderGroup == nil || *projectsMap[project.Dir].ExecutionOrderGroup != executionOrderGroup {
+					if executionOrderGroups {
+						projectsMap[project.Dir].ExecutionOrderGroup = &executionOrderGroup
+					}
+					if dependsOn {
+						projectsMap[project.Dir].DependsOn = dependsOnList
+					}
 					// repeat the main cycle when changed some project
 					hasChanges = true
 				}
@@ -867,12 +881,14 @@ func main(cmd *cobra.Command, args []string) error {
 		}
 
 		// Sort by execution_order_group
-		sort.Slice(config.Projects, func(i, j int) bool {
-			if config.Projects[i].ExecutionOrderGroup == config.Projects[j].ExecutionOrderGroup {
-				return config.Projects[i].Dir < config.Projects[j].Dir
-			}
-			return config.Projects[i].ExecutionOrderGroup < config.Projects[j].ExecutionOrderGroup
-		})
+		if executionOrderGroups {
+			sort.Slice(config.Projects, func(i, j int) bool {
+				if *config.Projects[i].ExecutionOrderGroup == *config.Projects[j].ExecutionOrderGroup {
+					return config.Projects[i].Dir < config.Projects[j].Dir
+				}
+				return *config.Projects[i].ExecutionOrderGroup < *config.Projects[j].ExecutionOrderGroup
+			})
+		}
 	}
 
 	// Convert config to YAML string
@@ -909,7 +925,7 @@ var createWorkspace bool
 var createProjectName bool
 var defaultTerraformVersion string
 var defaultWorkflow string
-var filterPath string
+var filterPaths []string
 var outputPath string
 var preserveWorkflows bool
 var preserveProjects bool
@@ -921,13 +937,21 @@ var createHclProjectChilds bool
 var createHclProjectExternalChilds bool
 var useProjectMarkers bool
 var executionOrderGroups bool
+var dependsOn bool
 
 // generateCmd represents the generate command
 var generateCmd = &cobra.Command{
 	Use:   "generate",
 	Short: "Makes atlantis config",
 	Long:  `Logs Yaml representing Atlantis config to stderr`,
-	RunE:  main,
+	// Test is needed to confirm that if --depends on is set, --create-project-name is also set.
+	PreRun: func(cmd *cobra.Command, args []string) {
+		dependsOn, _ := cmd.Flags().GetBool("depends-on")
+		if dependsOn {
+			cmd.MarkFlagRequired("create-project-name")
+		}
+	},
+	RunE: main,
 }
 
 func init() {
@@ -952,7 +976,7 @@ func init() {
 	generateCmd.PersistentFlags().StringVar(&defaultWorkflow, "workflow", "", "Name of the workflow to be customized in the atlantis server. Default is to not set")
 	generateCmd.PersistentFlags().StringSliceVar(&defaultApplyRequirements, "apply-requirements", []string{}, "Requirements that must be satisfied before `atlantis apply` can be run. Currently the only supported requirements are `approved` and `mergeable`. Can be overridden by locals")
 	generateCmd.PersistentFlags().StringVar(&outputPath, "output", "", "Path of the file where configuration will be generated. Default is not to write to file")
-	generateCmd.PersistentFlags().StringVar(&filterPath, "filter", "", "Path or glob expression to the directory you want scope down the config for. Default is all files in root")
+	generateCmd.PersistentFlags().StringSliceVar(&filterPaths, "filter", []string{}, "Comma-separated paths or glob expressions to the directories you want scope down the config for. Default is all files in root.")
 	generateCmd.PersistentFlags().StringVar(&gitRoot, "root", pwd, "Path to the root directory of the git repo you want to build config for. Default is current dir")
 	generateCmd.PersistentFlags().StringVar(&defaultTerraformVersion, "terraform-version", "", "Default terraform version to specify for all modules. Can be overriden by locals")
 	generateCmd.PersistentFlags().Int64Var(&numExecutors, "num-executors", 15, "Number of executors used for parallel generation of projects. Default is 15")
@@ -961,6 +985,7 @@ func init() {
 	generateCmd.PersistentFlags().BoolVar(&createHclProjectExternalChilds, "create-hcl-project-external-childs", true, "Creates Atlantis projects for terragrunt child modules outside the directories containing the HCL files defined in --project-hcl-files")
 	generateCmd.PersistentFlags().BoolVar(&useProjectMarkers, "use-project-markers", false, "Creates Atlantis projects only for project hcl files with locals: atlantis_project = true")
 	generateCmd.PersistentFlags().BoolVar(&executionOrderGroups, "execution-order-groups", false, "Computes execution_order_groups for projects")
+	generateCmd.PersistentFlags().BoolVar(&dependsOn, "depends-on", false, "Computes depends_on for projects. Requires --create-project-name.")
 }
 
 // Runs a set of arguments, returning the output

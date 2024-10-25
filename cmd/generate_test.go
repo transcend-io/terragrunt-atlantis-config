@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/ghodss/yaml"
@@ -35,7 +36,7 @@ func resetForRun() error {
 	preserveWorkflows = true
 	preserveProjects = true
 	defaultWorkflow = ""
-	filterPath = ""
+	filterPaths = []string{}
 	outputPath = ""
 	defaultTerraformVersion = ""
 	defaultApplyRequirements = []string{}
@@ -43,6 +44,8 @@ func resetForRun() error {
 	createHclProjectChilds = false
 	createHclProjectExternalChilds = true
 	useProjectMarkers = false
+	executionOrderGroups = false
+	dependsOn = false
 
 	return nil
 }
@@ -380,7 +383,7 @@ func TestPreservingOldProjects(t *testing.T) {
     - '*.hcl'
     - '*.tf*'
   dir: someDir
-  name: projectFromPreviousRun 
+  name: projectFromPreviousRun
 `)
 	os.WriteFile(filename, contents, 0644)
 
@@ -462,6 +465,21 @@ func TestFilterFlagWithInfraLiveNonProd(t *testing.T) {
 		filepath.Join("..", "test_examples", "terragrunt-infrastructure-live-example"),
 		"--filter",
 		filepath.Join("..", "test_examples", "terragrunt-infrastructure-live-example", "non-prod"),
+	})
+}
+
+func TestFilterFlagWithInfraLiveProdAndNonProd(t *testing.T) {
+	runTest(t, filepath.Join("golden", "filterInfraLiveProdAndNonProd.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "terragrunt-infrastructure-live-example"),
+		"--filter",
+		strings.Join(
+			[]string{
+				filepath.Join("..", "test_examples", "terragrunt-infrastructure-live-example", "non-prod"),
+				filepath.Join("..", "test_examples", "terragrunt-infrastructure-live-example", "prod"),
+			},
+			",",
+		),
 	})
 }
 
@@ -627,5 +645,24 @@ func TestWithExecutionOrderGroups(t *testing.T) {
 		"--root",
 		filepath.Join("..", "test_examples", "chained_dependencies"),
 		"--execution-order-groups",
+	})
+}
+
+func TestWithExecutionOrderGroupsAndDependsOn(t *testing.T) {
+	runTest(t, filepath.Join("golden", "withExecutionOrderGroupsAndDependsOn.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "chained_dependencies"),
+		"--execution-order-groups",
+		"--depends-on",
+		"--create-project-name",
+	})
+}
+
+func TestWithDependsOn(t *testing.T) {
+	runTest(t, filepath.Join("golden", "withDependsOn.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "chained_dependencies"),
+		"--depends-on",
+		"--create-project-name",
 	})
 }

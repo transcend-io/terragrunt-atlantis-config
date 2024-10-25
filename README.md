@@ -48,7 +48,7 @@ Then, make sure `terragrunt-atlantis-config` is present on your Atlantis server.
 
 ```hcl
 variable "terragrunt_atlantis_config_version" {
-  default = "1.22.0"
+  default = "1.20.0"
 }
 
 build {
@@ -162,6 +162,7 @@ One way to customize the behavior of this module is through CLI flag values pass
 | `--filter`                   | Path or glob expression to the directory you want scope down the config for. Default is all files in root                                                                       | ""                |
 | `--num-executors`            | Number of executors used for parallel generation of projects. Default is 15                                                                                                     | 15                |
 | `--execution-order-groups`   | Computes execution_order_group for projects                                                                                                                                     | false             |
+| `--depends-on`               | Computes depends_on for projects. Project names are required.                                                                                                                   | false             |
 
 ## Project generation
 
@@ -221,11 +222,11 @@ You can install this tool locally to checkout what kinds of config it will gener
 Recommended: Install any version via go install:
 
 ```bash
-go install github.com/transcend-io/terragrunt-atlantis-config@v1.17.4
+go install github.com/transcend-io/terragrunt-atlantis-config@v1.17.9
 ```
 
-This module officially supports golang versions v1.13, v1.14, v1.15, and v1.16, tested on CircleCI with each build
-This module also officially supports both Windows and Nix-based file formats, tested on CircleCI with each build
+This module officially supports golang version v1.21, tested on Github with each build. 
+This module also officially supports both Windows and Nix-based file formats, tested on Github with each build. 
 
 Usage Examples (see below sections for all options):
 
@@ -246,7 +247,7 @@ Finally, check the log output (or your output file) for the YAML.
 
 To test any changes you've made, run `make gotestsum` (or `make test` for standard golang testing).
 
-Once all your changes are passing and your PR is reviewed, a merge into `master` will trigger a Github Actions job to build the new binary, test it, and deploy it's artifacts to Github Releases along with checksums.
+When your PR is merged and a tag is created, a Github Actions job to build the new binary, test it, and deploy it's artifacts to Github Releases along with checksums.
 
 You can then open a PR on our homebrew tap similar to https://github.com/transcend-io/homebrew-tap/pull/4, and as soon as that merges your code will be released. Homebrew is not updated for every release, as Github is the primary artifact store.
 
