@@ -108,6 +108,40 @@ If you specify `extra_atlantis_dependencies` in the parent Terragrunt module, th
 2. Absolute paths will work as they would in a child module, and the path in the output will be relative from the child module to the absolute path
 3. Relative paths, like the string `"foo.json"`, will be evaluated as relative to the Child module. This means that if you need something relative to the parent module, you should use something like `"${get_parent_terragrunt_dir()}/foo.json"`
 
+## Ignoring dependencies
+
+Similarly to `extra_atlantis_dependencies`, we can also ignore dependencies by the name of the file, or the name of the dependency block:
+
+
+```hcl
+dependency "ignore_me" {
+  config_path = find_in_parent_folders("ignore_me")
+}
+
+dependency "ignore_me_block" {
+  config_path = find_in_parent_folders("ignore_me")
+}
+
+
+locals {
+  ignore_atlantis_dependencies = [
+    find_in_parent_folders("ignore_me/terragrunt.hcl"),
+    "ignore_me_block"
+  ]
+}
+```
+
+In your `atlantis.yaml` file, there dependency shouldn't be there:
+
+```yaml
+- autoplan:
+    enabled: false
+    when_modified:
+      - "*.hcl"
+      - "*.tf*"
+  dir: example-setup/ignore_dependency
+```
+
 ## All Flags
 
 One way to customize the behavior of this module is through CLI flag values passed in at runtime. These settings will apply to all modules.
@@ -157,7 +191,8 @@ Another way to customize the output is to use `locals` values in your terragrunt
 | `atlantis_autoplan`           | Allows overriding the `--autoplan` flag for a single module                                                                                                    | bool         |
 | `atlantis_skip`               | If true on a child module, that module will not appear in the output.<br>If true on a parent module, none of that parent's children will appear in the output. | bool         |
 | `extra_atlantis_dependencies` | See [Extra dependencies](https://github.com/transcend-io/terragrunt-atlantis-config#extra-dependencies)                                                        | list(string) |
-| `atlantis_project`            | Create Atlantis project for a project hcl file. Only functional with `--project-hcl-files` and `--use-project-markers` | bool         |
+| `ignore_atlantis_dependencies` | See [Ignoring dependencies](https://github.com/transcend-io/terragrunt-atlantis-config#Ignoring-dependencies)                                                    | list(string) |
+| `atlantis_project`            | Create Atlantis project for a project hcl file. Only functional with `--project-hcl-files` and `--use-project-markers`                                         | bool         |
 
 ## Separate workspace for parallel plan and apply
 
