@@ -168,6 +168,13 @@ func TestExtraDeclaredDependencies(t *testing.T) {
 	})
 }
 
+func TestIgnoreDependencies(t *testing.T) {
+	runTest(t, filepath.Join("golden", "ignore_dependencies.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "ignore_dependency"),
+	})
+}
+
 func TestLocalTerraformModuleSource(t *testing.T) {
 	runTest(t, filepath.Join("golden", "local_terraform_module.yaml"), []string{
 		"--root",
@@ -659,4 +666,33 @@ func TestWithDependsOn(t *testing.T) {
 		"--depends-on",
 		"--create-project-name",
 	})
+}
+
+func TestSliceDifference(t *testing.T) {
+	tests := []map[string][]string{
+		map[string][]string{
+			"removeFrom":      []string{"a", "b", "c"},
+			"stringsToRemove": []string{"b"},
+			"want":            []string{"a", "c"},
+		},
+		map[string][]string{
+			"removeFrom":      []string{"a", "b", "c"},
+			"stringsToRemove": []string{},
+			"want":            []string{"a", "b", "c"},
+		},
+		map[string][]string{
+			"removeFrom":      []string{},
+			"stringsToRemove": []string{"b"},
+			"want":            []string{},
+		},
+		map[string][]string{
+			"removeFrom":      []string{"a"},
+			"stringsToRemove": []string{"b"},
+			"want":            []string{"a"},
+		},
+	}
+
+	for _, testCase := range tests {
+		assert.Equal(t, testCase["want"], sliceDifference(testCase["removeFrom"], testCase["stringsToRemove"]))
+	}
 }
