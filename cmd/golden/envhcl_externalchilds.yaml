@@ -196,7 +196,13 @@ projects:
     - ../terragrunt.hcl
     - ../someRandomDir/terragrunt.hcl
   dir: hcl_json/json_expanded
-  workflow: terragruntjson  
+  workflow: terragruntjson
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+  dir: ignore_dependency/child
 - autoplan:
     enabled: false
     when_modified:
