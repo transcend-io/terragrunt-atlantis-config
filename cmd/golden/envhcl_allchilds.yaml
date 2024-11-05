@@ -227,6 +227,16 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - ../root-module/*.py
+    - ../root-module/src/*
+    - ../root-module/*.tf*
+    - ../terraform-module/*.tf*
+  dir: local_terraform_module_extra_source/terragrunt-module
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
     - ../root-module/*.tf*
     - ../terraform-module/*.tf*
   dir: local_terraform_module_source/terragrunt-module
