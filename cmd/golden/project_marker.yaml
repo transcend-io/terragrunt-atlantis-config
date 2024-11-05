@@ -7,8 +7,10 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - '**/*.hcl'
     - '**/*.tf*'
+    - '**/*.hcl.json'
     - ../../../terragrunt.hcl
     - ../../account.hcl
     - ../region.hcl
