@@ -38,6 +38,9 @@ type ResolvedLocals struct {
 
 	// If set to true, create Atlantis project
 	markedProject *bool
+
+	// Dependencies to ignore
+	IgnoreAtlantisDependencies []string
 }
 
 // parseHcl uses the HCL2 parser to parse the given string into an HCL file body.
@@ -94,6 +97,8 @@ func mergeResolvedLocals(parent ResolvedLocals, child ResolvedLocals) ResolvedLo
 	}
 
 	parent.ExtraAtlantisDependencies = append(parent.ExtraAtlantisDependencies, child.ExtraAtlantisDependencies...)
+
+	parent.IgnoreAtlantisDependencies = append(parent.IgnoreAtlantisDependencies, child.IgnoreAtlantisDependencies...)
 
 	return parent
 }
@@ -185,6 +190,18 @@ func resolveLocals(localsAsCty cty.Value) ResolvedLocals {
 			_, val := it.Element()
 			resolved.ExtraAtlantisDependencies = append(
 				resolved.ExtraAtlantisDependencies,
+				filepath.ToSlash(val.AsString()),
+			)
+		}
+	}
+
+	ignoreDependenciesAsCty, ok := rawLocals["ignore_atlantis_dependencies"]
+	if ok {
+		it := ignoreDependenciesAsCty.ElementIterator()
+		for it.Next() {
+			_, val := it.Element()
+			resolved.IgnoreAtlantisDependencies = append(
+				resolved.IgnoreAtlantisDependencies,
 				filepath.ToSlash(val.AsString()),
 			)
 		}

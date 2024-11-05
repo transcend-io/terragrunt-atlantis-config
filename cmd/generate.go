@@ -20,6 +20,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"strings"
 	"sync"
 )
@@ -120,6 +121,14 @@ func sliceUnion(a, b []string) []string {
 	return a
 }
 
+// Removes strings in toRemove from removeFrom.
+func sliceDifference(removeFrom, elementsToRemove []string) []string {
+	return slices.DeleteFunc(removeFrom, func(dep string) bool {
+		return slices.Contains(elementsToRemove, dep)
+	})
+
+}
+
 // Parses the terragrunt config at `path` to find all modules it depends on
 func getDependencies(path string, terragruntOptions *options.TerragruntOptions) ([]string, error) {
 	res, err, _ := requestGroup.Do(path, func() (interface{}, error) {
@@ -175,7 +184,11 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 
 		// Get deps from `dependencies` and `dependency` blocks
 		if parsedConfig.Dependencies != nil && !ignoreDependencyBlocks {
-			for _, parsedPaths := range parsedConfig.Dependencies.Paths {
+			for depInd, parsedPaths := range parsedConfig.Dependencies.Paths {
+				depName := parsedConfig.TerragruntDependencies[depInd].Name
+				if locals.IgnoreAtlantisDependencies != nil && slices.Contains(locals.IgnoreAtlantisDependencies, depName) {
+					continue
+				}
 				dependencies = append(dependencies, filepath.Join(parsedPaths, "terragrunt.hcl"))
 			}
 		}
@@ -246,9 +259,15 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 			}
 		}
 
+		var ignoreRemoved = nonEmptyDeps
+		// Remove deps from locals
+		if locals.IgnoreAtlantisDependencies != nil {
+			ignoreRemoved = sliceDifference(ignoreRemoved, locals.IgnoreAtlantisDependencies)
+		}
+
 		// Recurse to find dependencies of all dependencies
 		cascadedDeps := []string{}
-		for _, dep := range nonEmptyDeps {
+		for _, dep := range ignoreRemoved {
 			cascadedDeps = append(cascadedDeps, dep)
 
 			// The "cascading" feature is protected by a flag
