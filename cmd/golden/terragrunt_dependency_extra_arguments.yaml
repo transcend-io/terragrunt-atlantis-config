@@ -1,0 +1,24 @@
+automerge: false
+parallel_apply: true
+parallel_plan: true
+projects:
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+    - extra.tfvars
+  dir: dependency
+  name: dependency
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+    - ../dependency/terragrunt.hcl
+    - ../dependency/extra.tfvars
+  depends_on:
+  - dependency
+  dir: depender
+  name: depender
+version: 3
