@@ -40,8 +40,8 @@ projects:
     - ../dependency/terragrunt.hcl
     - nested/terragrunt.hcl
   depends_on:
-  - depender
   - dependency
+  - depender
   - depender_on_depender_nested
   dir: depender_on_depender
   execution_order_group: 2

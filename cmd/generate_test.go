@@ -204,6 +204,16 @@ func TestIgnoringTerragruntDependencies(t *testing.T) {
 	})
 }
 
+func TestTerragruntDependenciesExtraArguments(t *testing.T) {
+	runTest(t, filepath.Join("golden", "terragrunt_dependency_extra_arguments.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "terragrunt_dependency_extra_arguments"),
+		"--depends-on",
+		"--create-project-name",
+	})
+}
+
+
 func TestCustomWorkflowName(t *testing.T) {
 	runTest(t, filepath.Join("golden", "different_workflow_names.yaml"), []string{
 		"--root",

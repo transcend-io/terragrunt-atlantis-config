@@ -16,6 +16,8 @@ import (
 	"golang.org/x/sync/semaphore"
 	"golang.org/x/sync/singleflight"
 
+	"bitbucket.org/creachadair/stringset"
+
 	"context"
 	"os"
 	"path/filepath"
@@ -830,7 +832,7 @@ func main(cmd *cobra.Command, args []string) error {
 			hasChanges = false
 			for _, project := range config.Projects {
 				executionOrderGroup := 0
-				dependsOnList := []string{}
+				dependsOnList := stringset.New()
 				// choose order group based on dependencies
 				for _, dep := range project.Autoplan.WhenModified {
 					depPath := filepath.ToSlash(filepath.Dir(filepath.Join(project.Dir, dep)))
@@ -849,14 +851,14 @@ func main(cmd *cobra.Command, args []string) error {
 							executionOrderGroup = *depProject.ExecutionOrderGroup + 1
 						}
 					}
-					dependsOnList = append(dependsOnList, depProject.Name)
+					dependsOnList.Add(depProject.Name)
 				}
 				if projectsMap[project.Dir].ExecutionOrderGroup == nil || *projectsMap[project.Dir].ExecutionOrderGroup != executionOrderGroup {
 					if executionOrderGroups {
 						projectsMap[project.Dir].ExecutionOrderGroup = &executionOrderGroup
 					}
 					if dependsOn {
-						projectsMap[project.Dir].DependsOn = dependsOnList
+						projectsMap[project.Dir].DependsOn = dependsOnList.Elements()
 					}
 					// repeat the main cycle when changed some project
 					hasChanges = true

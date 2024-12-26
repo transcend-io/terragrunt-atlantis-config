@@ -789,6 +789,21 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - extra.tfvars
+  dir: terragrunt_dependency_extra_arguments/dependency
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+    - ../dependency/terragrunt.hcl
+    - ../dependency/extra.tfvars
+  dir: terragrunt_dependency_extra_arguments/depender
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
     - ../terragrunt.hcl
     - ../common/terragrunt.hcl
     - ../dependency/terragrunt.hcl

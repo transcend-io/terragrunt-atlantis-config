@@ -19,6 +19,7 @@ require (
 )
 
 require (
+	bitbucket.org/creachadair/stringset v0.0.14 // indirect
 	cloud.google.com/go v0.110.10 // indirect
 	cloud.google.com/go/compute v1.23.1 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
@@ -123,7 +124,7 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	golang.org/x/crypto v0.14.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
-	golang.org/x/mod v0.12.0 // indirect
+	golang.org/x/mod v0.15.0 // indirect
 	golang.org/x/net v0.17.0 // indirect
 	golang.org/x/oauth2 v0.13.0 // indirect
 	golang.org/x/sys v0.20.0 // indirect
