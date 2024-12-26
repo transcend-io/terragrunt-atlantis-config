@@ -213,7 +213,6 @@ func TestTerragruntDependenciesExtraArguments(t *testing.T) {
 	})
 }
 
-
 func TestCustomWorkflowName(t *testing.T) {
 	runTest(t, filepath.Join("golden", "different_workflow_names.yaml"), []string{
 		"--root",
