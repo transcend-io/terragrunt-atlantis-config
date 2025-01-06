@@ -168,6 +168,28 @@ func TestExtraDeclaredDependencies(t *testing.T) {
 	})
 }
 
+func TestNonStringErrorOnExtraDeclaredDependencies(t *testing.T) {
+	err := resetForRun()
+	if err != nil {
+		t.Error("Failed to reset default flags")
+		return
+	}
+
+	rootCmd.SetArgs([]string{
+		"generate",
+		"--root",
+		filepath.Join("..", "test_examples_errors", "extra_dependency_error"),
+	})
+	err = rootCmd.Execute()
+	
+	expectedError := "extra_atlantis_dependencies contains non-string value at position 4"
+	if err == nil || err.Error() != expectedError {
+		t.Errorf("Expected error '%s', got '%v'", expectedError, err)
+		return
+	}
+	return
+}
+
 func TestLocalTerraformModuleSource(t *testing.T) {
 	runTest(t, filepath.Join("golden", "local_terraform_module.yaml"), []string{
 		"--root",
