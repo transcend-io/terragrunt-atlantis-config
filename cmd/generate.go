@@ -155,7 +155,8 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 			config.DependenciesBlock,
 			config.TerraformBlock,
 		}
-		parsedConfig, err := config.PartialParseConfigFile(path, terragruntOptions, nil, decodeTypes)
+		configContext := config.NewParsingContext(context.Background(), terragruntOptions).WithDecodeList(decodeTypes...)
+		parsedConfig, err := config.PartialParseConfigFile(configContext, path, nil)
 		if err != nil {
 			getDependenciesCache.set(path, getDependenciesOutput{nil, err})
 			return nil, err

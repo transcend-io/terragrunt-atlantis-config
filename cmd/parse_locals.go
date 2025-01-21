@@ -5,12 +5,15 @@ package cmd
 // parses the `locals` blocks and evaluates their contents.
 
 import (
+	"context"
+
 	"github.com/gruntwork-io/go-commons/errors"
 	"github.com/gruntwork-io/terragrunt/config"
+	"github.com/gruntwork-io/terragrunt/config/hclparse"
 	"github.com/gruntwork-io/terragrunt/options"
 	"github.com/gruntwork-io/terragrunt/util"
 	"github.com/hashicorp/hcl/v2"
-	"github.com/hashicorp/hcl/v2/hclparse"
+
 	"github.com/zclconf/go-cty/cty"
 
 	"path/filepath"
@@ -46,7 +49,7 @@ func parseHcl(parser *hclparse.Parser, hcl string, filename string) (file *hcl.F
 	// those panics here and convert them to normal errors
 	defer func() {
 		if recovered := recover(); recovered != nil {
-			err = errors.WithStackTrace(config.PanicWhileParsingConfig{RecoveredValue: recovered, ConfigFile: filename})
+			err = errors.WithStackTrace(hclparse.PanicWhileParsingConfigError{RecoveredValue: recovered, ConfigFile: filename})
 		}
 	}()
 
@@ -107,26 +110,27 @@ func parseLocals(path string, terragruntOptions *options.TerragruntOptions, incl
 
 	// Parse the HCL string into an AST body
 	parser := hclparse.NewParser()
-	file, err := parseHcl(parser, configString, path)
+	hclFile, err := parseHcl(parser, configString, path)
 	if err != nil {
 		return ResolvedLocals{}, err
 	}
 
 	// Decode just the Base blocks. See the function docs for DecodeBaseBlocks for more info on what base blocks are.
-	localsAsCty, trackInclude, err := config.DecodeBaseBlocks(terragruntOptions, parser, file, path, includeFromChild, nil)
+	configContext := config.NewParsingContext(context.Background(), terragruntOptions)
+	baseBlocks, err := config.DecodeBaseBlocks(configContext, &hclparse.File{File: hclFile}, includeFromChild)
 	if err != nil {
 		return ResolvedLocals{}, err
 	}
 
 	// Recurse on the parent to merge in the locals from that file
 	mergedParentLocals := ResolvedLocals{}
-	if trackInclude != nil && includeFromChild == nil {
-		for _, includeConfig := range trackInclude.CurrentList {
+	if baseBlocks.TrackInclude != nil && includeFromChild == nil {
+		for _, includeConfig := range baseBlocks.TrackInclude.CurrentList {
 			parentLocals, _ := parseLocals(includeConfig.Path, terragruntOptions, &includeConfig)
 			mergedParentLocals = mergeResolvedLocals(mergedParentLocals, parentLocals)
 		}
 	}
-	childLocals := resolveLocals(*localsAsCty)
+	childLocals := resolveLocals(*baseBlocks.Locals)
 
 	return mergeResolvedLocals(mergedParentLocals, childLocals), nil
 }

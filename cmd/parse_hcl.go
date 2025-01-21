@@ -3,11 +3,12 @@ package cmd
 import (
 	"github.com/gruntwork-io/go-commons/errors"
 	"github.com/gruntwork-io/terragrunt/config"
+	"github.com/gruntwork-io/terragrunt/config/hclparse"
 	"github.com/gruntwork-io/terragrunt/options"
 	"github.com/gruntwork-io/terragrunt/util"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
-	"github.com/hashicorp/hcl/v2/hclparse"
+
 	"github.com/hashicorp/hcl/v2/hclwrite"
 
 	"path/filepath"
@@ -68,7 +69,7 @@ func decodeHcl(
 	// those panics here and convert them to normal errors
 	defer func() {
 		if recovered := recover(); recovered != nil {
-			err = errors.WithStackTrace(config.PanicWhileParsingConfig{RecoveredValue: recovered, ConfigFile: filename})
+			err = errors.WithStackTrace(hclparse.PanicWhileParsingConfigError{RecoveredValue: recovered, ConfigFile: filename})
 		}
 	}()
 
