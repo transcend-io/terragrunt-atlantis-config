@@ -12,7 +12,8 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/zclconf/go-cty/cty"
-
+	
+	"fmt"
 	"path/filepath"
 )
 
@@ -126,17 +127,19 @@ func parseLocals(path string, terragruntOptions *options.TerragruntOptions, incl
 			mergedParentLocals = mergeResolvedLocals(mergedParentLocals, parentLocals)
 		}
 	}
-	childLocals := resolveLocals(*localsAsCty)
-
+	childLocals, err := resolveLocals(*localsAsCty)
+	if err != nil {
+		return ResolvedLocals{}, err
+	}
 	return mergeResolvedLocals(mergedParentLocals, childLocals), nil
 }
 
-func resolveLocals(localsAsCty cty.Value) ResolvedLocals {
+func resolveLocals(localsAsCty cty.Value) (ResolvedLocals,error) {
 	resolved := ResolvedLocals{}
 
 	// Return an empty set of locals if no `locals` block was present
 	if localsAsCty == cty.NilVal {
-		return resolved
+		return resolved, nil
 	}
 	rawLocals := localsAsCty.AsValueMap()
 
@@ -182,7 +185,12 @@ func resolveLocals(localsAsCty cty.Value) ResolvedLocals {
 	if ok {
 		it := extraDependenciesAsCty.ElementIterator()
 		for it.Next() {
-			_, val := it.Element()
+			pos, val := it.Element()
+			if !val.Type().Equals(cty.String) {
+				posInt, _ := pos.AsBigFloat().Int64()
+				return resolved, fmt.Errorf("extra_atlantis_dependencies contains non-string value at position %d", posInt)
+			}
+			
 			resolved.ExtraAtlantisDependencies = append(
 				resolved.ExtraAtlantisDependencies,
 				filepath.ToSlash(val.AsString()),
@@ -190,5 +198,5 @@ func resolveLocals(localsAsCty cty.Value) ResolvedLocals {
 		}
 	}
 
-	return resolved
+	return resolved, nil
 }
