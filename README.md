@@ -55,6 +55,28 @@ build {
   // ...
   provisioner "shell" {
     inline = [
+      "curl -s -Lo terragrunt-atlantis-config https://github.com/transcend-io/terragrunt-atlantis-config/releases/download/v${var.terragrunt_atlantis_config_version}/terragrunt-atlantis-config_${var.terragrunt_atlantis_config_version}_linux_amd64",
+      "sudo install terragrunt-atlantis-config /usr/local/bin",
+    ]
+    inline_shebang = "/bin/bash -e"
+  }
+  // ...
+}
+```
+
+and just like that, your developers should never have to worry about an `atlantis.yaml` file, or even need to know what it is.
+
+:warning: **BEFORE 1.18.0**, the installation process is as follow.
+
+```hcl
+variable "terragrunt_atlantis_config_version" {
+  default = "1.17.0"
+}
+
+build {
+  // ...
+  provisioner "shell" {
+    inline = [
       "wget https://github.com/transcend-io/terragrunt-atlantis-config/releases/download/v${var.terragrunt_atlantis_config_version}/terragrunt-atlantis-config_${var.terragrunt_atlantis_config_version}_linux_amd64.tar.gz",
       "sudo tar xf terragrunt-atlantis-config_${var.terragrunt_atlantis_config_version}_linux_amd64.tar.gz",
       "sudo mv terragrunt-atlantis-config_${var.terragrunt_atlantis_config_version}_linux_amd64/terragrunt-atlantis-config_${var.terragrunt_atlantis_config_version}_linux_amd64 terragrunt-atlantis-config",
@@ -65,8 +87,6 @@ build {
   // ...
 }
 ```
-
-and just like that, your developers should never have to worry about an `atlantis.yaml` file, or even need to know what it is.
 
 ## Extra dependencies
 
