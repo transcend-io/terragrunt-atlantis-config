@@ -7,6 +7,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - ../use_terraform_12_parent.hcl
     - ../use_terraform_13_parent.hcl
   dir: includes_tf_12_then_13
@@ -16,6 +17,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - ../use_terraform_13_parent.hcl
     - ../use_terraform_12_parent.hcl
   dir: includes_tf_13_then_12
@@ -25,6 +27,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - ../use_terraform_12_parent.hcl
   dir: uses_terraform_12
   terraform_version: 0.12.9001
@@ -33,6 +36,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - ../use_terraform_13_parent.hcl
   dir: uses_terraform_13
   terraform_version: 0.13.9001

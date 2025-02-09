@@ -7,6 +7,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - ../terragrunt.hcl
   dir: inherit_from_parent
   terraform_version: 0.12.9001
@@ -15,6 +16,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - ../terragrunt.hcl
   dir: override_parent
   terraform_version: 0.13.9001
@@ -23,6 +25,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
   dir: use_flag_default
   terraform_version: 0.14.9001
 version: 3
