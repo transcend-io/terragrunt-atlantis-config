@@ -39,6 +39,7 @@ func resetForRun() error {
 	filterPaths = []string{}
 	outputPath = ""
 	defaultTerraformVersion = ""
+	defaultTerraformDistribution = ""
 	defaultApplyRequirements = []string{}
 	projectHclFiles = []string{}
 	createHclProjectChilds = false
@@ -181,7 +182,7 @@ func TestNonStringErrorOnExtraDeclaredDependencies(t *testing.T) {
 		filepath.Join("..", "test_examples_errors", "extra_dependency_error"),
 	})
 	err = rootCmd.Execute()
-	
+
 	expectedError := "extra_atlantis_dependencies contains non-string value at position 4"
 	if err == nil || err.Error() != expectedError {
 		t.Errorf("Expected error '%s', got '%v'", expectedError, err)
@@ -331,6 +332,14 @@ func TestTerraformVersionConfig(t *testing.T) {
 		"--root",
 		filepath.Join("..", "test_examples", "terraform_version"),
 		"--terraform-version", "0.14.9001",
+	})
+}
+
+func TestTerraformDistributionConfig(t *testing.T) {
+	runTest(t, filepath.Join("golden", "terraform_distribution.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "terraform_distribution"),
+		"--terraform-distribution", "opentofu",
 	})
 }
 
