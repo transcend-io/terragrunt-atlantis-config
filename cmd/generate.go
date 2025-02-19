@@ -397,11 +397,17 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 		terraformVersion = locals.TerraformVersion
 	}
 
+	terraformDistribution := defaultTerraformDistribution
+	if locals.TerraformDistribution != "" {
+		terraformDistribution = locals.TerraformDistribution
+	}
+
 	project := &AtlantisProject{
-		Dir:               filepath.ToSlash(relativeSourceDir),
-		Workflow:          workflow,
-		TerraformVersion:  terraformVersion,
-		ApplyRequirements: applyRequirements,
+		Dir:                   filepath.ToSlash(relativeSourceDir),
+		Workflow:              workflow,
+		TerraformVersion:      terraformVersion,
+		TerraformDistribution: terraformDistribution,
+		ApplyRequirements:     applyRequirements,
 		Autoplan: AutoplanConfig{
 			Enabled:      resolvedAutoPlan,
 			WhenModified: uniqueStrings(relativeDependencies),
@@ -435,6 +441,7 @@ func createHclProject(sourcePaths []string, workingDir string, projectHcl string
 	applyRequirements := &defaultApplyRequirements
 	resolvedAutoPlan := autoPlan
 	terraformVersion := defaultTerraformVersion
+	terraformDistribution := defaultTerraformDistribution
 
 	projectHclFile := filepath.Join(workingDir, projectHcl)
 	projectHclOptions, err := options.NewTerragruntOptionsWithConfigPath(workingDir)
@@ -491,6 +498,10 @@ func createHclProject(sourcePaths []string, workingDir string, projectHcl string
 		terraformVersion = locals.TerraformVersion
 	}
 
+	if locals.TerraformDistribution != "" {
+		terraformDistribution = locals.TerraformDistribution
+	}
+
 	// build dependencies for terragrunt childs in directories below project hcl file
 	for _, sourcePath := range sourcePaths {
 		options, err := options.NewTerragruntOptionsWithConfigPath(sourcePath)
@@ -541,10 +552,11 @@ func createHclProject(sourcePaths []string, workingDir string, projectHcl string
 	}
 
 	project := &AtlantisProject{
-		Dir:               filepath.ToSlash(dir),
-		Workflow:          workflow,
-		TerraformVersion:  terraformVersion,
-		ApplyRequirements: applyRequirements,
+		Dir:                   filepath.ToSlash(dir),
+		Workflow:              workflow,
+		TerraformVersion:      terraformVersion,
+		TerraformDistribution: terraformDistribution,
+		ApplyRequirements:     applyRequirements,
 		Autoplan: AutoplanConfig{
 			Enabled:      resolvedAutoPlan,
 			WhenModified: uniqueStrings(append(childDependencies, projectHclDependencies...)),
@@ -913,6 +925,7 @@ var parallel bool
 var createWorkspace bool
 var createProjectName bool
 var defaultTerraformVersion string
+var defaultTerraformDistribution string
 var defaultWorkflow string
 var filterPaths []string
 var outputPath string
@@ -968,6 +981,7 @@ func init() {
 	generateCmd.PersistentFlags().StringSliceVar(&filterPaths, "filter", []string{}, "Comma-separated paths or glob expressions to the directories you want scope down the config for. Default is all files in root.")
 	generateCmd.PersistentFlags().StringVar(&gitRoot, "root", pwd, "Path to the root directory of the git repo you want to build config for. Default is current dir")
 	generateCmd.PersistentFlags().StringVar(&defaultTerraformVersion, "terraform-version", "", "Default terraform version to specify for all modules. Can be overriden by locals")
+	generateCmd.PersistentFlags().StringVar(&defaultTerraformDistribution, "terraform-distribution", "", "Default terraform distribution to specify for all modules. Can be overriden by locals")
 	generateCmd.PersistentFlags().Int64Var(&numExecutors, "num-executors", 15, "Number of executors used for parallel generation of projects. Default is 15")
 	generateCmd.PersistentFlags().StringSliceVar(&projectHclFiles, "project-hcl-files", []string{}, "Comma-separated names of arbitrary hcl files in the terragrunt hierarchy to create Atlantis projects for. Disables the --filter flag")
 	generateCmd.PersistentFlags().BoolVar(&createHclProjectChilds, "create-hcl-project-childs", false, "Creates Atlantis projects for terragrunt child modules below the directories containing the HCL files defined in --project-hcl-files")

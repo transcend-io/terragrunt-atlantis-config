@@ -50,6 +50,9 @@ type AtlantisProject struct {
 	// The terraform version to use for this project
 	TerraformVersion string `json:"terraform_version,omitempty"`
 
+	// The terraform distribution to use for this project
+	TerraformDistribution string `json:"terraform_distribution,omitempty"`
+
 	// We only want to output `apply_requirements` if explicitly stated in a local value
 	ApplyRequirements *[]string `json:"apply_requirements,omitempty"`
 

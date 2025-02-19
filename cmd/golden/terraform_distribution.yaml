@@ -1,0 +1,28 @@
+automerge: false
+parallel_apply: true
+parallel_plan: true
+projects:
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+    - ../terragrunt.hcl
+  dir: inherit_from_parent
+  terraform_distribution: tfe
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+    - ../terragrunt.hcl
+  dir: override_parent
+  terraform_distribution: tfc
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+  dir: use_flag_default
+  terraform_distribution: opentofu
+version: 3

@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/zclconf/go-cty/cty"
-	
+
 	"fmt"
 	"path/filepath"
 )
@@ -36,6 +36,9 @@ type ResolvedLocals struct {
 
 	// Terraform version to use just for this project
 	TerraformVersion string
+
+	// Terraform distribution to use just for this project
+	TerraformDistribution string
 
 	// If set to true, create Atlantis project
 	markedProject *bool
@@ -76,6 +79,10 @@ func mergeResolvedLocals(parent ResolvedLocals, child ResolvedLocals) ResolvedLo
 
 	if child.TerraformVersion != "" {
 		parent.TerraformVersion = child.TerraformVersion
+	}
+
+	if child.TerraformDistribution != "" {
+		parent.TerraformDistribution = child.TerraformDistribution
 	}
 
 	if child.AutoPlan != nil {
@@ -134,7 +141,7 @@ func parseLocals(path string, terragruntOptions *options.TerragruntOptions, incl
 	return mergeResolvedLocals(mergedParentLocals, childLocals), nil
 }
 
-func resolveLocals(localsAsCty cty.Value) (ResolvedLocals,error) {
+func resolveLocals(localsAsCty cty.Value) (ResolvedLocals, error) {
 	resolved := ResolvedLocals{}
 
 	// Return an empty set of locals if no `locals` block was present
@@ -151,6 +158,11 @@ func resolveLocals(localsAsCty cty.Value) (ResolvedLocals,error) {
 	versionValue, ok := rawLocals["atlantis_terraform_version"]
 	if ok {
 		resolved.TerraformVersion = versionValue.AsString()
+	}
+
+	distributionValue, ok := rawLocals["atlantis_terraform_distribution"]
+	if ok {
+		resolved.TerraformDistribution = distributionValue.AsString()
 	}
 
 	autoPlanValue, ok := rawLocals["atlantis_autoplan"]
@@ -190,7 +202,7 @@ func resolveLocals(localsAsCty cty.Value) (ResolvedLocals,error) {
 				posInt, _ := pos.AsBigFloat().Int64()
 				return resolved, fmt.Errorf("extra_atlantis_dependencies contains non-string value at position %d", posInt)
 			}
-			
+
 			resolved.ExtraAtlantisDependencies = append(
 				resolved.ExtraAtlantisDependencies,
 				filepath.ToSlash(val.AsString()),
