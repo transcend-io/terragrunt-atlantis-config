@@ -617,6 +617,8 @@ func getAllTerragruntFiles(path string) ([]string, error) {
 					filterExcludePathsMap[fullPath] = true
 				}
 			}
+
+			log.Info("Excluding paths ", filterExcludePathsMap)
 		}
 
 		paths, err := config.FindConfigFilesInPath(workingPath, options)
