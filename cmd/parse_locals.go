@@ -5,15 +5,12 @@ package cmd
 // parses the `locals` blocks and evaluates their contents.
 
 import (
+	"fmt"
 	"github.com/gruntwork-io/go-commons/errors"
 	"github.com/gruntwork-io/terragrunt/config"
-	"github.com/gruntwork-io/terragrunt/options"
-	"github.com/gruntwork-io/terragrunt/util"
+	"github.com/gruntwork-io/terragrunt/config/hclparse"
 	"github.com/hashicorp/hcl/v2"
-	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/zclconf/go-cty/cty"
-	
-	"fmt"
 	"path/filepath"
 )
 
@@ -47,7 +44,7 @@ func parseHcl(parser *hclparse.Parser, hcl string, filename string) (file *hcl.F
 	// those panics here and convert them to normal errors
 	defer func() {
 		if recovered := recover(); recovered != nil {
-			err = errors.WithStackTrace(config.PanicWhileParsingConfig{RecoveredValue: recovered, ConfigFile: filename})
+			err = errors.WithStackTrace(hclparse.PanicWhileParsingConfigError{RecoveredValue: recovered, ConfigFile: filename})
 		}
 	}()
 
@@ -100,41 +97,34 @@ func mergeResolvedLocals(parent ResolvedLocals, child ResolvedLocals) ResolvedLo
 }
 
 // Parses a given file, returning a map of all it's `local` values
-func parseLocals(path string, terragruntOptions *options.TerragruntOptions, includeFromChild *config.IncludeConfig) (ResolvedLocals, error) {
-	configString, err := util.ReadFileAsString(path)
-	if err != nil {
-		return ResolvedLocals{}, err
-	}
-
-	// Parse the HCL string into an AST body
-	parser := hclparse.NewParser()
-	file, err := parseHcl(parser, configString, path)
+func parseLocals(ctx *config.ParsingContext, path string, includeFromChild *config.IncludeConfig) (ResolvedLocals, error) {
+	file, err := hclparse.NewParser(ctx.ParserOptions...).ParseFromFile(path)
 	if err != nil {
 		return ResolvedLocals{}, err
 	}
 
 	// Decode just the Base blocks. See the function docs for DecodeBaseBlocks for more info on what base blocks are.
-	localsAsCty, trackInclude, err := config.DecodeBaseBlocks(terragruntOptions, parser, file, path, includeFromChild, nil)
+	baseBlocks, err := config.DecodeBaseBlocks(ctx, file, includeFromChild)
 	if err != nil {
 		return ResolvedLocals{}, err
 	}
 
 	// Recurse on the parent to merge in the locals from that file
 	mergedParentLocals := ResolvedLocals{}
-	if trackInclude != nil && includeFromChild == nil {
-		for _, includeConfig := range trackInclude.CurrentList {
-			parentLocals, _ := parseLocals(includeConfig.Path, terragruntOptions, &includeConfig)
+	if baseBlocks.TrackInclude != nil && includeFromChild == nil {
+		for _, includeConfig := range baseBlocks.TrackInclude.CurrentList {
+			parentLocals, _ := parseLocals(ctx, includeConfig.Path, &includeConfig)
 			mergedParentLocals = mergeResolvedLocals(mergedParentLocals, parentLocals)
 		}
 	}
-	childLocals, err := resolveLocals(*localsAsCty)
+	childLocals, err := resolveLocals(*baseBlocks.Locals)
 	if err != nil {
 		return ResolvedLocals{}, err
 	}
 	return mergeResolvedLocals(mergedParentLocals, childLocals), nil
 }
 
-func resolveLocals(localsAsCty cty.Value) (ResolvedLocals,error) {
+func resolveLocals(localsAsCty cty.Value) (ResolvedLocals, error) {
 	resolved := ResolvedLocals{}
 
 	// Return an empty set of locals if no `locals` block was present
@@ -190,7 +180,7 @@ func resolveLocals(localsAsCty cty.Value) (ResolvedLocals,error) {
 				posInt, _ := pos.AsBigFloat().Int64()
 				return resolved, fmt.Errorf("extra_atlantis_dependencies contains non-string value at position %d", posInt)
 			}
-			
+
 			resolved.ExtraAtlantisDependencies = append(
 				resolved.ExtraAtlantisDependencies,
 				filepath.ToSlash(val.AsString()),
