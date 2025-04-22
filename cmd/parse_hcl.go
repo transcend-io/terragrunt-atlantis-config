@@ -3,14 +3,13 @@ package cmd
 import (
 	"github.com/gruntwork-io/go-commons/errors"
 	"github.com/gruntwork-io/terragrunt/config"
-	"github.com/gruntwork-io/terragrunt/options"
+	"github.com/gruntwork-io/terragrunt/config/hclparse"
 	"github.com/gruntwork-io/terragrunt/util"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
-	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/hashicorp/hcl/v2/hclwrite"
-
 	"path/filepath"
+	_ "unsafe"
 )
 
 const bareIncludeKey = ""
@@ -50,6 +49,9 @@ func updateBareIncludeBlock(file *hcl.File, filename string) ([]byte, bool, erro
 	return hclFile.Bytes(), codeWasUpdated, nil
 }
 
+//go:linkname createTerragruntEvalContext github.com/gruntwork-io/terragrunt/config.createTerragruntEvalContext
+func createTerragruntEvalContext(ctx *config.ParsingContext, configPath string) (*hcl.EvalContext, error)
+
 // decodeHcl uses the HCL2 parser to decode the parsed HCL into the struct specified by out.
 //
 // Note that we take a two pass approach to support parsing include blocks without a label. Ideally we can parse include
@@ -58,17 +60,16 @@ func updateBareIncludeBlock(file *hcl.File, filename string) ([]byte, bool, erro
 // we first see if there are any include blocks without any labels, and if there is, we modify it in the file object to
 // inject the label as "".
 func decodeHcl(
+	ctx *config.ParsingContext,
 	file *hcl.File,
 	filename string,
 	out interface{},
-	terragruntOptions *options.TerragruntOptions,
-	extensions config.EvalContextExtensions,
 ) (err error) {
 	// The HCL2 parser and especially cty conversions will panic in many types of errors, so we have to recover from
 	// those panics here and convert them to normal errors
 	defer func() {
 		if recovered := recover(); recovered != nil {
-			err = errors.WithStackTrace(config.PanicWhileParsingConfig{RecoveredValue: recovered, ConfigFile: filename})
+			err = hclparse.PanicWhileParsingConfigError{RecoveredValue: recovered, ConfigFile: filename}
 		}
 	}()
 
@@ -90,7 +91,7 @@ func decodeHcl(
 		}
 	}
 
-	evalContext, err := extensions.CreateTerragruntEvalContext(filename, terragruntOptions)
+	evalContext, err := createTerragruntEvalContext(ctx, filename)
 	if err != nil {
 		return err
 	}
@@ -108,13 +109,12 @@ func decodeHcl(
 // For consistency, `include` in the call to `decodeHcl` is always assumed to be nil. Either it really is nil (parsing
 // the child config), or it shouldn't be used anyway (the parent config shouldn't have an include block).
 func decodeAsTerragruntInclude(
+	ctx *config.ParsingContext,
 	file *hcl.File,
 	filename string,
-	terragruntOptions *options.TerragruntOptions,
-	extensions config.EvalContextExtensions,
 ) ([]config.IncludeConfig, error) {
 	tgInc := terragruntIncludeMultiple{}
-	if err := decodeHcl(file, filename, &tgInc, terragruntOptions, extensions); err != nil {
+	if err := decodeHcl(ctx, file, filename, &tgInc); err != nil {
 		return nil, err
 	}
 	return tgInc.Include, nil
@@ -126,7 +126,7 @@ func decodeAsTerragruntInclude(
 //   - no terraform source defined
 //
 // If both of those are true, it is likely a parent module
-func parseModule(path string, terragruntOptions *options.TerragruntOptions) (isParent bool, includes []config.IncludeConfig, err error) {
+func parseModule(ctx *config.ParsingContext, path string) (isParent bool, includes []config.IncludeConfig, err error) {
 	configString, err := util.ReadFileAsString(path)
 	if err != nil {
 		return false, nil, err
@@ -138,9 +138,7 @@ func parseModule(path string, terragruntOptions *options.TerragruntOptions) (isP
 		return false, nil, err
 	}
 
-	// Decode just the `include` and `import` blocks, and verify that it's allowed here
-	extensions := config.EvalContextExtensions{}
-	terragruntIncludeList, err := decodeAsTerragruntInclude(file, path, terragruntOptions, extensions)
+	terragruntIncludeList, err := decodeAsTerragruntInclude(ctx, file, path)
 	if err != nil {
 		return false, nil, err
 	}
@@ -153,7 +151,7 @@ func parseModule(path string, terragruntOptions *options.TerragruntOptions) (isP
 	// We don't need to check the errors/diagnostics coming from `decodeHcl`, as when errors come up,
 	// it will leave the partially parsed result in the output object.
 	var parsed parsedHcl
-	decodeHcl(file, path, &parsed, terragruntOptions, extensions)
+	_ = decodeHcl(ctx, file, path, &parsed)
 
 	// If the file does not define a terraform source block, it is likely a parent (though not guaranteed)
 	if parsed.Terraform == nil || parsed.Terraform.Source == nil {
