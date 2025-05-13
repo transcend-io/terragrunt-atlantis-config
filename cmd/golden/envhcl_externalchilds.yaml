@@ -485,6 +485,13 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - ../terragrunt.hcl
+  dir: repo_locks/repo_locks_inner
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
   dir: silence_pr_comments/silence_global_flag_plan_apply
 - autoplan:
     enabled: false

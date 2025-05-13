@@ -46,6 +46,8 @@ func resetForRun() error {
 	useProjectMarkers = false
 	executionOrderGroups = false
 	dependsOn = false
+	defaultSilencePRComments = []string{}
+	defaultRepoLocks = ""
 
 	return nil
 }
@@ -693,5 +695,30 @@ func TestSilencePRCommentsModules(t *testing.T) {
 		"--root",
 		filepath.Join("..", "test_examples", "silence_pr_comments"),
 		"--silence-pr-comments=plan,apply",
+	})
+}
+
+func TestRepoLocksModules(t *testing.T) {
+	runTest(t, filepath.Join("golden", "repo_locks_default.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "repo_locks"),
+	})
+
+	runTest(t, filepath.Join("golden", "repo_locks_disabled.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "repo_locks"),
+		"--repo-locks=disabled",
+	})
+
+	runTest(t, filepath.Join("golden", "repo_locks_on_apply.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "repo_locks"),
+		"--repo-locks=on_apply",
+	})
+
+	runTest(t, filepath.Join("golden", "repo_locks_on_plan.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "repo_locks"),
+		"--repo-locks=on_plan",
 	})
 }

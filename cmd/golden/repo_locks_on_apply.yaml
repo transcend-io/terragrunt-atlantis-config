@@ -1,0 +1,14 @@
+automerge: false
+parallel_apply: true
+parallel_plan: true
+projects:
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+    - ../terragrunt.hcl
+  dir: repo_locks_inner
+  repo_locks:
+    mode: on_apply
+version: 3

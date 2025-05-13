@@ -434,6 +434,12 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 		project.Workspace = projectName
 	}
 
+	if defaultRepoLocks != "" {
+		project.RepoLocks = &RepoLocksConfig{
+			Mode: defaultRepoLocks,
+		}
+	}
+
 	return project, nil
 }
 
@@ -445,6 +451,7 @@ func createHclProject(sourcePaths []string, workingDir string, projectHcl string
 	resolvedAutoPlan := autoPlan
 	terraformVersion := defaultTerraformVersion
 	silencePRComments := defaultSilencePRComments
+	repoLocks := defaultRepoLocks
 
 	projectHclFile := filepath.Join(workingDir, projectHcl)
 	projectHclOptions, err := options.NewTerragruntOptionsWithConfigPath(workingDir)
@@ -584,6 +591,12 @@ func createHclProject(sourcePaths []string, workingDir string, projectHcl string
 
 	if createWorkspace {
 		project.Workspace = projectName
+	}
+
+	if repoLocks != "" {
+		project.RepoLocks = &RepoLocksConfig{
+			Mode: repoLocks,
+		}
 	}
 
 	return project, nil
@@ -946,6 +959,7 @@ var useProjectMarkers bool
 var executionOrderGroups bool
 var dependsOn bool
 var defaultSilencePRComments []string
+var defaultRepoLocks string
 
 // generateCmd represents the generate command
 var generateCmd = &cobra.Command{
@@ -995,6 +1009,7 @@ func init() {
 	generateCmd.PersistentFlags().BoolVar(&executionOrderGroups, "execution-order-groups", false, "Computes execution_order_groups for projects")
 	generateCmd.PersistentFlags().BoolVar(&dependsOn, "depends-on", false, "Computes depends_on for projects. Requires --create-project-name.")
 	generateCmd.PersistentFlags().StringSliceVar(&defaultSilencePRComments, "silence-pr-comments", []string{}, "Silence PR comments for the given projects in plan/apply command. Default is to not silence any comments")
+	generateCmd.PersistentFlags().StringVar(&defaultRepoLocks, "repo-locks", "", "Get a repository lock in this project on plan or apply. Default is on_plan. Possible values: on_plan, on_apply, disabled")
 }
 
 // Runs a set of arguments, returning the output

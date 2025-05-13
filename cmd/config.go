@@ -61,6 +61,9 @@ type AtlantisProject struct {
 
 	// Atlantis uses SliencePRComments to define for which Atlantis command project comment should be silenced
 	SilencePRComments []string `json:"silence_pr_comments,omitempty"`
+
+	// Atlantis uses RepoLocks to define if repo locks should be used for this project
+	RepoLocks *RepoLocksConfig `json:"repo_locks,omitempty"`
 }
 
 // Autoplan settings for which plans affect other plans
@@ -70,6 +73,12 @@ type AutoplanConfig struct {
 
 	// If autoplan should be enabled for this dir
 	Enabled bool `json:"enabled"`
+}
+
+// Get a repository lock in this project on plan or apply
+type RepoLocksConfig struct {
+	// Whether or not repository locks are enabled for this project on plan or apply
+	Mode string `json:"mode"`
 }
 
 // Checks if an output file already exists. If it does, it reads it
