@@ -58,6 +58,11 @@ func runTest(t *testing.T, goldenFile string, args []string) {
 		return
 	}
 
+	if _, err := os.Stat("test_artifacts"); os.IsNotExist(err) {
+		t.Error("Failed to find test_artifacts directory")
+		return
+	}
+
 	randomInt := rand.Int()
 	filename := filepath.Join("test_artifacts", fmt.Sprintf("%d.yaml", randomInt))
 	defer os.Remove(filename)
@@ -181,7 +186,7 @@ func TestNonStringErrorOnExtraDeclaredDependencies(t *testing.T) {
 		filepath.Join("..", "test_examples_errors", "extra_dependency_error"),
 	})
 	err = rootCmd.Execute()
-	
+
 	expectedError := "extra_atlantis_dependencies contains non-string value at position 4"
 	if err == nil || err.Error() != expectedError {
 		t.Errorf("Expected error '%s', got '%v'", expectedError, err)
@@ -680,5 +685,13 @@ func TestWithDependsOn(t *testing.T) {
 		filepath.Join("..", "test_examples", "chained_dependencies"),
 		"--depends-on",
 		"--create-project-name",
+	})
+}
+
+func TestSilencePRCommentsModules(t *testing.T) {
+	runTest(t, filepath.Join("golden", "silence_pr_comments.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "silence_pr_comments"),
+		"--silence-pr-comments=plan,apply",
 	})
 }

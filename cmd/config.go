@@ -58,6 +58,9 @@ type AtlantisProject struct {
 
 	// Atlantis uses DependsOn to define dependencies between projects
 	DependsOn []string `json:"depends_on,omitempty"`
+
+	// Atlantis uses SliencePRComments to define for which Atlantis command project comment should be silenced
+	SilencePRComments []string `json:"silence_pr_comments,omitempty"`
 }
 
 // Autoplan settings for which plans affect other plans

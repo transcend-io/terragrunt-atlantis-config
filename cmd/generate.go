@@ -397,11 +397,20 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 		terraformVersion = locals.TerraformVersion
 	}
 
+	sliencePRComments := defaultSilencePRComments
+	if len(defaultSilencePRComments) == 0 {
+		sliencePRComments = nil
+	}
+	if locals.SilencePRComments != nil {
+		sliencePRComments = locals.SilencePRComments
+	}
+
 	project := &AtlantisProject{
 		Dir:               filepath.ToSlash(relativeSourceDir),
 		Workflow:          workflow,
 		TerraformVersion:  terraformVersion,
 		ApplyRequirements: applyRequirements,
+		SilencePRComments: sliencePRComments,
 		Autoplan: AutoplanConfig{
 			Enabled:      resolvedAutoPlan,
 			WhenModified: uniqueStrings(relativeDependencies),
@@ -435,6 +444,7 @@ func createHclProject(sourcePaths []string, workingDir string, projectHcl string
 	applyRequirements := &defaultApplyRequirements
 	resolvedAutoPlan := autoPlan
 	terraformVersion := defaultTerraformVersion
+	silencePRComments := defaultSilencePRComments
 
 	projectHclFile := filepath.Join(workingDir, projectHcl)
 	projectHclOptions, err := options.NewTerragruntOptionsWithConfigPath(workingDir)
@@ -491,6 +501,13 @@ func createHclProject(sourcePaths []string, workingDir string, projectHcl string
 		terraformVersion = locals.TerraformVersion
 	}
 
+	if len(defaultSilencePRComments) == 0 {
+		silencePRComments = nil
+	}
+	if locals.SilencePRComments != nil {
+		silencePRComments = locals.SilencePRComments
+	}
+
 	// build dependencies for terragrunt childs in directories below project hcl file
 	for _, sourcePath := range sourcePaths {
 		options, err := options.NewTerragruntOptionsWithConfigPath(sourcePath)
@@ -545,6 +562,7 @@ func createHclProject(sourcePaths []string, workingDir string, projectHcl string
 		Workflow:          workflow,
 		TerraformVersion:  terraformVersion,
 		ApplyRequirements: applyRequirements,
+		SilencePRComments: silencePRComments,
 		Autoplan: AutoplanConfig{
 			Enabled:      resolvedAutoPlan,
 			WhenModified: uniqueStrings(append(childDependencies, projectHclDependencies...)),
@@ -927,6 +945,7 @@ var createHclProjectExternalChilds bool
 var useProjectMarkers bool
 var executionOrderGroups bool
 var dependsOn bool
+var defaultSilencePRComments []string
 
 // generateCmd represents the generate command
 var generateCmd = &cobra.Command{
@@ -975,6 +994,7 @@ func init() {
 	generateCmd.PersistentFlags().BoolVar(&useProjectMarkers, "use-project-markers", false, "Creates Atlantis projects only for project hcl files with locals: atlantis_project = true")
 	generateCmd.PersistentFlags().BoolVar(&executionOrderGroups, "execution-order-groups", false, "Computes execution_order_groups for projects")
 	generateCmd.PersistentFlags().BoolVar(&dependsOn, "depends-on", false, "Computes depends_on for projects. Requires --create-project-name.")
+	generateCmd.PersistentFlags().StringSliceVar(&defaultSilencePRComments, "silence-pr-comments", []string{}, "Silence PR comments for the given projects in plan/apply command. Default is to not silence any comments")
 }
 
 // Runs a set of arguments, returning the output

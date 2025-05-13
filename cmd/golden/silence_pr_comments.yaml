@@ -1,0 +1,28 @@
+automerge: false
+parallel_apply: true
+parallel_plan: true
+projects:
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+  silence_pr_comments: [plan, apply]
+  dir: silence_global_flag_plan_apply
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+    - ../terragrunt.hcl
+  silence_pr_comments: [apply]
+  dir: silence_in_parent_apply
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+    - ../terragrunt.hcl
+  silence_pr_comments: [plan]
+  dir: silence_plan
+version: 3

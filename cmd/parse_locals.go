@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/zclconf/go-cty/cty"
-	
+
 	"fmt"
 	"path/filepath"
 )
@@ -36,6 +36,9 @@ type ResolvedLocals struct {
 
 	// Terraform version to use just for this project
 	TerraformVersion string
+
+	// The project output will not be included in the output for given atlantis commands
+	SilencePRComments []string
 
 	// If set to true, create Atlantis project
 	markedProject *bool
@@ -96,6 +99,10 @@ func mergeResolvedLocals(parent ResolvedLocals, child ResolvedLocals) ResolvedLo
 
 	parent.ExtraAtlantisDependencies = append(parent.ExtraAtlantisDependencies, child.ExtraAtlantisDependencies...)
 
+	if child.SilencePRComments != nil || len(child.SilencePRComments) > 0 {
+		parent.SilencePRComments = child.SilencePRComments
+	}
+
 	return parent
 }
 
@@ -134,7 +141,7 @@ func parseLocals(path string, terragruntOptions *options.TerragruntOptions, incl
 	return mergeResolvedLocals(mergedParentLocals, childLocals), nil
 }
 
-func resolveLocals(localsAsCty cty.Value) (ResolvedLocals,error) {
+func resolveLocals(localsAsCty cty.Value) (ResolvedLocals, error) {
 	resolved := ResolvedLocals{}
 
 	// Return an empty set of locals if no `locals` block was present
@@ -190,11 +197,26 @@ func resolveLocals(localsAsCty cty.Value) (ResolvedLocals,error) {
 				posInt, _ := pos.AsBigFloat().Int64()
 				return resolved, fmt.Errorf("extra_atlantis_dependencies contains non-string value at position %d", posInt)
 			}
-			
+
 			resolved.ExtraAtlantisDependencies = append(
 				resolved.ExtraAtlantisDependencies,
 				filepath.ToSlash(val.AsString()),
 			)
+		}
+	}
+
+	silencePRComments, ok := rawLocals["atlantis_silence_pr_comments"]
+	if ok {
+		resolved.SilencePRComments = []string{}
+		it := silencePRComments.ElementIterator()
+		for it.Next() {
+			pos, val := it.Element()
+			if !val.Type().Equals(cty.String) {
+				posInt, _ := pos.AsBigFloat().Int64()
+				return resolved, fmt.Errorf("silence_pr_comments contains non-string value at position %d", posInt)
+			}
+
+			resolved.SilencePRComments = append(resolved.SilencePRComments, val.AsString())
 		}
 	}
 
