@@ -1,6 +1,9 @@
 package cmd
 
 import (
+	"os"
+	"sync"
+
 	"github.com/gruntwork-io/go-commons/errors"
 	"github.com/gruntwork-io/terragrunt/config"
 	"github.com/gruntwork-io/terragrunt/options"
@@ -12,6 +15,71 @@ import (
 
 	"path/filepath"
 )
+
+// HCL Parser pool for reusing parsers to reduce memory allocations
+var hclParserPool = sync.Pool{
+	New: func() interface{} {
+		return hclparse.NewParser()
+	},
+}
+
+// Cache for parsed HCL files to avoid repeated parsing
+var parsedHclCache sync.Map
+
+// Cache entry for parsed HCL file results
+type parsedHclEntry struct {
+	file    *hcl.File
+	err     error
+	modTime int64 // File modification time for cache invalidation
+}
+
+// Helper functions to get/return parser from pool
+func getHCLParser() *hclparse.Parser {
+	return hclParserPool.Get().(*hclparse.Parser)
+}
+
+func putHCLParser(parser *hclparse.Parser) {
+	// Return parser to pool for reuse
+	// Note: keeping Files map for potential internal caching benefits
+	hclParserPool.Put(parser)
+}
+
+// parseHclWithCache parses HCL file with caching based on file modification time
+func parseHclWithCache(filePath string) (*hcl.File, error) {
+	// Get file modification time for cache validation
+	fileInfo, err := os.Stat(filePath)
+	if err != nil {
+		return nil, err
+	}
+	modTime := fileInfo.ModTime().Unix()
+
+	// Check cache first
+	if cached, ok := parsedHclCache.Load(filePath); ok {
+		entry := cached.(parsedHclEntry)
+		// Return cached result if file hasn't been modified
+		if entry.modTime == modTime {
+			return entry.file, entry.err
+		}
+	}
+
+	// File not in cache or has been modified, parse it
+	configString, err := util.ReadFileAsString(filePath)
+	if err != nil {
+		// Cache the error too
+		parsedHclCache.Store(filePath, parsedHclEntry{nil, err, modTime})
+		return nil, err
+	}
+
+	parser := getHCLParser()
+	defer putHCLParser(parser)
+
+	file, parseErr := parseHcl(parser, configString, filePath)
+
+	// Cache the result (both success and error cases)
+	parsedHclCache.Store(filePath, parsedHclEntry{file, parseErr, modTime})
+
+	return file, parseErr
+}
 
 const bareIncludeKey = ""
 
@@ -83,7 +151,9 @@ func decodeHcl(
 			// Code was updated, so we need to reparse the new updated contents. This is necessarily because the blocks
 			// returned by hclparse does not support editing, and so we have to go through hclwrite, which leads to a
 			// different AST representation.
-			file, err = parseHcl(hclparse.NewParser(), string(updatedBytes), filename)
+			parser := getHCLParser()
+			file, err = parseHcl(parser, string(updatedBytes), filename)
+			putHCLParser(parser)
 			if err != nil {
 				return err
 			}
@@ -127,13 +197,7 @@ func decodeAsTerragruntInclude(
 //
 // If both of those are true, it is likely a parent module
 func parseModule(path string, terragruntOptions *options.TerragruntOptions) (isParent bool, includes []config.IncludeConfig, err error) {
-	configString, err := util.ReadFileAsString(path)
-	if err != nil {
-		return false, nil, err
-	}
-
-	parser := hclparse.NewParser()
-	file, err := parseHcl(parser, configString, path)
+	file, err := parseHclWithCache(path)
 	if err != nil {
 		return false, nil, err
 	}

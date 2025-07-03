@@ -5,17 +5,27 @@ package cmd
 // parses the `locals` blocks and evaluates their contents.
 
 import (
+	"sync"
+
 	"github.com/gruntwork-io/go-commons/errors"
 	"github.com/gruntwork-io/terragrunt/config"
 	"github.com/gruntwork-io/terragrunt/options"
-	"github.com/gruntwork-io/terragrunt/util"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/zclconf/go-cty/cty"
-	
+
 	"fmt"
 	"path/filepath"
 )
+
+// Cache for parseLocals results to avoid repeated parsing
+var parseLocalsCache sync.Map
+
+// Cache key for parseLocals - combines path and include config
+type parseLocalsCacheKey struct {
+	path                 string
+	includeFromChildPath string // Use path from include config as key part
+}
 
 // ResolvedLocals are the parsed result of local values this module cares about
 type ResolvedLocals struct {
@@ -99,21 +109,42 @@ func mergeResolvedLocals(parent ResolvedLocals, child ResolvedLocals) ResolvedLo
 	return parent
 }
 
-// Parses a given file, returning a map of all it's `local` values
-func parseLocals(path string, terragruntOptions *options.TerragruntOptions, includeFromChild *config.IncludeConfig) (ResolvedLocals, error) {
-	configString, err := util.ReadFileAsString(path)
-	if err != nil {
-		return ResolvedLocals{}, err
+// parseLocalsWithCache - cached version of parseLocals
+func parseLocalsWithCache(path string, terragruntOptions *options.TerragruntOptions, includeFromChild *config.IncludeConfig) (ResolvedLocals, error) {
+	// Create cache key
+	cacheKey := parseLocalsCacheKey{path: path}
+	if includeFromChild != nil {
+		cacheKey.includeFromChildPath = includeFromChild.Path
 	}
 
-	// Parse the HCL string into an AST body
-	parser := hclparse.NewParser()
-	file, err := parseHcl(parser, configString, path)
+	// Check cache first
+	if cached, ok := parseLocalsCache.Load(cacheKey); ok {
+		return cached.(ResolvedLocals), nil
+	}
+
+	// Not in cache, parse and cache result
+	result, err := parseLocalsInternal(path, terragruntOptions, includeFromChild)
+	if err != nil {
+		return result, err
+	}
+
+	// Cache successful result
+	parseLocalsCache.Store(cacheKey, result)
+	return result, nil
+}
+
+// parseLocalsInternal - internal implementation of parseLocals
+func parseLocalsInternal(path string, terragruntOptions *options.TerragruntOptions, includeFromChild *config.IncludeConfig) (ResolvedLocals, error) {
+	file, err := parseHclWithCache(path)
 	if err != nil {
 		return ResolvedLocals{}, err
 	}
 
 	// Decode just the Base blocks. See the function docs for DecodeBaseBlocks for more info on what base blocks are.
+	// Need a parser for DecodeBaseBlocks call
+	parser := getHCLParser()
+	defer putHCLParser(parser)
+
 	localsAsCty, trackInclude, err := config.DecodeBaseBlocks(terragruntOptions, parser, file, path, includeFromChild, nil)
 	if err != nil {
 		return ResolvedLocals{}, err
@@ -123,7 +154,7 @@ func parseLocals(path string, terragruntOptions *options.TerragruntOptions, incl
 	mergedParentLocals := ResolvedLocals{}
 	if trackInclude != nil && includeFromChild == nil {
 		for _, includeConfig := range trackInclude.CurrentList {
-			parentLocals, _ := parseLocals(includeConfig.Path, terragruntOptions, &includeConfig)
+			parentLocals, _ := parseLocalsWithCache(includeConfig.Path, terragruntOptions, &includeConfig)
 			mergedParentLocals = mergeResolvedLocals(mergedParentLocals, parentLocals)
 		}
 	}
@@ -134,7 +165,12 @@ func parseLocals(path string, terragruntOptions *options.TerragruntOptions, incl
 	return mergeResolvedLocals(mergedParentLocals, childLocals), nil
 }
 
-func resolveLocals(localsAsCty cty.Value) (ResolvedLocals,error) {
+// Parses a given file, returning a map of all it's `local` values
+func parseLocals(path string, terragruntOptions *options.TerragruntOptions, includeFromChild *config.IncludeConfig) (ResolvedLocals, error) {
+	return parseLocalsWithCache(path, terragruntOptions, includeFromChild)
+}
+
+func resolveLocals(localsAsCty cty.Value) (ResolvedLocals, error) {
 	resolved := ResolvedLocals{}
 
 	// Return an empty set of locals if no `locals` block was present
@@ -190,7 +226,7 @@ func resolveLocals(localsAsCty cty.Value) (ResolvedLocals,error) {
 				posInt, _ := pos.AsBigFloat().Int64()
 				return resolved, fmt.Errorf("extra_atlantis_dependencies contains non-string value at position %d", posInt)
 			}
-			
+
 			resolved.ExtraAtlantisDependencies = append(
 				resolved.ExtraAtlantisDependencies,
 				filepath.ToSlash(val.AsString()),
