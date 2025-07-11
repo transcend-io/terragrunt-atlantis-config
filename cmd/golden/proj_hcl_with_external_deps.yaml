@@ -9,6 +9,6 @@ projects:
     - '*.tf*'
     - '**/*.hcl'
     - '**/*.tf*'
-    - ../_env/cluster/karpenter.hcl
+    - ../_env/cluster/fargate.hcl
   dir: .
 version: 3
