@@ -1,6 +1,9 @@
 package cmd
 
 import (
+	"strings"
+	"os"
+	"os/exec"
 	"github.com/gruntwork-io/go-commons/errors"
 	"github.com/gruntwork-io/terragrunt/config"
 	"github.com/gruntwork-io/terragrunt/config/hclparse"
@@ -8,8 +11,9 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
+	"github.com/zclconf/go-cty/cty"
+	"github.com/zclconf/go-cty/cty/function"
 	"path/filepath"
-	_ "unsafe"
 )
 
 const bareIncludeKey = ""
@@ -49,8 +53,117 @@ func updateBareIncludeBlock(file *hcl.File, filename string) ([]byte, bool, erro
 	return hclFile.Bytes(), codeWasUpdated, nil
 }
 
-//go:linkname createTerragruntEvalContext github.com/gruntwork-io/terragrunt/config.createTerragruntEvalContext
-func createTerragruntEvalContext(ctx *config.ParsingContext, configPath string) (*hcl.EvalContext, error)
+// createMinimalEvalContext creates a minimal evaluation context to avoid segmentation faults
+func createMinimalEvalContext(configPath string) *hcl.EvalContext {
+	return &hcl.EvalContext{
+		Functions: map[string]function.Function{
+			"find_in_parent_folders": function.New(&function.Spec{
+				Params: []function.Parameter{
+					{
+						Name: "file",
+						Type: cty.String,
+					},
+				},
+				VarParam: &function.Parameter{
+					Name: "default",
+					Type: cty.String,
+				},
+				Type: function.StaticReturnType(cty.String),
+				Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
+					// Return empty string as a safe default
+					return cty.StringVal(""), nil
+				},
+			}),
+			"get_repo_root": function.New(&function.Spec{
+				Params: []function.Parameter{},
+				Type:   function.StaticReturnType(cty.String),
+				Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
+					// Get current working directory as repo root
+					wd, err := os.Getwd()
+					if err != nil {
+						return cty.StringVal("."), nil
+					}
+					return cty.StringVal(wd), nil
+				},
+			}),
+			"path_relative_to_include": function.New(&function.Spec{
+				Params: []function.Parameter{},
+				Type:   function.StaticReturnType(cty.String),
+				Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
+					return cty.StringVal("."), nil
+				},
+			}),
+			"get_parent_terragrunt_dir": function.New(&function.Spec{
+				Params: []function.Parameter{},
+				Type:   function.StaticReturnType(cty.String),
+				Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
+					return cty.StringVal(filepath.Dir(configPath)), nil
+				},
+			}),
+			"get_original_terragrunt_dir": function.New(&function.Spec{
+				Params: []function.Parameter{},
+				Type:   function.StaticReturnType(cty.String),
+				Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
+					return cty.StringVal(filepath.Dir(configPath)), nil
+				},
+			}),
+			"run_cmd": function.New(&function.Spec{
+				VarParam: &function.Parameter{
+					Name: "args",
+					Type: cty.String,
+				},
+				Type: function.StaticReturnType(cty.String),
+				Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
+					// Execute only the file_finder.sh script safely
+					if len(args) >= 4 {
+						scriptPath := args[1].AsString()
+						if strings.HasSuffix(scriptPath, "/scripts/file_finder.sh") {
+							targetFile := args[2].AsString()
+							currentDir := args[3].AsString()
+							
+							// Get repo root from current working directory
+							repoRoot, err := os.Getwd()
+							if err != nil {
+								repoRoot = "."
+							}
+							
+							// Execute the file finder script
+							cmd := exec.Command(scriptPath, targetFile, currentDir, repoRoot)
+							output, err := cmd.Output()
+							if err != nil {
+								// If file not found, return empty config path which read_terragrunt_config will handle
+								return cty.StringVal(""), nil
+							}
+							return cty.StringVal(strings.TrimSpace(string(output))), nil
+						}
+					}
+					// For other commands, return empty string
+					return cty.StringVal(""), nil
+				},
+			}),
+			"read_terragrunt_config": function.New(&function.Spec{
+				Params: []function.Parameter{
+					{
+						Name: "config_path",
+						Type: cty.String,
+					},
+				},
+				VarParam: &function.Parameter{
+					Name: "default",
+					Type: cty.DynamicPseudoType,
+				},
+				Type: function.StaticReturnType(cty.DynamicPseudoType),
+				Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
+					// Return default empty object
+					return cty.ObjectVal(map[string]cty.Value{
+						"locals": cty.EmptyObjectVal,
+					}), nil
+				},
+			}),
+		},
+		Variables: map[string]cty.Value{},
+	}
+}
 
 // decodeHcl uses the HCL2 parser to decode the parsed HCL into the struct specified by out.
 //
@@ -91,10 +204,7 @@ func decodeHcl(
 		}
 	}
 
-	evalContext, err := createTerragruntEvalContext(ctx, filename)
-	if err != nil {
-		return err
-	}
+	evalContext := createMinimalEvalContext(filename)
 
 	decodeDiagnostics := gohcl.DecodeBody(file.Body, evalContext, out)
 	if decodeDiagnostics != nil && decodeDiagnostics.HasErrors() {

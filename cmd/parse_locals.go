@@ -9,6 +9,7 @@ import (
 	"github.com/gruntwork-io/go-commons/errors"
 	"github.com/gruntwork-io/terragrunt/config"
 	"github.com/gruntwork-io/terragrunt/config/hclparse"
+	"github.com/gruntwork-io/terragrunt/pkg/log"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/zclconf/go-cty/cty"
 	"path/filepath"
@@ -97,14 +98,14 @@ func mergeResolvedLocals(parent ResolvedLocals, child ResolvedLocals) ResolvedLo
 }
 
 // Parses a given file, returning a map of all it's `local` values
-func parseLocals(ctx *config.ParsingContext, path string, includeFromChild *config.IncludeConfig) (ResolvedLocals, error) {
+func parseLocals(ctx *config.ParsingContext, logger log.Logger, path string, includeFromChild *config.IncludeConfig) (ResolvedLocals, error) {
 	file, err := hclparse.NewParser(ctx.ParserOptions...).ParseFromFile(path)
 	if err != nil {
 		return ResolvedLocals{}, err
 	}
 
 	// Decode just the Base blocks. See the function docs for DecodeBaseBlocks for more info on what base blocks are.
-	baseBlocks, err := config.DecodeBaseBlocks(ctx, file, includeFromChild)
+	baseBlocks, err := config.DecodeBaseBlocks(ctx, logger, file, includeFromChild)
 	if err != nil {
 		return ResolvedLocals{}, err
 	}
@@ -113,7 +114,7 @@ func parseLocals(ctx *config.ParsingContext, path string, includeFromChild *conf
 	mergedParentLocals := ResolvedLocals{}
 	if baseBlocks.TrackInclude != nil && includeFromChild == nil {
 		for _, includeConfig := range baseBlocks.TrackInclude.CurrentList {
-			parentLocals, _ := parseLocals(ctx, includeConfig.Path, &includeConfig)
+			parentLocals, _ := parseLocals(ctx, logger, includeConfig.Path, &includeConfig)
 			mergedParentLocals = mergeResolvedLocals(mergedParentLocals, parentLocals)
 		}
 	}
