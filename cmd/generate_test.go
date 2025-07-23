@@ -181,7 +181,7 @@ func TestNonStringErrorOnExtraDeclaredDependencies(t *testing.T) {
 		filepath.Join("..", "test_examples_errors", "extra_dependency_error"),
 	})
 	err = rootCmd.Execute()
-	
+
 	expectedError := "extra_atlantis_dependencies contains non-string value at position 4"
 	if err == nil || err.Error() != expectedError {
 		t.Errorf("Expected error '%s', got '%v'", expectedError, err)
@@ -597,6 +597,17 @@ func TestRemoteModuleSourceTerraformRegistry(t *testing.T) {
 	runTest(t, filepath.Join("golden", "basic.yaml"), []string{
 		"--root",
 		filepath.Join("..", "test_examples", "remote_module_source_terraform_registry"),
+	})
+}
+
+func TestEnvHCLProjectsWithDeps(t *testing.T) {
+	runTest(t, filepath.Join("golden", "proj_hcl_with_external_deps.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "proj_hcl_with_external_deps", "my-stack"),
+		"--cascade-dependencies",
+		"--project-hcl-files=stack.hcl",
+		"--create-hcl-project-childs=false",
+		"--create-hcl-project-external-childs=false",
 	})
 }
 

@@ -196,7 +196,7 @@ projects:
     - ../terragrunt.hcl
     - ../someRandomDir/terragrunt.hcl
   dir: hcl_json/json_expanded
-  workflow: terragruntjson  
+  workflow: terragruntjson
 - autoplan:
     enabled: false
     when_modified:
@@ -356,6 +356,14 @@ projects:
     - ../terragrunt.hcl
   dir: parent_with_workflow_local/child
   workflow: workflowSpecifiedInParent
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+    - ../stack.hcl
+    - ../../_env/cluster/fargate.hcl
+  dir: proj_hcl_with_external_deps/my-stack/nested
 - autoplan:
     enabled: false
     when_modified:
