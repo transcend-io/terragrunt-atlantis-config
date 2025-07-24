@@ -650,6 +650,28 @@ projects:
     - '*.hcl'
     - '*.tf*'
     - ../terragrunt.hcl
+  dir: terraform_distribution/inherit_from_parent
+  terraform_distribution: tfe
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+    - ../terragrunt.hcl
+  dir: terraform_distribution/override_parent
+  terraform_distribution: tfc
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+  dir: terraform_distribution/use_flag_default
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+    - ../terragrunt.hcl
   dir: terraform_version/inherit_from_parent
   terraform_version: 0.12.9001
 - autoplan:
