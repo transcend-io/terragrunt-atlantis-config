@@ -37,6 +37,7 @@ func resetForRun() error {
 	preserveProjects = true
 	defaultWorkflow = ""
 	filterPaths = []string{}
+	filterExcludePaths = []string{}
 	outputPath = ""
 	defaultTerraformVersion = ""
 	defaultApplyRequirements = []string{}
@@ -181,7 +182,7 @@ func TestNonStringErrorOnExtraDeclaredDependencies(t *testing.T) {
 		filepath.Join("..", "test_examples_errors", "extra_dependency_error"),
 	})
 	err = rootCmd.Execute()
-	
+
 	expectedError := "extra_atlantis_dependencies contains non-string value at position 4"
 	if err == nil || err.Error() != expectedError {
 		t.Errorf("Expected error '%s', got '%v'", expectedError, err)
@@ -472,6 +473,16 @@ func TestFilterFlagWithInfraLiveProd(t *testing.T) {
 		filepath.Join("..", "test_examples", "terragrunt-infrastructure-live-example"),
 		"--filter",
 		filepath.Join("..", "test_examples", "terragrunt-infrastructure-live-example", "prod"),
+	})
+}
+func TestFilterExcludeFlagWithInfraLiveProd(t *testing.T) {
+	runTest(t, filepath.Join("golden", "filterInfraLiveProd.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "terragrunt-infrastructure-live-example"),
+		"--filter-exclude",
+		filepath.Join("_envcommon"),
+		"--filter-exclude",
+		filepath.Join("non-prod", "*", "*", "*"),
 	})
 }
 

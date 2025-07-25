@@ -599,13 +599,37 @@ func getAllTerragruntFiles(path string) ([]string, error) {
 	uniqueConfigFilePaths := make(map[string]bool)
 	orderedConfigFilePaths := []string{}
 	for _, workingPath := range workingPaths {
+		filterExcludePathsMap := make(map[string]bool)
+		for _, filterExcludePath := range filterExcludePaths {
+			theseWorkingPaths, err := filepath.Glob(filepath.Join(workingPath, filterExcludePath))
+			if err != nil {
+				return nil, err
+			}
+
+			for _, p := range theseWorkingPaths {
+				fileInfo, err := os.Stat(p)
+				if err != nil {
+					return nil, err
+				}
+
+				if fileInfo.IsDir() {
+					fullPath := filepath.Join(p, "terragrunt.hcl")
+					filterExcludePathsMap[fullPath] = true
+				}
+			}
+
+			log.Info("Excluding paths ", filterExcludePathsMap)
+		}
+
 		paths, err := config.FindConfigFilesInPath(workingPath, options)
 		if err != nil {
 			return nil, err
 		}
 		for _, p := range paths {
-			// if path not yet seen, insert once
-			if !uniqueConfigFilePaths[p] {
+			_, exclude := filterExcludePathsMap[p]
+
+			// if path not yet seen and is not in filter-exclude flag, insert once
+			if !uniqueConfigFilePaths[p] && !exclude {
 				orderedConfigFilePaths = append(orderedConfigFilePaths, p)
 				uniqueConfigFilePaths[p] = true
 			}
@@ -915,6 +939,7 @@ var createProjectName bool
 var defaultTerraformVersion string
 var defaultWorkflow string
 var filterPaths []string
+var filterExcludePaths []string
 var outputPath string
 var preserveWorkflows bool
 var preserveProjects bool
@@ -966,6 +991,7 @@ func init() {
 	generateCmd.PersistentFlags().StringSliceVar(&defaultApplyRequirements, "apply-requirements", []string{}, "Requirements that must be satisfied before `atlantis apply` can be run. Currently the only supported requirements are `approved` and `mergeable`. Can be overridden by locals")
 	generateCmd.PersistentFlags().StringVar(&outputPath, "output", "", "Path of the file where configuration will be generated. Default is not to write to file")
 	generateCmd.PersistentFlags().StringSliceVar(&filterPaths, "filter", []string{}, "Comma-separated paths or glob expressions to the directories you want scope down the config for. Default is all files in root.")
+	generateCmd.PersistentFlags().StringSliceVar(&filterExcludePaths, "filter-exclude", []string{}, "Comma-separated paths or glob expressions to the directories you want exclude from scope. Default is none.")
 	generateCmd.PersistentFlags().StringVar(&gitRoot, "root", pwd, "Path to the root directory of the git repo you want to build config for. Default is current dir")
 	generateCmd.PersistentFlags().StringVar(&defaultTerraformVersion, "terraform-version", "", "Default terraform version to specify for all modules. Can be overriden by locals")
 	generateCmd.PersistentFlags().Int64Var(&numExecutors, "num-executors", 15, "Number of executors used for parallel generation of projects. Default is 15")
