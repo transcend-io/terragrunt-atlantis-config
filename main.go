@@ -1,6 +1,6 @@
 package main
 
-import "github.com/transcend-io/terragrunt-atlantis-config/cmd"
+import "github.com/tufitko/terragrunt-atlantis-config/cmd"
 
 // This variable is set at build time using -ldflags parameters.
 // But we still set a default here for those using plain `go get` downloads
