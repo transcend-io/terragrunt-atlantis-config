@@ -1,8 +1,6 @@
 module github.com/tufitko/terragrunt-atlantis-config
 
-go 1.21
-
-toolchain go1.21.3
+go 1.25
 
 require (
 	github.com/ghodss/yaml v1.0.1-0.20190212211648-25d852aebe32
@@ -145,3 +143,5 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace github.com/gruntwork-io/terragrunt => github.com/tufitko/terragrunt v0.0.0-20250905112356-2165857d6969
