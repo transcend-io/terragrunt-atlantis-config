@@ -217,9 +217,7 @@ Finally, check the log output (or your output file) for the YAML.
 
 To test any changes you've made, run `make gotestsum` (or `make test` for standard golang testing).
 
-When your PR is merged and a tag is created, a Github Actions job to build the new binary, test it, and deploy it's artifacts to Github Releases along with checksums.
-
-You can then open a PR on our homebrew tap similar to https://github.com/transcend-io/homebrew-tap/pull/4, and as soon as that merges your code will be released. Homebrew is not updated for every release, as Github is the primary artifact store.
+For maintainers, the directions on publishing a new release can be found [in the wiki](https://github.com/transcend-io/terragrunt-atlantis-config/wiki/How-to-publish-a-release).
 
 ## Contributors
 
