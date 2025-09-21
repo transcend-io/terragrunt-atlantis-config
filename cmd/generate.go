@@ -531,8 +531,7 @@ func createHclProject(ctx context.Context, sourcePaths []string, workingDir stri
 			if err != nil {
 				return nil, err
 			}
-
-			if !strings.Contains(absolutePath, filepath.ToSlash(workingDir)) {
+			if strings.HasPrefix(relativePath, "..") {
 				relativeDependencies = append(relativeDependencies, filepath.ToSlash(relativePath))
 			}
 		}
