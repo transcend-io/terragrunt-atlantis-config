@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/gruntwork-io/terragrunt/util"
 	"regexp"
 	"sort"
 
@@ -121,7 +122,7 @@ func sliceUnion(a, b []string) []string {
 }
 
 // Parses the terragrunt config at `path` to find all modules it depends on
-func getDependencies(path string, terragruntOptions *options.TerragruntOptions) ([]string, error) {
+func getDependencies(ctx *config.ParsingContext, path string) ([]string, error) {
 	res, err, _ := requestGroup.Do(path, func() (interface{}, error) {
 		// Check if this path has already been computed
 		cachedResult, ok := getDependenciesCache.get(path)
@@ -131,7 +132,7 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 
 		// parse the module path to find what it includes, as well as its potential to be a parent
 		// return nils to indicate we should skip this project
-		isParent, includes, err := parseModule(path, terragruntOptions)
+		isParent, includes, err := parseModule(ctx, path)
 		if err != nil {
 			getDependenciesCache.set(path, getDependenciesOutput{nil, err})
 			return nil, err
@@ -150,19 +151,20 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 		}
 
 		// Parse the HCL file
-		decodeTypes := []config.PartialDecodeSectionType{
-			config.DependencyBlock,
-			config.DependenciesBlock,
-			config.TerraformBlock,
-		}
-		parsedConfig, err := config.PartialParseConfigFile(path, terragruntOptions, nil, decodeTypes)
+		parseCtx := config.NewParsingContext(ctx, ctx.TerragruntOptions).
+			WithDecodeList(
+				config.DependencyBlock,
+				config.DependenciesBlock,
+				config.TerraformBlock,
+			)
+		parsedConfig, err := config.PartialParseConfigFile(parseCtx, path, nil)
 		if err != nil {
 			getDependenciesCache.set(path, getDependenciesOutput{nil, err})
 			return nil, err
 		}
 
 		// Parse out locals
-		locals, err := parseLocals(path, terragruntOptions, nil)
+		locals, err := parseLocals(ctx, path, nil)
 		if err != nil {
 			getDependenciesCache.set(path, getDependenciesOutput{nil, err})
 			return nil, err
@@ -258,9 +260,10 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 
 			depPath := dep
 			terrOpts, _ := options.NewTerragruntOptionsWithConfigPath(depPath)
-			terrOpts.OriginalTerragruntConfigPath = terragruntOptions.OriginalTerragruntConfigPath
-			terrOpts.Env = terragruntOptions.Env
-			childDeps, err := getDependencies(depPath, terrOpts)
+			terrOpts.OriginalTerragruntConfigPath = ctx.TerragruntOptions.OriginalTerragruntConfigPath
+			terrOpts.Env = ctx.TerragruntOptions.Env
+			terrContext := config.NewParsingContext(ctx, terrOpts)
+			childDeps, err := getDependencies(terrContext, depPath)
 			if err != nil {
 				continue
 			}
@@ -317,7 +320,7 @@ func getDependencies(path string, terragruntOptions *options.TerragruntOptions) 
 }
 
 // Creates an AtlantisProject for a directory
-func createProject(sourcePath string) (*AtlantisProject, error) {
+func createProject(ctx context.Context, sourcePath string) (*AtlantisProject, error) {
 	options, err := options.NewTerragruntOptionsWithConfigPath(sourcePath)
 	if err != nil {
 		return nil, err
@@ -325,7 +328,8 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 	options.OriginalTerragruntConfigPath = sourcePath
 	options.Env = getEnvs()
 
-	dependencies, err := getDependencies(sourcePath, options)
+	parsingContext := config.NewParsingContext(ctx, options)
+	dependencies, err := getDependencies(parsingContext, sourcePath)
 	if err != nil {
 		return nil, err
 	}
@@ -336,8 +340,7 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 	}
 
 	absoluteSourceDir := filepath.Dir(sourcePath) + string(filepath.Separator)
-
-	locals, err := parseLocals(sourcePath, options, nil)
+	locals, err := parseLocals(parsingContext, sourcePath, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -428,7 +431,7 @@ func createProject(sourcePath string) (*AtlantisProject, error) {
 	return project, nil
 }
 
-func createHclProject(sourcePaths []string, workingDir string, projectHcl string) (*AtlantisProject, error) {
+func createHclProject(ctx context.Context, sourcePaths []string, workingDir string, projectHcl string) (*AtlantisProject, error) {
 	var projectHclDependencies []string
 	var childDependencies []string
 	workflow := defaultWorkflow
@@ -443,7 +446,8 @@ func createHclProject(sourcePaths []string, workingDir string, projectHcl string
 	}
 	projectHclOptions.Env = getEnvs()
 
-	locals, err := parseLocals(projectHclFile, projectHclOptions, nil)
+	parsingContext := config.NewParsingContext(ctx, projectHclOptions)
+	locals, err := parseLocals(parsingContext, projectHclFile, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -493,13 +497,13 @@ func createHclProject(sourcePaths []string, workingDir string, projectHcl string
 
 	// build dependencies for terragrunt childs in directories below project hcl file
 	for _, sourcePath := range sourcePaths {
-		options, err := options.NewTerragruntOptionsWithConfigPath(sourcePath)
+		opt, err := options.NewTerragruntOptionsWithConfigPath(sourcePath)
 		if err != nil {
 			return nil, err
 		}
-		options.Env = getEnvs()
-
-		dependencies, err := getDependencies(sourcePath, options)
+		opt.Env = getEnvs()
+		parsingContext := config.NewParsingContext(ctx, opt)
+		dependencies, err := getDependencies(parsingContext, sourcePath)
 		if err != nil {
 			return nil, err
 		}
@@ -599,7 +603,7 @@ func getAllTerragruntFiles(path string) ([]string, error) {
 	uniqueConfigFilePaths := make(map[string]bool)
 	orderedConfigFilePaths := []string{}
 	for _, workingPath := range workingPaths {
-		paths, err := config.FindConfigFilesInPath(workingPath, options)
+		paths, err := FindConfigFilesInPath(workingPath, options)
 		if err != nil {
 			return nil, err
 		}
@@ -622,6 +626,43 @@ func getAllTerragruntFiles(path string) ([]string, error) {
 	}
 
 	return uniqueConfigFileAbsPaths, nil
+}
+
+// FindConfigFilesInPath returns a list of all Terragrunt config files in the given path or any subfolder of the path. A file is a Terragrunt
+// config file if it has a name as returned by the DefaultConfigPath method
+func FindConfigFilesInPath(rootPath string, opts *options.TerragruntOptions) ([]string, error) {
+	configFiles := []string{}
+
+	walkFunc := filepath.Walk
+
+	err := walkFunc(rootPath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if !info.IsDir() {
+			return nil
+		}
+
+		for _, configFile := range []string{"root.hcl"} {
+			if !filepath.IsAbs(configFile) {
+				configFile = util.JoinPath(path, configFile)
+			}
+
+			if !util.IsDir(configFile) && util.FileExists(configFile) {
+				configFiles = append(configFiles, configFile)
+				break
+			}
+		}
+
+		return nil
+	})
+
+	nestedConfigFiles, err := config.FindConfigFilesInPath(rootPath, opts)
+	if err == nil {
+		configFiles = append(configFiles, nestedConfigFiles...)
+	}
+	return configFiles, nil
 }
 
 // Finds the absolute paths of all arbitrary project hcl files
@@ -727,14 +768,13 @@ func main(cmd *cobra.Command, args []string) error {
 				if skipProject {
 					continue
 				}
-				err := sem.Acquire(ctx, 1)
-				if err != nil {
+				if err := sem.Acquire(ctx, 1); err != nil {
 					return err
 				}
 
 				errGroup.Go(func() error {
 					defer sem.Release(1)
-					project, err := createProject(terragruntPath)
+					project, err := createProject(ctx, terragruntPath)
 					if err != nil {
 						return err
 					}
@@ -791,7 +831,7 @@ func main(cmd *cobra.Command, args []string) error {
 
 			errGroup.Go(func() error {
 				defer sem.Release(1)
-				project, err := createHclProject(terragruntFiles, workingDir, projectHcl)
+				project, err := createHclProject(ctx, terragruntFiles, workingDir, projectHcl)
 				if err != nil {
 					return err
 				}
