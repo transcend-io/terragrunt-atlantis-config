@@ -16,6 +16,13 @@ var localModuleSourcePrefixes = []string{
 }
 
 func parseTerraformLocalModuleSource(path string) ([]string, error) {
+	// Try OpenTofu-aware parsing first
+	sources, err := parseTerraformLocalModuleSourceOpenTofu(path)
+	if err == nil {
+		return sources, nil
+	}
+
+	// Fallback to standard parsing
 	module, diags := tfconfig.LoadModule(path)
 	// modules, diags := parser.loadConfigDir(path)
 	if diags.HasErrors() {
@@ -45,12 +52,12 @@ func parseTerraformLocalModuleSource(path string) ([]string, error) {
 		}
 	}
 
-	var sources = []string{}
+	var resultSources = []string{}
 	for source := range sourceMap {
-		sources = append(sources, source)
+		resultSources = append(resultSources, source)
 	}
 
-	return sources, nil
+	return resultSources, nil
 }
 
 func isLocalTerraformModuleSource(raw string) bool {

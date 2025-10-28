@@ -682,3 +682,10 @@ func TestWithDependsOn(t *testing.T) {
 		"--create-project-name",
 	})
 }
+
+func TestOpenTofuProviderSyntax(t *testing.T) {
+	runTest(t, filepath.Join("golden", "opentofu_provider_syntax.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "opentofu_provider_syntax"),
+	})
+}

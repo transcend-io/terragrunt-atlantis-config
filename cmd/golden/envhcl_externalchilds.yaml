@@ -196,7 +196,7 @@ projects:
     - ../terragrunt.hcl
     - ../someRandomDir/terragrunt.hcl
   dir: hcl_json/json_expanded
-  workflow: terragruntjson  
+  workflow: terragruntjson
 - autoplan:
     enabled: false
     when_modified:
@@ -325,6 +325,12 @@ projects:
     - '**/*.tf*'
     - ../../terragrunt.hcl
   dir: no_terraform_blocks/myproject/global
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+  dir: opentofu_provider_syntax
 - autoplan:
     enabled: false
     when_modified:
