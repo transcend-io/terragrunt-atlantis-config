@@ -27,6 +27,7 @@ func resetForRun() error {
 	gitRoot = pwd
 	autoPlan = false
 	autoMerge = false
+	deleteSourceBranchOnMerge = false
 	cascadeDependencies = true
 	ignoreParentTerragrunt = true
 	ignoreDependencyBlocks = false
@@ -432,6 +433,14 @@ func TestEnablingAutomerge(t *testing.T) {
 		"--root",
 		filepath.Join("..", "test_examples", "basic_module"),
 		"--automerge",
+	})
+}
+
+func TestEnablingDeleteSourceBranchOnMerge(t *testing.T) {
+	runTest(t, filepath.Join("golden", "withDeleteSourceBranchOnMerge.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "basic_module"),
+		"--delete-source-branch-on-merge",
 	})
 }
 

@@ -16,6 +16,9 @@ type AtlantisConfig struct {
 	// If Atlantis should merge after finishing `atlantis apply`
 	AutoMerge bool `json:"automerge"`
 
+	// If Atlantis should delete the source branch after merging
+	DeleteSourceBranchOnMerge bool `json:"delete_source_branch_on_merge,omitempty"`
+
 	// If Atlantis should allow plans to occur in parallel
 	ParallelPlan bool `json:"parallel_plan"`
 

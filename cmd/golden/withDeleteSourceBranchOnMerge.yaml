@@ -1,0 +1,12 @@
+automerge: false
+delete_source_branch_on_merge: true
+parallel_apply: true
+parallel_plan: true
+projects:
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+  dir: .
+version: 3
