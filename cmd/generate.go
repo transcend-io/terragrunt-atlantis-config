@@ -665,28 +665,35 @@ func FindConfigFilesInPath(rootPath string, opts *options.TerragruntOptions) ([]
 	return configFiles, nil
 }
 
-// Finds the absolute paths of all arbitrary project hcl files
+// Finds the absolute paths of all arbitrary project hcl files.
+// Uses a single filepath.Walk to discover all requested filenames at once.
 func getAllTerragruntProjectHclFiles() map[string][]string {
 	projectHclFiles := projectHclFiles
 	orderedHclFilePaths := map[string][]string{}
 	uniqueHclFileAbsPaths := map[string][]string{}
-	for _, projectHclFile := range projectHclFiles {
-		err := filepath.Walk(gitRoot, func(path string, info os.FileInfo, err error) error {
-			if err != nil {
-				return err
-			}
 
-			if !info.IsDir() && info.Name() == projectHclFile {
-				orderedHclFilePaths[projectHclFile] = append(orderedHclFilePaths[projectHclFile], filepath.Dir(path))
-			}
+	// Build set of requested filenames for O(1) lookup during walk
+	nameSet := make(map[string]bool)
+	for _, name := range projectHclFiles {
+		nameSet[name] = true
+	}
 
-			return nil
-		})
-
+	// Single walk: collect directories for all project HCL filenames at once
+	err := filepath.Walk(gitRoot, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
+		if !info.IsDir() && nameSet[info.Name()] {
+			dir := filepath.Dir(path)
+			orderedHclFilePaths[info.Name()] = append(orderedHclFilePaths[info.Name()], dir)
+		}
+		return nil
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
 
+	for _, projectHclFile := range projectHclFiles {
 		for _, uniquePath := range orderedHclFilePaths[projectHclFile] {
 			uniqueAbsPath, err := filepath.Abs(uniquePath)
 			if err != nil {
@@ -817,10 +824,6 @@ func main(cmd *cobra.Command, args []string) error {
 					return nil
 				})
 			}
-
-			if err := errGroup.Wait(); err != nil {
-				return err
-			}
 		}
 		if len(projectHclDirs) > 0 && workingDir != gitRoot {
 			projectHcl := lookupProjectHcl(projectHclDirMap, workingDir)
@@ -848,11 +851,11 @@ func main(cmd *cobra.Command, args []string) error {
 
 				return nil
 			})
-
-			if err := errGroup.Wait(); err != nil {
-				return err
-			}
 		}
+	}
+
+	if err := errGroup.Wait(); err != nil {
+		return err
 	}
 
 	// Sort the projects in config by Dir
