@@ -1,29 +1,31 @@
 package cmd
 
 import (
-	"github.com/gruntwork-io/terragrunt/util"
-	"regexp"
-	"sort"
-
-	"github.com/hashicorp/go-getter"
-	log "github.com/sirupsen/logrus"
-
-	"github.com/ghodss/yaml"
-	"github.com/gruntwork-io/terragrunt/config"
-	"github.com/gruntwork-io/terragrunt/options"
-	"github.com/spf13/cobra"
-
-	"golang.org/x/sync/errgroup"
-	"golang.org/x/sync/semaphore"
-	"golang.org/x/sync/singleflight"
-
 	"context"
 	"os"
 	"path/filepath"
+	"regexp"
 	"runtime"
+	"sort"
 	"strings"
 	"sync"
+
+	"github.com/ghodss/yaml"
+	"github.com/gruntwork-io/terragrunt/pkg/config"
+	tglog "github.com/gruntwork-io/terragrunt/pkg/log"
+	"github.com/gruntwork-io/terragrunt/pkg/log/format"
+	"github.com/gruntwork-io/terragrunt/pkg/options"
+	"github.com/hashicorp/go-getter"
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/cobra"
+	"golang.org/x/sync/errgroup"
+	"golang.org/x/sync/semaphore"
+	"golang.org/x/sync/singleflight"
 )
+
+// tgLogger is a terragrunt logger with a formatter, required by the parsing API.
+// tglog.Default() has no formatter set which causes a nil-pointer panic in DefaultParserOptions.
+var tgLogger = tglog.New(tglog.WithFormatter(format.NewFormatter(nil)))
 
 // Parse env vars into a map
 func getEnvs() map[string]string {
@@ -122,7 +124,7 @@ func sliceUnion(a, b []string) []string {
 }
 
 // Parses the terragrunt config at `path` to find all modules it depends on
-func getDependencies(ctx *config.ParsingContext, path string) ([]string, error) {
+func getDependencies(ctx context.Context, pctx *config.ParsingContext, path string) ([]string, error) {
 	res, err, _ := requestGroup.Do(path, func() (interface{}, error) {
 		// Check if this path has already been computed
 		cachedResult, ok := getDependenciesCache.get(path)
@@ -132,7 +134,7 @@ func getDependencies(ctx *config.ParsingContext, path string) ([]string, error) 
 
 		// parse the module path to find what it includes, as well as its potential to be a parent
 		// return nils to indicate we should skip this project
-		isParent, includes, err := parseModule(ctx, path)
+		isParent, includes, err := parseModule(ctx, pctx, path)
 		if err != nil {
 			getDependenciesCache.set(path, getDependenciesOutput{nil, err})
 			return nil, err
@@ -151,20 +153,20 @@ func getDependencies(ctx *config.ParsingContext, path string) ([]string, error) 
 		}
 
 		// Parse the HCL file
-		parseCtx := config.NewParsingContext(ctx, ctx.TerragruntOptions).
-			WithDecodeList(
-				config.DependencyBlock,
-				config.DependenciesBlock,
-				config.TerraformBlock,
-			)
-		parsedConfig, err := config.PartialParseConfigFile(parseCtx, path, nil)
+		innerCtx, innerPctx := config.NewParsingContext(ctx, tgLogger, pctx.TerragruntOptions)
+		innerPctx = innerPctx.WithDecodeList(
+			config.DependencyBlock,
+			config.DependenciesBlock,
+			config.TerraformBlock,
+		)
+		parsedConfig, err := config.PartialParseConfigFile(innerCtx, innerPctx, tgLogger, path, nil)
 		if err != nil {
 			getDependenciesCache.set(path, getDependenciesOutput{nil, err})
 			return nil, err
 		}
 
 		// Parse out locals
-		locals, err := parseLocals(ctx, path, nil)
+		locals, err := parseLocals(ctx, pctx, path, nil)
 		if err != nil {
 			getDependenciesCache.set(path, getDependenciesOutput{nil, err})
 			return nil, err
@@ -178,7 +180,13 @@ func getDependencies(ctx *config.ParsingContext, path string) ([]string, error) 
 		// Get deps from `dependencies` and `dependency` blocks
 		if parsedConfig.Dependencies != nil && !ignoreDependencyBlocks {
 			for _, parsedPaths := range parsedConfig.Dependencies.Paths {
-				dependencies = append(dependencies, filepath.Join(parsedPaths, "terragrunt.hcl"))
+				// config_path may point directly to a .hcl file (e.g. via find_in_parent_folders("terragrunt.hcl"))
+				// or to a directory. Only append "terragrunt.hcl" when it is a directory path.
+				if strings.HasSuffix(parsedPaths, ".hcl") {
+					dependencies = append(dependencies, parsedPaths)
+				} else {
+					dependencies = append(dependencies, filepath.Join(parsedPaths, "terragrunt.hcl"))
+				}
 			}
 		}
 
@@ -260,10 +268,10 @@ func getDependencies(ctx *config.ParsingContext, path string) ([]string, error) 
 
 			depPath := dep
 			terrOpts, _ := options.NewTerragruntOptionsWithConfigPath(depPath)
-			terrOpts.OriginalTerragruntConfigPath = ctx.TerragruntOptions.OriginalTerragruntConfigPath
-			terrOpts.Env = ctx.TerragruntOptions.Env
-			terrContext := config.NewParsingContext(ctx, terrOpts)
-			childDeps, err := getDependencies(terrContext, depPath)
+			terrOpts.OriginalTerragruntConfigPath = pctx.TerragruntOptions.OriginalTerragruntConfigPath
+			terrOpts.Env = pctx.TerragruntOptions.Env
+			terrCtx, terrPctx := config.NewParsingContext(ctx, tgLogger, terrOpts)
+			childDeps, err := getDependencies(terrCtx, terrPctx, depPath)
 			if err != nil {
 				continue
 			}
@@ -328,8 +336,8 @@ func createProject(ctx context.Context, sourcePath string) (*AtlantisProject, er
 	options.OriginalTerragruntConfigPath = sourcePath
 	options.Env = getEnvs()
 
-	parsingContext := config.NewParsingContext(ctx, options)
-	dependencies, err := getDependencies(parsingContext, sourcePath)
+	pctxCtx, parsingContext := config.NewParsingContext(ctx, tgLogger, options)
+	dependencies, err := getDependencies(pctxCtx, parsingContext, sourcePath)
 	if err != nil {
 		return nil, err
 	}
@@ -340,7 +348,7 @@ func createProject(ctx context.Context, sourcePath string) (*AtlantisProject, er
 	}
 
 	absoluteSourceDir := filepath.Dir(sourcePath) + string(filepath.Separator)
-	locals, err := parseLocals(parsingContext, sourcePath, nil)
+	locals, err := parseLocals(pctxCtx, parsingContext, sourcePath, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -446,8 +454,8 @@ func createHclProject(ctx context.Context, sourcePaths []string, workingDir stri
 	}
 	projectHclOptions.Env = getEnvs()
 
-	parsingContext := config.NewParsingContext(ctx, projectHclOptions)
-	locals, err := parseLocals(parsingContext, projectHclFile, nil)
+	hclCtx, parsingContext := config.NewParsingContext(ctx, tgLogger, projectHclOptions)
+	locals, err := parseLocals(hclCtx, parsingContext, projectHclFile, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -468,9 +476,17 @@ func createHclProject(ctx context.Context, sourcePaths []string, workingDir stri
 
 	if locals.ExtraAtlantisDependencies != nil {
 		for _, dep := range locals.ExtraAtlantisDependencies {
-			relDep, err := filepath.Rel(workingDir, dep)
-			if err != nil {
-				return nil, err
+			var relDep string
+			if filepath.IsAbs(dep) {
+				var err error
+				relDep, err = filepath.Rel(workingDir, dep)
+				if err != nil {
+					return nil, err
+				}
+			} else {
+				// dep is already a relative path or a glob pattern (e.g. "*.hcl"),
+				// use it as-is rather than trying to relativize against an absolute workingDir
+				relDep = dep
 			}
 			projectHclDependencies = append(projectHclDependencies, filepath.ToSlash(relDep))
 		}
@@ -502,8 +518,8 @@ func createHclProject(ctx context.Context, sourcePaths []string, workingDir stri
 			return nil, err
 		}
 		opt.Env = getEnvs()
-		parsingContext := config.NewParsingContext(ctx, opt)
-		dependencies, err := getDependencies(parsingContext, sourcePath)
+		optCtx, parsingContext := config.NewParsingContext(ctx, tgLogger, opt)
+		dependencies, err := getDependencies(optCtx, parsingContext, sourcePath)
 		if err != nil {
 			return nil, err
 		}
@@ -516,8 +532,9 @@ func createHclProject(ctx context.Context, sourcePaths []string, workingDir stri
 		relativeDependencies := []string{
 			"*.hcl",
 			"*.tf*",
-			"**/*.hcl",
-			"**/*.tf*",
+		}
+		if !ignoreHclProjectChildsDependencies {
+			relativeDependencies = append(relativeDependencies, "**/*.hcl", "**/*.tf*")
 		}
 
 		// Add other dependencies based on their relative paths. We always want to output with Unix path separators
@@ -646,10 +663,10 @@ func FindConfigFilesInPath(rootPath string, opts *options.TerragruntOptions) ([]
 
 		for _, configFile := range []string{"root.hcl"} {
 			if !filepath.IsAbs(configFile) {
-				configFile = util.JoinPath(path, configFile)
+				configFile = filepath.ToSlash(filepath.Join(path, configFile))
 			}
 
-			if !util.IsDir(configFile) && util.FileExists(configFile) {
+			if fi, statErr := os.Stat(configFile); statErr == nil && !fi.IsDir() {
 				configFiles = append(configFiles, configFile)
 				break
 			}
@@ -776,7 +793,8 @@ func main(cmd *cobra.Command, args []string) error {
 					defer sem.Release(1)
 					project, err := createProject(ctx, terragruntPath)
 					if err != nil {
-						return err
+						log.Warnf("Skipping %s due to error: %v", terragruntPath, err)
+						return nil
 					}
 					// if project and err are nil then skip this project
 					if err == nil && project == nil {
@@ -833,7 +851,8 @@ func main(cmd *cobra.Command, args []string) error {
 				defer sem.Release(1)
 				project, err := createHclProject(ctx, terragruntFiles, workingDir, projectHcl)
 				if err != nil {
-					return err
+					log.Warnf("Skipping %s due to error: %v", workingDir, err)
+					return nil
 				}
 				// if project and err are nil then skip this project
 				if err == nil && project == nil {
@@ -964,6 +983,7 @@ var numExecutors int64
 var projectHclFiles []string
 var createHclProjectChilds bool
 var createHclProjectExternalChilds bool
+var ignoreHclProjectChildsDependencies bool
 var useProjectMarkers bool
 var executionOrderGroups bool
 var dependsOn bool
@@ -1012,6 +1032,7 @@ func init() {
 	generateCmd.PersistentFlags().StringSliceVar(&projectHclFiles, "project-hcl-files", []string{}, "Comma-separated names of arbitrary hcl files in the terragrunt hierarchy to create Atlantis projects for. Disables the --filter flag")
 	generateCmd.PersistentFlags().BoolVar(&createHclProjectChilds, "create-hcl-project-childs", false, "Creates Atlantis projects for terragrunt child modules below the directories containing the HCL files defined in --project-hcl-files")
 	generateCmd.PersistentFlags().BoolVar(&createHclProjectExternalChilds, "create-hcl-project-external-childs", true, "Creates Atlantis projects for terragrunt child modules outside the directories containing the HCL files defined in --project-hcl-files")
+	generateCmd.PersistentFlags().BoolVar(&ignoreHclProjectChildsDependencies, "ignore-hcl-project-childs-dependencies", true, "When true, skips adding recursive **/*.hcl and **/*.tf* glob patterns to WhenModified for HCL project child modules. Default is true")
 	generateCmd.PersistentFlags().BoolVar(&useProjectMarkers, "use-project-markers", false, "Creates Atlantis projects only for project hcl files with locals: atlantis_project = true")
 	generateCmd.PersistentFlags().BoolVar(&executionOrderGroups, "execution-order-groups", false, "Computes execution_order_groups for projects")
 	generateCmd.PersistentFlags().BoolVar(&dependsOn, "depends-on", false, "Computes depends_on for projects. Requires --create-project-name.")

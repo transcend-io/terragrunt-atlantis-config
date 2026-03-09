@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"errors"
+	"path/filepath"
 	"strings"
 
-	"github.com/gruntwork-io/terragrunt/util"
 	"github.com/hashicorp/terraform-config-inspect/tfconfig"
 )
 
@@ -25,8 +25,8 @@ func parseTerraformLocalModuleSource(path string) ([]string, error) {
 	var sourceMap = map[string]bool{}
 	for _, mc := range module.ModuleCalls {
 		if isLocalTerraformModuleSource(mc.Source) {
-			modulePath := util.JoinPath(path, mc.Source)
-			modulePathGlob := util.JoinPath(modulePath, "*.tf*")
+			modulePath := filepath.ToSlash(filepath.Join(path, mc.Source))
+			modulePathGlob := filepath.ToSlash(filepath.Join(modulePath, "*.tf*"))
 
 			if _, exists := sourceMap[modulePathGlob]; exists {
 				continue

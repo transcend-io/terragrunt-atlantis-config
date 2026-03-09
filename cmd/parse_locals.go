@@ -5,13 +5,15 @@ package cmd
 // parses the `locals` blocks and evaluates their contents.
 
 import (
+	"context"
 	"fmt"
+	"path/filepath"
+
 	"github.com/gruntwork-io/go-commons/errors"
-	"github.com/gruntwork-io/terragrunt/config"
-	"github.com/gruntwork-io/terragrunt/config/hclparse"
+	"github.com/gruntwork-io/terragrunt/pkg/config"
+	"github.com/gruntwork-io/terragrunt/pkg/config/hclparse"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/zclconf/go-cty/cty"
-	"path/filepath"
 )
 
 // ResolvedLocals are the parsed result of local values this module cares about
@@ -97,14 +99,14 @@ func mergeResolvedLocals(parent ResolvedLocals, child ResolvedLocals) ResolvedLo
 }
 
 // Parses a given file, returning a map of all it's `local` values
-func parseLocals(ctx *config.ParsingContext, path string, includeFromChild *config.IncludeConfig) (ResolvedLocals, error) {
-	file, err := hclparse.NewParser(ctx.ParserOptions...).ParseFromFile(path)
+func parseLocals(ctx context.Context, pctx *config.ParsingContext, path string, includeFromChild *config.IncludeConfig) (ResolvedLocals, error) {
+	file, err := hclparse.NewParser(pctx.ParserOptions...).ParseFromFile(path)
 	if err != nil {
 		return ResolvedLocals{}, err
 	}
 
 	// Decode just the Base blocks. See the function docs for DecodeBaseBlocks for more info on what base blocks are.
-	baseBlocks, err := config.DecodeBaseBlocks(ctx, file, includeFromChild)
+	baseBlocks, err := config.DecodeBaseBlocks(ctx, pctx, tgLogger, file, includeFromChild)
 	if err != nil {
 		return ResolvedLocals{}, err
 	}
@@ -113,7 +115,7 @@ func parseLocals(ctx *config.ParsingContext, path string, includeFromChild *conf
 	mergedParentLocals := ResolvedLocals{}
 	if baseBlocks.TrackInclude != nil && includeFromChild == nil {
 		for _, includeConfig := range baseBlocks.TrackInclude.CurrentList {
-			parentLocals, _ := parseLocals(ctx, includeConfig.Path, &includeConfig)
+			parentLocals, _ := parseLocals(ctx, pctx, includeConfig.Path, &includeConfig)
 			mergedParentLocals = mergeResolvedLocals(mergedParentLocals, parentLocals)
 		}
 	}
