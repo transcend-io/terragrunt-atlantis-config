@@ -351,7 +351,7 @@ func getDependencies(ctx *config.ParsingContext, path string) ([]string, error) 
 				absDepBlockPaths = append(absDepBlockPaths, filepath.ToSlash(absPath))
 			}
 		}
-		depBlockPathsCache.set(path, absDepBlockPaths)
+		depBlockPathsCache.set(filepath.ToSlash(path), absDepBlockPaths)
 
 		getDependenciesCache.set(path, getDependenciesOutput{cascadedDeps, err})
 		return cascadedDeps, nil
