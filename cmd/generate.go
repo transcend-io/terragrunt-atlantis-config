@@ -940,8 +940,15 @@ func main(cmd *cobra.Command, args []string) error {
 					}
 				}
 
-				// Compute ordering from all dependency paths
+				// Sort dependency paths for deterministic depends_on output
+				sortedDepPaths := make([]string, 0, len(depPaths))
 				for depPath := range depPaths {
+					sortedDepPaths = append(sortedDepPaths, depPath)
+				}
+				sort.Strings(sortedDepPaths)
+
+				// Compute ordering from all dependency paths
+				for _, depPath := range sortedDepPaths {
 					if depPath == project.Dir {
 						continue
 					}

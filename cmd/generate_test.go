@@ -675,6 +675,15 @@ func TestWithExecutionOrderGroupsAndDependsOn(t *testing.T) {
 	})
 }
 
+func TestWithExecutionOrderGroupsAndIgnoreDependencyBlocks(t *testing.T) {
+	runTest(t, filepath.Join("golden", "withExecutionOrderGroupsAndIgnoreDependencyBlocks.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "chained_dependencies"),
+		"--execution-order-groups",
+		"--ignore-dependency-blocks",
+	})
+}
+
 func TestWithDependsOn(t *testing.T) {
 	runTest(t, filepath.Join("golden", "withDependsOn.yaml"), []string{
 		"--root",
