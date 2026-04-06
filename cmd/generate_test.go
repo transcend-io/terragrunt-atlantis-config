@@ -22,6 +22,7 @@ func resetForRun() error {
 
 	// reset caches
 	getDependenciesCache = newGetDependenciesCache()
+	depBlockPathsCache = newDepBlockPathsCache()
 	requestGroup = singleflight.Group{}
 	// reset flags
 	gitRoot = pwd
@@ -671,6 +672,15 @@ func TestWithExecutionOrderGroupsAndDependsOn(t *testing.T) {
 		"--execution-order-groups",
 		"--depends-on",
 		"--create-project-name",
+	})
+}
+
+func TestWithExecutionOrderGroupsAndIgnoreDependencyBlocks(t *testing.T) {
+	runTest(t, filepath.Join("golden", "withExecutionOrderGroupsAndIgnoreDependencyBlocks.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "chained_dependencies"),
+		"--execution-order-groups",
+		"--ignore-dependency-blocks",
 	})
 }
 

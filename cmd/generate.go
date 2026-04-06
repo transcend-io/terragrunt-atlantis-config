@@ -81,6 +81,31 @@ func (m *GetDependenciesCache) get(k string) (getDependenciesOutput, bool) {
 
 var getDependenciesCache = newGetDependenciesCache()
 
+// Cache for dependency-block paths, used by execution_order_groups
+// even when --ignore-dependency-blocks removes them from when_modified
+type DepBlockPathsCache struct {
+	mtx  sync.RWMutex
+	data map[string][]string
+}
+
+func newDepBlockPathsCache() *DepBlockPathsCache {
+	return &DepBlockPathsCache{data: map[string][]string{}}
+}
+
+func (m *DepBlockPathsCache) set(k string, v []string) {
+	m.mtx.Lock()
+	defer m.mtx.Unlock()
+	m.data[k] = v
+}
+
+func (m *DepBlockPathsCache) get(k string) []string {
+	m.mtx.RLock()
+	defer m.mtx.RUnlock()
+	return m.data[k]
+}
+
+var depBlockPathsCache = newDepBlockPathsCache()
+
 func uniqueStrings(str []string) []string {
 	keys := make(map[string]bool)
 	list := []string{}
@@ -176,9 +201,16 @@ func getDependencies(ctx *config.ParsingContext, path string) ([]string, error) 
 		}
 
 		// Get deps from `dependencies` and `dependency` blocks
-		if parsedConfig.Dependencies != nil && !ignoreDependencyBlocks {
+		// Always parse them for execution_order_groups, but only add to
+		// when_modified dependencies if ignoreDependencyBlocks is false
+		depBlockPaths := []string{}
+		if parsedConfig.Dependencies != nil {
 			for _, parsedPaths := range parsedConfig.Dependencies.Paths {
-				dependencies = append(dependencies, filepath.Join(parsedPaths, "terragrunt.hcl"))
+				depPath := filepath.Join(parsedPaths, "terragrunt.hcl")
+				depBlockPaths = append(depBlockPaths, depPath)
+				if !ignoreDependencyBlocks {
+					dependencies = append(dependencies, depPath)
+				}
 			}
 		}
 
@@ -307,6 +339,19 @@ func getDependencies(ctx *config.ParsingContext, path string) ([]string, error) 
 
 			cascadedDeps = append(cascadedDeps, ls...)
 		}
+
+		// Store absolute dep-block paths for execution_order_groups computation
+		absDepBlockPaths := []string{}
+		for _, dep := range depBlockPaths {
+			if dep != "" {
+				absPath := dep
+				if !filepath.IsAbs(absPath) {
+					absPath = makePathAbsolute(dep, path)
+				}
+				absDepBlockPaths = append(absDepBlockPaths, filepath.ToSlash(absPath))
+			}
+		}
+		depBlockPathsCache.set(filepath.ToSlash(path), absDepBlockPaths)
 
 		getDependenciesCache.set(path, getDependenciesOutput{cascadedDeps, err})
 		return cascadedDeps, nil
@@ -871,17 +916,44 @@ func main(cmd *cobra.Command, args []string) error {
 			for _, project := range config.Projects {
 				executionOrderGroup := 0
 				dependsOnList := []string{}
-				// choose order group based on dependencies
+
+				// Collect dependency paths from two sources:
+				// 1. when_modified (includes extra_atlantis_dependencies, terraform source, etc.)
+				// 2. dep-block paths cache (dependency/dependencies blocks - may not be in when_modified if --ignore-dependency-blocks)
+				depPaths := make(map[string]bool)
+
+				// From when_modified (existing behavior)
 				for _, dep := range project.Autoplan.WhenModified {
 					depPath := filepath.ToSlash(filepath.Dir(filepath.Join(project.Dir, dep)))
+					depPaths[depPath] = true
+				}
+
+				// From dependency blocks cache
+				sourcePath := filepath.Join(gitRoot, project.Dir, "terragrunt.hcl")
+				absSourcePath, _ := filepath.Abs(sourcePath)
+				absSourceDir := filepath.Dir(absSourcePath)
+				for _, bp := range depBlockPathsCache.get(filepath.ToSlash(absSourcePath)) {
+					relPath, err := filepath.Rel(absSourceDir, bp)
+					if err == nil {
+						depPath := filepath.ToSlash(filepath.Dir(filepath.Join(project.Dir, filepath.ToSlash(relPath))))
+						depPaths[depPath] = true
+					}
+				}
+
+				// Sort dependency paths for deterministic depends_on output
+				sortedDepPaths := make([]string, 0, len(depPaths))
+				for depPath := range depPaths {
+					sortedDepPaths = append(sortedDepPaths, depPath)
+				}
+				sort.Strings(sortedDepPaths)
+
+				// Compute ordering from all dependency paths
+				for _, depPath := range sortedDepPaths {
 					if depPath == project.Dir {
-						// skip dependency on oneself
 						continue
 					}
-
 					depProject, ok := projectsMap[depPath]
 					if !ok {
-						// skip not project dependencies
 						continue
 					}
 					if depProject.ExecutionOrderGroup != nil {
@@ -891,6 +963,7 @@ func main(cmd *cobra.Command, args []string) error {
 					}
 					dependsOnList = append(dependsOnList, depProject.Name)
 				}
+
 				if projectsMap[project.Dir].ExecutionOrderGroup == nil || *projectsMap[project.Dir].ExecutionOrderGroup != executionOrderGroup {
 					if executionOrderGroups {
 						projectsMap[project.Dir].ExecutionOrderGroup = &executionOrderGroup
@@ -898,7 +971,6 @@ func main(cmd *cobra.Command, args []string) error {
 					if dependsOn {
 						projectsMap[project.Dir].DependsOn = dependsOnList
 					}
-					// repeat the main cycle when changed some project
 					hasChanges = true
 				}
 			}
