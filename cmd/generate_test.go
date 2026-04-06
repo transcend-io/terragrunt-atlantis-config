@@ -22,6 +22,7 @@ func resetForRun() error {
 
 	// reset caches
 	getDependenciesCache = newGetDependenciesCache()
+	depBlockPathsCache = newDepBlockPathsCache()
 	requestGroup = singleflight.Group{}
 	// reset flags
 	gitRoot = pwd
