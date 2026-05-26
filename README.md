@@ -48,7 +48,7 @@ Then, make sure `terragrunt-atlantis-config` is present on your Atlantis server.
 
 ```hcl
 variable "terragrunt_atlantis_config_version" {
-  default = "1.20.0"
+  default = "1.21.1"
 }
 
 build {
@@ -114,7 +114,7 @@ One way to customize the behavior of this module is through CLI flag values pass
 
 | Flag Name                    | Description                                                                                                                                                                     | Default Value     |
 |------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------|
-| `--autoplan`                 | The default value for autoplan settings. Can be overriden by locals.                                                                                                            | false             |
+| `--autoplan`                 | The default value for autoplan settings. Can be overridden by locals.                                                                                                            | false             |
 | `--automerge`                | Enables the automerge setting for a repo.                                                                                                                                       | false             |
 | `--cascade-dependencies`     | When true, dependencies will cascade, meaning that a module will be declared to depend not only on its dependencies, but all dependencies of its dependencies all the way down. | true              |
 | `--ignore-parent-terragrunt` | Ignore parent Terragrunt configs (those which don't reference a terraform module).<br>In most cases, this should be set to `true`                                               | true              |
@@ -127,7 +127,7 @@ One way to customize the behavior of this module is through CLI flag values pass
 | `--apply-requirements`       | Requirements that must be satisfied before `atlantis apply` can be run. Currently the only supported requirements are `approved` and `mergeable`. Can be overridden by locals   | []                |
 | `--output`                   | Path of the file where configuration will be generated. Typically, you want a file named "atlantis.yaml". Default is to write to `stdout`.                                      | ""                |
 | `--root`                     | Path to the root directory of the git repo you want to build config for.                                                                                                        | current directory |
-| `--terraform-version`        | Default terraform version to specify for all modules. Can be overriden by locals                                                                                                | ""                |
+| `--terraform-version`        | Default terraform version to specify for all modules. Can be overridden by locals                                                                                                | ""                |
 | `--ignore-dependency-blocks` | When true, dependencies found in `dependency` and `dependencies` blocks will be ignored                                                                                         | false             |
 | `--filter`                   | Path or glob expression to the directory you want scope down the config for. Default is all files in root                                                                       | ""                |
 | `--num-executors`            | Number of executors used for parallel generation of projects. Default is 15                                                                                                     | 15                |
@@ -195,10 +195,10 @@ You can install this tool locally to checkout what kinds of config it will gener
 Recommended: Install any version via go install:
 
 ```bash
-go install github.com/transcend-io/terragrunt-atlantis-config@v1.17.9
+go install github.com/transcend-io/terragrunt-atlantis-config@v1.21.1
 ```
 
-This module officially supports golang version v1.21, tested on Github with each build. 
+This module officially supports golang version v1.23, tested on Github with each build. 
 This module also officially supports both Windows and Nix-based file formats, tested on Github with each build. 
 
 Usage Examples (see below sections for all options):
@@ -220,9 +220,7 @@ Finally, check the log output (or your output file) for the YAML.
 
 To test any changes you've made, run `make gotestsum` (or `make test` for standard golang testing).
 
-When your PR is merged and a tag is created, a Github Actions job to build the new binary, test it, and deploy it's artifacts to Github Releases along with checksums.
-
-You can then open a PR on our homebrew tap similar to https://github.com/transcend-io/homebrew-tap/pull/4, and as soon as that merges your code will be released. Homebrew is not updated for every release, as Github is the primary artifact store.
+For maintainers, the directions on publishing a new release can be found [in the wiki](https://github.com/transcend-io/terragrunt-atlantis-config/wiki/How-to-publish-a-release).
 
 ## Contributors
 
