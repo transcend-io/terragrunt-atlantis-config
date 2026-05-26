@@ -5,13 +5,12 @@ package cmd
 // parses the `locals` blocks and evaluates their contents.
 
 import (
+	"fmt"
 	"github.com/gruntwork-io/go-commons/errors"
 	"github.com/gruntwork-io/terragrunt/config"
 	"github.com/gruntwork-io/terragrunt/config/hclparse"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/zclconf/go-cty/cty"
-
-  "fmt"
 	"path/filepath"
 )
 
