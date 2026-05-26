@@ -133,6 +133,8 @@ One way to customize the behavior of this module is through CLI flag values pass
 | `--num-executors`            | Number of executors used for parallel generation of projects. Default is 15                                                                                                     | 15                |
 | `--execution-order-groups`   | Computes execution_order_group for projects                                                                                                                                     | false             |
 | `--depends-on`               | Computes depends_on for projects. Project names are required.                                                                                                                   | false             |
+| `--silence-pr-comments`      | Disabling projects output in PR comments after the plan/apply command. Default no silence.                                                                                      | []                | 
+| `--repo-locks`               | Get projects lock on repo level. Default is to use Atlantis default. Possible values are `on_plan`, `on_apply` and `disabled`.                                                  | ""                |
 
 ## Project generation
 
@@ -149,15 +151,16 @@ These flags offer additional options to generate Atlantis projects based on HCL 
 
 Another way to customize the output is to use `locals` values in your terragrunt modules. These can be set in either the parent or child terragrunt modules, and the settings will only affect the current module (or all child modules for parent locals).
 
-| Locals Name                   | Description                                                                                                                                                    | type         |
-| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
-| `atlantis_workflow`           | The custom atlantis workflow name to use for a module                                                                                                          | string       |
-| `atlantis_apply_requirements` | The custom `apply_requirements` array to use for a module                                                                                                      | list(string) |
-| `atlantis_terraform_version`  | Allows overriding the `--terraform-version` flag for a single module                                                                                           | string       |
-| `atlantis_autoplan`           | Allows overriding the `--autoplan` flag for a single module                                                                                                    | bool         |
-| `atlantis_skip`               | If true on a child module, that module will not appear in the output.<br>If true on a parent module, none of that parent's children will appear in the output. | bool         |
-| `extra_atlantis_dependencies` | See [Extra dependencies](https://github.com/transcend-io/terragrunt-atlantis-config#extra-dependencies)                                                        | list(string) |
-| `atlantis_project`            | Create Atlantis project for a project hcl file. Only functional with `--project-hcl-files` and `--use-project-markers` | bool         |
+| Locals Name                    | Description                                                                                                                                                    | type         |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| `atlantis_workflow`            | The custom atlantis workflow name to use for a module                                                                                                          | string       |
+| `atlantis_apply_requirements`  | The custom `apply_requirements` array to use for a module                                                                                                      | list(string) |
+| `atlantis_terraform_version`   | Allows overriding the `--terraform-version` flag for a single module                                                                                           | string       |
+| `atlantis_autoplan`            | Allows overriding the `--autoplan` flag for a single module                                                                                                    | bool         |
+| `atlantis_skip`                | If true on a child module, that module will not appear in the output.<br>If true on a parent module, none of that parent's children will appear in the output. | bool         |
+| `extra_atlantis_dependencies`  | See [Extra dependencies](https://github.com/transcend-io/terragrunt-atlantis-config#extra-dependencies)                                                        | list(string) |
+| `atlantis_project`             | Create Atlantis project for a project hcl file. Only functional with `--project-hcl-files` and `--use-project-markers`                                         | bool         |
+| `atlantis_silence_pr_comments` | Silence PR comments for a project on plan/apply command.                                                                                                       | list(string) |
 
 ## Separate workspace for parallel plan and apply
 

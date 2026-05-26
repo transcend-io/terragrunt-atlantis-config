@@ -46,6 +46,8 @@ func resetForRun() error {
 	useProjectMarkers = false
 	executionOrderGroups = false
 	dependsOn = false
+	defaultSilencePRComments = []string{}
+	defaultRepoLocks = ""
 
 	return nil
 }
@@ -55,6 +57,11 @@ func runTest(t *testing.T, goldenFile string, args []string) {
 	err := resetForRun()
 	if err != nil {
 		t.Error("Failed to reset default flags")
+		return
+	}
+
+	if _, err := os.Stat("test_artifacts"); os.IsNotExist(err) {
+		t.Error("Failed to find test_artifacts directory")
 		return
 	}
 
@@ -181,7 +188,7 @@ func TestNonStringErrorOnExtraDeclaredDependencies(t *testing.T) {
 		filepath.Join("..", "test_examples_errors", "extra_dependency_error"),
 	})
 	err = rootCmd.Execute()
-	
+
 	expectedError := "extra_atlantis_dependencies contains non-string value at position 4"
 	if err == nil || err.Error() != expectedError {
 		t.Errorf("Expected error '%s', got '%v'", expectedError, err)
@@ -680,5 +687,38 @@ func TestWithDependsOn(t *testing.T) {
 		filepath.Join("..", "test_examples", "chained_dependencies"),
 		"--depends-on",
 		"--create-project-name",
+	})
+}
+
+func TestSilencePRCommentsModules(t *testing.T) {
+	runTest(t, filepath.Join("golden", "silence_pr_comments.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "silence_pr_comments"),
+		"--silence-pr-comments=plan,apply",
+	})
+}
+
+func TestRepoLocksModules(t *testing.T) {
+	runTest(t, filepath.Join("golden", "repo_locks_default.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "repo_locks"),
+	})
+
+	runTest(t, filepath.Join("golden", "repo_locks_disabled.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "repo_locks"),
+		"--repo-locks=disabled",
+	})
+
+	runTest(t, filepath.Join("golden", "repo_locks_on_apply.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "repo_locks"),
+		"--repo-locks=on_apply",
+	})
+
+	runTest(t, filepath.Join("golden", "repo_locks_on_plan.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "repo_locks"),
+		"--repo-locks=on_plan",
 	})
 }

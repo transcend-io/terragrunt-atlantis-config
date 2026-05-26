@@ -34,6 +34,9 @@ type ResolvedLocals struct {
 	// Terraform version to use just for this project
 	TerraformVersion string
 
+	// The project output will not be included in the output for given atlantis commands
+	SilencePRComments []string
+
 	// If set to true, create Atlantis project
 	markedProject *bool
 }
@@ -92,6 +95,10 @@ func mergeResolvedLocals(parent ResolvedLocals, child ResolvedLocals) ResolvedLo
 	}
 
 	parent.ExtraAtlantisDependencies = append(parent.ExtraAtlantisDependencies, child.ExtraAtlantisDependencies...)
+
+	if child.SilencePRComments != nil {
+		parent.SilencePRComments = child.SilencePRComments
+	}
 
 	return parent
 }
@@ -185,6 +192,21 @@ func resolveLocals(localsAsCty cty.Value) (ResolvedLocals, error) {
 				resolved.ExtraAtlantisDependencies,
 				filepath.ToSlash(val.AsString()),
 			)
+		}
+	}
+
+	silencePRComments, ok := rawLocals["atlantis_silence_pr_comments"]
+	if ok {
+		resolved.SilencePRComments = []string{}
+		it := silencePRComments.ElementIterator()
+		for it.Next() {
+			pos, val := it.Element()
+			if !val.Type().Equals(cty.String) {
+				posInt, _ := pos.AsBigFloat().Int64()
+				return resolved, fmt.Errorf("silence_pr_comments contains non-string value at position %d", posInt)
+			}
+
+			resolved.SilencePRComments = append(resolved.SilencePRComments, val.AsString())
 		}
 	}
 
