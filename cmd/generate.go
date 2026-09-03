@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/gruntwork-io/terragrunt/util"
 	"regexp"
 	"sort"
@@ -321,6 +322,12 @@ func getDependencies(ctx *config.ParsingContext, path string) ([]string, error) 
 
 // Creates an AtlantisProject for a directory
 func createProject(ctx context.Context, sourcePath string) (*AtlantisProject, error) {
+	// A root.hcl is the parent of the units that include it, whatever it declares.
+	// A terraform.source block in it would otherwise make it look like a unit.
+	if filepath.Base(sourcePath) == "root.hcl" && !createParentProject {
+		return nil, nil
+	}
+
 	options, err := options.NewTerragruntOptionsWithConfigPath(sourcePath)
 	if err != nil {
 		return nil, err
@@ -598,6 +605,9 @@ func getAllTerragruntFiles(path string) ([]string, error) {
 			}
 			workingPaths = append(workingPaths, theseWorkingPaths...)
 		}
+		if len(workingPaths) == 0 {
+			return nil, fmt.Errorf("no directories match --filter %s", strings.Join(filterPaths, ","))
+		}
 	}
 
 	uniqueConfigFilePaths := make(map[string]bool)
@@ -642,6 +652,11 @@ func FindConfigFilesInPath(rootPath string, opts *options.TerragruntOptions) ([]
 
 		if !info.IsDir() {
 			return nil
+		}
+
+		// Terragrunt copies whole trees into its cache, root.hcl files included.
+		if info.Name() == ".terragrunt-cache" {
+			return filepath.SkipDir
 		}
 
 		for _, configFile := range []string{"root.hcl"} {

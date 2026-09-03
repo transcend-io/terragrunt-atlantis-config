@@ -29,6 +29,7 @@ func resetForRun() error {
 	autoMerge = false
 	cascadeDependencies = true
 	ignoreParentTerragrunt = true
+	createParentProject = false
 	ignoreDependencyBlocks = false
 	parallel = true
 	createWorkspace = false
@@ -681,4 +682,49 @@ func TestWithDependsOn(t *testing.T) {
 		"--depends-on",
 		"--create-project-name",
 	})
+}
+
+func TestRootHclWithSourceIsNotAProject(t *testing.T) {
+	runTest(t, filepath.Join("golden", "root_hcl_with_source.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "root_hcl_with_source"),
+	})
+}
+
+func TestRootHclWithSourceAsParentProject(t *testing.T) {
+	runTest(t, filepath.Join("golden", "root_hcl_with_source_parent.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "root_hcl_with_source"),
+		"--create-parent-project",
+	})
+}
+
+func TestIgnoringTerragruntCache(t *testing.T) {
+	runTest(t, filepath.Join("golden", "terragrunt_cache.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "terragrunt_cache"),
+	})
+}
+
+func TestFilterMatchingNothingErrors(t *testing.T) {
+	err := resetForRun()
+	if err != nil {
+		t.Error("Failed to reset default flags")
+		return
+	}
+
+	filter := filepath.Join("..", "test_examples", "basic_module", "nope", "*")
+	rootCmd.SetArgs([]string{
+		"generate",
+		"--root",
+		filepath.Join("..", "test_examples", "basic_module"),
+		"--filter",
+		filter,
+	})
+	err = rootCmd.Execute()
+
+	expectedError := "no directories match --filter " + filter
+	if err == nil || err.Error() != expectedError {
+		t.Errorf("Expected error '%s', got '%v'", expectedError, err)
+	}
 }

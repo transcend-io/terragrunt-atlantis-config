@@ -196,7 +196,7 @@ projects:
     - ../terragrunt.hcl
     - ../someRandomDir/terragrunt.hcl
   dir: hcl_json/json_expanded
-  workflow: terragruntjson  
+  workflow: terragruntjson
 - autoplan:
     enabled: false
     when_modified:
@@ -485,6 +485,13 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - ../root.hcl
+  dir: root_hcl_with_source/child
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
     - ../terragrunt.hcl
   dir: skip/skip_false
 - autoplan:
@@ -548,6 +555,13 @@ projects:
     - ../region.hcl
     - ../../../_envcommon/webserver-cluster.hcl
   dir: terragrunt-infrastructure-live-example/prod/us-east-1/prod
+- autoplan:
+    enabled: false
+    when_modified:
+    - '*.hcl'
+    - '*.tf*'
+    - ../root.hcl
+  dir: terragrunt_cache/unit
 - autoplan:
     enabled: false
     when_modified:
