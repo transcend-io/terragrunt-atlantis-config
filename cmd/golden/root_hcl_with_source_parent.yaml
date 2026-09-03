@@ -7,7 +7,6 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
-    - child/*.tf*
   dir: .
 - autoplan:
     enabled: false

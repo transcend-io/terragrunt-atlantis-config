@@ -1,3 +1,3 @@
 terraform {
-  source = "${get_parent_terragrunt_dir()}//child"
+  source = "git::https://example.com/modules.git//child?ref=v1.0.0"
 }
