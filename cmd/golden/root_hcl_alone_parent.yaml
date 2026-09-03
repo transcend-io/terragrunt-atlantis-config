@@ -8,11 +8,4 @@ projects:
     - '*.hcl'
     - '*.tf*'
   dir: .
-- autoplan:
-    enabled: false
-    when_modified:
-    - '*.hcl'
-    - '*.tf*'
-    - ../root.hcl
-  dir: child
 version: 3

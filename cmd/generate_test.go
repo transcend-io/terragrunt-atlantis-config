@@ -691,10 +691,17 @@ func TestRootHclWithSourceIsNotAProject(t *testing.T) {
 	})
 }
 
-func TestRootHclWithSourceAsParentProject(t *testing.T) {
-	runTest(t, filepath.Join("golden", "root_hcl_with_source_parent.yaml"), []string{
+func TestRootHclAloneIsNotAProject(t *testing.T) {
+	runTest(t, filepath.Join("golden", "root_hcl_alone.yaml"), []string{
 		"--root",
-		filepath.Join("..", "test_examples", "root_hcl_with_source"),
+		filepath.Join("..", "test_examples", "root_hcl_alone"),
+	})
+}
+
+func TestRootHclAloneAsParentProject(t *testing.T) {
+	runTest(t, filepath.Join("golden", "root_hcl_alone_parent.yaml"), []string{
+		"--root",
+		filepath.Join("..", "test_examples", "root_hcl_alone"),
 		"--create-parent-project",
 	})
 }
