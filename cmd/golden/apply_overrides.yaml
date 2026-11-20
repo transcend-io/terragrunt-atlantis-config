@@ -9,6 +9,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - ../terragrunt.hcl
   dir: child_that_does_not_override
 - apply_requirements:
@@ -18,6 +19,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - ../terragrunt.hcl
   dir: child_that_overrides
 - apply_requirements: []
@@ -26,6 +28,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - ../terragrunt.hcl
   dir: child_that_overrides_to_empty
 - autoplan:
@@ -33,6 +36,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
   dir: standalone_module_that_does_not_specify
 - apply_requirements:
   - mergeable
@@ -41,6 +45,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
   dir: standalone_module_that_specifies
 - apply_requirements: []
   autoplan:
@@ -48,5 +53,6 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
   dir: standalone_module_that_specifies_empty
 version: 3

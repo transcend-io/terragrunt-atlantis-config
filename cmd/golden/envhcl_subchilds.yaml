@@ -7,8 +7,10 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - '**/*.hcl'
     - '**/*.tf*'
+    - '**/*.hcl.json'
     - ../terragrunt.hcl
   dir: invalid_parent_module/child
 - autoplan:
@@ -16,6 +18,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - ../../terragrunt.hcl
   dir: invalid_parent_module/child/deep
 - autoplan:
@@ -23,8 +26,10 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - '**/*.hcl'
     - '**/*.tf*'
+    - '**/*.hcl.json'
     - ../../../terragrunt.hcl
   dir: multi_accounts_vpc_route53_tgw/network-account/eu-west-1/network
 - autoplan:
@@ -32,6 +37,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - ../../../../terragrunt.hcl
   dir: multi_accounts_vpc_route53_tgw/network-account/eu-west-1/network/transit-gateway
 - autoplan:
@@ -39,8 +45,10 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - '**/*.hcl'
     - '**/*.tf*'
+    - '**/*.hcl.json'
     - ../../../terragrunt.hcl
     - ../env-a/network/vpc/terragrunt.hcl
     - ../../../network-account/eu-west-1/network/transit-gateway/terragrunt.hcl
@@ -50,6 +58,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - ../../../../../terragrunt.hcl
     - ../../../env-a/network/vpc/terragrunt.hcl
     - ../../../../../network-account/eu-west-1/network/transit-gateway/terragrunt.hcl
@@ -59,8 +68,10 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - '**/*.hcl'
     - '**/*.tf*'
+    - '**/*.hcl.json'
     - ../../../terragrunt.hcl
     - ../../../network-account/eu-west-1/network/transit-gateway/terragrunt.hcl
   dir: multi_accounts_vpc_route53_tgw/prod/eu-west-1/env-a
@@ -69,6 +80,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - ../../../../../terragrunt.hcl
     - ../../../../../network-account/eu-west-1/network/transit-gateway/terragrunt.hcl
   dir: multi_accounts_vpc_route53_tgw/prod/eu-west-1/env-a/network/vpc
@@ -77,8 +89,10 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - '**/*.hcl'
     - '**/*.tf*'
+    - '**/*.hcl.json'
     - ../../../terragrunt.hcl
     - ../stage/network/terragrunt.hcl
   dir: no_terraform_blocks/myproject/eu-south-1/infra
@@ -87,6 +101,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - ../../../../terragrunt.hcl
     - ../network/terragrunt.hcl
     - ../../stage/network/terragrunt.hcl
@@ -96,6 +111,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - ../../../../terragrunt.hcl
     - ../../stage/network/terragrunt.hcl
   dir: no_terraform_blocks/myproject/eu-south-1/infra/network
@@ -104,8 +120,10 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - '**/*.hcl'
     - '**/*.tf*'
+    - '**/*.hcl.json'
     - ../../../terragrunt.hcl
   dir: no_terraform_blocks/myproject/eu-south-1/stage
 - autoplan:
@@ -113,6 +131,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - ../../../../terragrunt.hcl
     - ../network/terragrunt.hcl
   dir: no_terraform_blocks/myproject/eu-south-1/stage/dbs
@@ -121,6 +140,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - ../../../../terragrunt.hcl
   dir: no_terraform_blocks/myproject/eu-south-1/stage/network
 - autoplan:
@@ -128,8 +148,10 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - '**/*.hcl'
     - '**/*.tf*'
+    - '**/*.hcl.json'
     - ../../terragrunt.hcl
   dir: no_terraform_blocks/myproject/global
 - autoplan:
@@ -137,6 +159,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - ../../../terragrunt.hcl
   dir: no_terraform_blocks/myproject/global/dns
 - autoplan:
@@ -144,6 +167,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - ../../../terragrunt.hcl
   dir: no_terraform_blocks/myproject/global/iam
 - autoplan:
@@ -151,8 +175,10 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - '**/*.hcl'
     - '**/*.tf*'
+    - '**/*.hcl.json'
     - ../../../terragrunt.hcl
     - ../../account.hcl
     - ../region.hcl
@@ -165,6 +191,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - ../../../../terragrunt.hcl
     - ../../../account.hcl
     - ../../region.hcl
@@ -175,6 +202,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - ../../../../terragrunt.hcl
     - ../../../account.hcl
     - ../../region.hcl
@@ -185,8 +213,10 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - '**/*.hcl'
     - '**/*.tf*'
+    - '**/*.hcl.json'
     - ../../../terragrunt.hcl
     - ../../account.hcl
     - ../region.hcl
@@ -197,6 +227,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - ../../../../terragrunt.hcl
     - ../../../account.hcl
     - ../../region.hcl
@@ -207,6 +238,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - ../../../../terragrunt.hcl
     - ../../../account.hcl
     - ../../region.hcl
@@ -217,8 +249,10 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - '**/*.hcl'
     - '**/*.tf*'
+    - '**/*.hcl.json'
     - ../../../terragrunt.hcl
     - ../../account.hcl
     - ../region.hcl
@@ -231,6 +265,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - ../../../../terragrunt.hcl
     - ../../../account.hcl
     - ../../region.hcl
@@ -241,6 +276,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - ../../../../terragrunt.hcl
     - ../../../account.hcl
     - ../../region.hcl
@@ -251,8 +287,10 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - '**/*.hcl'
     - '**/*.tf*'
+    - '**/*.hcl.json'
     - ../../../terragrunt.hcl
     - ../../account.hcl
     - ../region.hcl
@@ -263,6 +301,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - ../../../../terragrunt.hcl
     - ../../../account.hcl
     - ../../region.hcl
@@ -273,6 +312,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - ../../../../terragrunt.hcl
     - ../../../account.hcl
     - ../../region.hcl
@@ -283,8 +323,10 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - '**/*.hcl'
     - '**/*.tf*'
+    - '**/*.hcl.json'
     - ../../../terragrunt.hcl
     - ../../../_envcommon/mysql.hcl
     - ../../account.hcl
@@ -296,6 +338,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - ../../../../terragrunt.hcl
     - ../../../../_envcommon/mysql.hcl
     - ../../../account.hcl
@@ -307,6 +350,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - ../../../../terragrunt.hcl
     - ../../../../_envcommon/webserver-cluster.hcl
     - ../../../account.hcl
@@ -318,8 +362,10 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - '**/*.hcl'
     - '**/*.tf*'
+    - '**/*.hcl.json'
     - ../../../terragrunt.hcl
     - ../../../_envcommon/mysql.hcl
     - ../../account.hcl
@@ -331,6 +377,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - ../../../../terragrunt.hcl
     - ../../../../_envcommon/mysql.hcl
     - ../../../account.hcl
@@ -342,6 +389,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - ../../../../terragrunt.hcl
     - ../../../../_envcommon/webserver-cluster.hcl
     - ../../../account.hcl
@@ -353,8 +401,10 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - '**/*.hcl'
     - '**/*.tf*'
+    - '**/*.hcl.json'
     - ../../../terragrunt.hcl
     - ../../../_envcommon/mysql.hcl
     - ../../account.hcl
@@ -366,6 +416,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - ../../../../terragrunt.hcl
     - ../../../../_envcommon/mysql.hcl
     - ../../../account.hcl
@@ -377,6 +428,7 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
     - ../../../../terragrunt.hcl
     - ../../../../_envcommon/webserver-cluster.hcl
     - ../../../account.hcl

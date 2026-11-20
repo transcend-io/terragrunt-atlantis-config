@@ -10,5 +10,6 @@ projects:
     when_modified:
     - '*.hcl'
     - '*.tf*'
+    - '*.hcl.json'
   dir: .
 version: 3
