@@ -98,6 +98,14 @@ func mergeResolvedLocals(parent ResolvedLocals, child ResolvedLocals) ResolvedLo
 
 // Parses a given file, returning a map of all it's `local` values
 func parseLocals(ctx *config.ParsingContext, path string, includeFromChild *config.IncludeConfig) (ResolvedLocals, error) {
+	// Use a non-empty partial-parse decode list that excludes DependencyBlock. With an
+	// empty decode list, terragrunt's parseIncludedConfig falls back to a FULL parse of
+	// any included config that contains a dependency block (see terragrunt
+	// config/include.go), which recursively resolves dependency outputs — on deep
+	// dependency chains this recursion can effectively never terminate. A partial parse
+	// still evaluates the included config's locals, which is all we need here.
+	ctx = ctx.WithDecodeList(config.DependenciesBlock, config.TerraformBlock)
+
 	file, err := hclparse.NewParser(ctx.ParserOptions...).ParseFromFile(path)
 	if err != nil {
 		return ResolvedLocals{}, err

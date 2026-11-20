@@ -150,13 +150,18 @@ func getDependencies(ctx *config.ParsingContext, path string) ([]string, error) 
 			}
 		}
 
-		// Parse the HCL file
+		// Parse the HCL file. Only decode dependency blocks when they are actually used:
+		// decoding them resolves each dependency's config (and, transitively, its own
+		// dependencies), which is expensive and can recurse for hours on deep chains.
+		decodeTypes := []config.PartialDecodeSectionType{
+			config.DependenciesBlock,
+			config.TerraformBlock,
+		}
+		if !ignoreDependencyBlocks {
+			decodeTypes = append(decodeTypes, config.DependencyBlock)
+		}
 		parseCtx := config.NewParsingContext(ctx, ctx.TerragruntOptions).
-			WithDecodeList(
-				config.DependencyBlock,
-				config.DependenciesBlock,
-				config.TerraformBlock,
-			)
+			WithDecodeList(decodeTypes...)
 		parsedConfig, err := config.PartialParseConfigFile(parseCtx, path, nil)
 		if err != nil {
 			getDependenciesCache.set(path, getDependenciesOutput{nil, err})
@@ -260,6 +265,7 @@ func getDependencies(ctx *config.ParsingContext, path string) ([]string, error) 
 
 			depPath := dep
 			terrOpts, _ := options.NewTerragruntOptionsWithConfigPath(depPath)
+			terrOpts.SkipOutput = true
 			terrOpts.OriginalTerragruntConfigPath = ctx.TerragruntOptions.OriginalTerragruntConfigPath
 			terrOpts.Env = ctx.TerragruntOptions.Env
 			terrContext := config.NewParsingContext(ctx, terrOpts)
@@ -325,6 +331,7 @@ func createProject(ctx context.Context, sourcePath string) (*AtlantisProject, er
 	if err != nil {
 		return nil, err
 	}
+	options.SkipOutput = true
 	options.OriginalTerragruntConfigPath = sourcePath
 	options.Env = getEnvs()
 
@@ -444,6 +451,7 @@ func createHclProject(ctx context.Context, sourcePaths []string, workingDir stri
 	if err != nil {
 		return nil, err
 	}
+	projectHclOptions.SkipOutput = true
 	projectHclOptions.Env = getEnvs()
 
 	parsingContext := config.NewParsingContext(ctx, projectHclOptions)
@@ -501,6 +509,7 @@ func createHclProject(ctx context.Context, sourcePaths []string, workingDir stri
 		if err != nil {
 			return nil, err
 		}
+		opt.SkipOutput = true
 		opt.Env = getEnvs()
 		parsingContext := config.NewParsingContext(ctx, opt)
 		dependencies, err := getDependencies(parsingContext, sourcePath)
@@ -581,6 +590,7 @@ func getAllTerragruntFiles(path string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
+	options.SkipOutput = true
 
 	// If filterPaths is provided, override workingPath instead of gitRoot
 	// We do this here because we want to keep the relative path structure of Terragrunt files
